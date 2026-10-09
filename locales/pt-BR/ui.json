@@ -11,8 +11,6 @@
   "ui.advance_6_months": "Avançar 6 meses",
   "ui.advance_1_year": "Avançar 1 ano",
   "ui.profile_title": "Perfil",
-  "ui.mother": "Mãe",
-  "ui.father": "Pai",
   "ui.affinity_you_feel": "O quanto você gosta dessa pessoa",
   "ui.affinity_they_feel": "O quanto essa pessoa gosta de você",
   "ui.back": "Voltar",
@@ -209,5 +207,6 @@
   "interaction.ask_sibling_help.failure": "Responderam que você que se vire.",
   "interaction.tattle.label": "Dedurar para os pais",
   "interaction.tattle.success": "Seus pais deram razão a você. Seu irmão ou irmã não vai esquecer.",
-  "interaction.tattle.failure": "Seus pais não gostaram de dedo-duro."
+  "interaction.tattle.failure": "Seus pais não gostaram de dedo-duro.",
+  "ui.years_old": "anos"
 }

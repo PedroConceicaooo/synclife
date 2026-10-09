@@ -321,3 +321,23 @@ export function attemptPlayerActivity(state, activityId) {
     lastActivityResult: { attempted: true, activityId, triggeredEvents: result.triggeredEvents },
   };
 }
+
+// People close to the player (design doc: "Relacionamentos" lists only close
+// people). For now that is the family: parents first, then siblings oldest
+// first.
+const CLOSE_ROLE_ORDER = ['mother', 'father', 'brother', 'sister'];
+
+export function closePeople(state) {
+  const playerId = state.player.id;
+  return Object.values(state.relationships)
+    .filter((r) => playerId in r.roles && r.type === 'family')
+    .map((r) => {
+      const personId = Object.keys(r.roles).find((id) => id !== playerId);
+      return { personId, role: r.roles[personId] };
+    })
+    .filter(({ role }) => CLOSE_ROLE_ORDER.includes(role))
+    .sort((a, b) => {
+      const rank = (role) => (['mother', 'father'].includes(role) ? CLOSE_ROLE_ORDER.indexOf(role) : 2);
+      return rank(a.role) - rank(b.role) || state.people[a.personId].birth - state.people[b.personId].birth;
+    });
+}

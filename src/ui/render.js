@@ -1,6 +1,6 @@
 import { fromMonthIndex, ageAt } from '../engine/time.js';
 import { affinityBand } from './affinityColor.js';
-import { isAdult, availableInteractions, availableActivities } from './gameState.js';
+import { isAdult, availableInteractions, availableActivities, closePeople } from './gameState.js';
 
 function formatDate(monthIndex) {
   const { year, month } = fromMonthIndex(monthIndex);
@@ -59,13 +59,11 @@ export function renderStatus(dom, state, locale, { onAdvance, onOpenProfile, onO
   appendBar(dom.statusStats, locale.t('ui.stat_looks'), player.stats.looks);
 
   clearChildren(dom.statusPeople);
-  for (const [personId, label] of [
-    [state.mother.id, locale.t('ui.mother')],
-    [state.father.id, locale.t('ui.father')],
-  ]) {
+  for (const { personId, role } of closePeople(state)) {
+    const age = ageAt(state.people[personId].birth, state.currentMonthIndex);
     const button = document.createElement('button');
     button.type = 'button';
-    button.textContent = label;
+    button.textContent = `${locale.t(`role.${role}`)} (${age} ${locale.t('ui.years_old')})`;
     button.addEventListener('click', () => onOpenProfile(personId));
     dom.statusPeople.appendChild(button);
   }

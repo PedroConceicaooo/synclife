@@ -15,6 +15,7 @@ import {
   attemptPlayerActivity,
   availableActivities,
   availableInteractions,
+  closePeople,
   isAdult,
 } from '../src/systems/game.js';
 
@@ -298,6 +299,8 @@ test('a new baby joins the family and the player reaction sets the sibling affin
   const siblingRelationship = Object.values(cuddled.relationships).find((r) => babyId in r.roles && 'p_player' in r.roles);
   assert.equal(siblingRelationship.roles.p_player, 'brother');
   assert.deepEqual(siblingRelationship.affinity, { p_player: 65, [babyId]: 65 });
+
+  assert.deepEqual(closePeople(cuddled).map((p) => p.role), ['mother', 'father', siblingRelationship.roles[babyId]]);
 
   // A newborn sibling can't chat yet; four years later most options open up,
   // and parent-only ones (ask_money, help_at_home) never show for a sibling.
