@@ -75,7 +75,8 @@ export function listAvailableInteractions(interactionsById, { relationship, play
   const context = { currentMonthIndex, relationship, targetPersonId: target.id, country };
   const available = Object.values(interactionsById)
     .filter((interaction) => evaluateConditions(interaction.conditions, player, context))
-    .sort((a, b) => a.id.localeCompare(b.id));
+    // Simplest first: by minimum age, then id for a stable order.
+    .sort((a, b) => a.conditions.minAge - b.conditions.minAge || a.id.localeCompare(b.id));
 
   return INTERACTION_CATEGORIES.map((category) => ({
     category,

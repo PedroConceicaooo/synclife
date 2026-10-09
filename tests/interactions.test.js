@@ -228,3 +228,12 @@ test('listAvailableInteractions hides options by age, role and money', () => {
   const broke = listAvailableInteractions(LISTING_FIXTURE, listingArgs({ ageYears: 6, money: 9 }));
   assert.ok(!broke.some((g) => g.category === 'give'));
 });
+
+test('listAvailableInteractions orders each category by minimum age', () => {
+  const fixture = indexInteractions([
+    { id: 'a_late', category: 'talk', conditions: { minAge: 8 } },
+    { id: 'z_early', category: 'talk', conditions: { minAge: 3 } },
+  ]);
+  const [talk] = listAvailableInteractions(fixture, listingArgs({ ageYears: 10 }));
+  assert.deepEqual(talk.interactionIds, ['z_early', 'a_late']);
+});

@@ -80,3 +80,13 @@ dl {
   border-radius: 8px;
   max-width: 90%;
 }
+
+.category.open {
+  font-weight: bold;
+}
+
+.submenu {
+  padding-left: 16px;
+  border-left: 3px solid #888;
+  margin-bottom: 8px;
+}

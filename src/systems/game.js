@@ -228,7 +228,7 @@ export function attemptPlayerInteraction(state, interactionId, targetPersonId) {
     ...state,
     relationships: result.relationshipsById,
     people: result.peopleById,
-    lastInteractionResult: result,
+    lastInteractionResult: { ...result, interactionId, targetId: targetPersonId },
     history: entries.length > 0 ? appendToCurrentBlock(state.history, entries) : state.history,
   };
 }

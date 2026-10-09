@@ -1,6 +1,6 @@
 import { fromMonthIndex, ageAt } from '../engine/time.js';
 import { affinityBand } from './affinityColor.js';
-import { isAdult } from './gameState.js';
+import { isAdult, availableInteractions } from './gameState.js';
 
 function formatDate(monthIndex) {
   const { year, month } = fromMonthIndex(monthIndex);
@@ -91,8 +91,14 @@ export function renderStatus(dom, state, locale, { onAdvance, onOpenProfile }) {
   }
 }
 
-export function renderProfile(dom, state, locale, personId, { onInteract }) {
-  const person = state.people[personId];
+function interactionResultText(result, locale) {
+  if (!result.attempted) return result.reason === 'limit' ? locale.t('ui.interaction_limit') : '';
+  return locale.t(`interaction.${result.interactionId}.${result.succeeded ? 'success' : 'failure'}`);
+}
+
+// Categories first; tapping one opens its submenu (design doc: up to six
+// categories, only those with at least one available option).
+export function renderProfile(dom, state, locale, personId, openCategory, { onInteract, onSelectCategory }) {
   const relationship = Object.values(state.relationships).find(
     (r) => personId in r.roles && state.player.id in r.roles,
   );
@@ -106,18 +112,30 @@ export function renderProfile(dom, state, locale, personId, { onInteract }) {
   appendBar(dom.profileAffinity, locale.t('ui.affinity_you_feel'), relationship.affinity[state.player.id]);
 
   clearChildren(dom.profileInteractions);
-  const askMoneyButton = document.createElement('button');
-  askMoneyButton.type = 'button';
-  askMoneyButton.textContent = `${locale.t('interactionCategory.ask')}: ${locale.t('interaction.ask_money.label')}`;
-  askMoneyButton.addEventListener('click', () => onInteract('ask_money', personId));
-  dom.profileInteractions.appendChild(askMoneyButton);
+  for (const group of availableInteractions(state, personId)) {
+    const isOpen = group.category === openCategory;
+    const categoryButton = document.createElement('button');
+    categoryButton.type = 'button';
+    categoryButton.className = isOpen ? 'category open' : 'category';
+    categoryButton.textContent = locale.t(`interactionCategory.${group.category}`);
+    categoryButton.addEventListener('click', () => onSelectCategory(isOpen ? null : group.category));
+    dom.profileInteractions.appendChild(categoryButton);
+
+    if (!isOpen) continue;
+    const submenu = document.createElement('div');
+    submenu.className = 'submenu';
+    for (const interactionId of group.interactionIds) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = locale.t(`interaction.${interactionId}.label`);
+      button.addEventListener('click', () => onInteract(interactionId, personId));
+      submenu.appendChild(button);
+    }
+    dom.profileInteractions.appendChild(submenu);
+  }
 
   const result = state.lastInteractionResult;
-  dom.profileResult.textContent = result && result.attempted
-    ? locale.t(result.succeeded ? 'ui.interaction_success' : 'ui.interaction_failure')
-    : '';
-
-  void person; // kept for future profile fields (name, etc.)
+  dom.profileResult.textContent = result && result.targetId === personId ? interactionResultText(result, locale) : '';
 }
 
 export function renderDecisionModal(dom, state, locale, { onChoose }) {

@@ -39,14 +39,18 @@ async function main() {
           render();
         },
         onOpenProfile: (personId) => {
-          view = { screen: 'profile', personId };
+          view = { screen: 'profile', personId, category: null };
           render();
         },
       });
     } else {
-      renderProfile(dom, state, locale, view.personId, {
+      renderProfile(dom, state, locale, view.personId, view.category, {
         onInteract: (interactionId, targetPersonId) => {
           state = attemptPlayerInteraction(state, interactionId, targetPersonId);
+          render();
+        },
+        onSelectCategory: (category) => {
+          view = { ...view, category };
           render();
         },
       });
