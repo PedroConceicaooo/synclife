@@ -1,0 +1,14 @@
+{
+  "name": "synclife",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Simulador de vida em texto, focado em celular.",
+  "type": "module",
+  "scripts": {
+    "start": "node src/main.js",
+    "test": "node --test tests/"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
