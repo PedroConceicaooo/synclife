@@ -1,9 +1,18 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRng } from '../src/engine/random.js';
-import { createPerson, pickRandomCountry, pickRandomBirthMonth, pickRandomTraits } from '../src/engine/person.js';
+import {
+  createPerson,
+  pickRandomCountry,
+  pickRandomBirthMonth,
+  pickRandomTraits,
+  rollStats,
+  rollAptitudes,
+  NEWBORN_STAT_RANGES,
+  ADULT_STAT_RANGES,
+} from '../src/engine/person.js';
 
-test('createPerson defaults money to 0, traits to an empty array, and stats to a flat 50', () => {
+test('createPerson defaults money to 0, traits to an empty array, stats to a flat 50 and no aptitudes', () => {
   const person = createPerson({ id: 'p_0001', sex: 'F', birth: 123, countryId: 'BR' });
   assert.deepEqual(person, {
     id: 'p_0001',
@@ -13,6 +22,7 @@ test('createPerson defaults money to 0, traits to an empty array, and stats to a
     money: 0,
     traits: [],
     stats: { happiness: 50, health: 50, intelligence: 50, looks: 50 },
+    aptitudes: null,
   });
 });
 
@@ -60,4 +70,30 @@ test('pickRandomTraits is deterministic, has no duplicates, and stays within the
   assert.equal(a.length, 2);
   assert.equal(new Set(a).size, 2);
   for (const trait of a) assert.ok(pool.includes(trait));
+});
+
+test('rollStats is deterministic and stays within each range', () => {
+  for (const ranges of [NEWBORN_STAT_RANGES, ADULT_STAT_RANGES]) {
+    for (let seed = 1; seed <= 50; seed++) {
+      const a = rollStats(createRng(seed), ranges);
+      assert.deepEqual(a, rollStats(createRng(seed), ranges));
+      for (const [stat, [min, maxExclusive]] of Object.entries(ranges)) {
+        assert.ok(a[stat] >= min && a[stat] < maxExclusive, `${stat}=${a[stat]}`);
+      }
+    }
+  }
+});
+
+test('rollStats does not give everyone the same stats', () => {
+  const rolls = new Set();
+  for (let seed = 1; seed <= 20; seed++) rolls.add(JSON.stringify(rollStats(createRng(seed), NEWBORN_STAT_RANGES)));
+  assert.ok(rolls.size > 1);
+});
+
+test('rollAptitudes is deterministic and within [0, 1]', () => {
+  for (let seed = 1; seed <= 50; seed++) {
+    const a = rollAptitudes(createRng(seed));
+    assert.deepEqual(a, rollAptitudes(createRng(seed)));
+    for (const value of Object.values(a)) assert.ok(value >= 0 && value <= 1);
+  }
 });

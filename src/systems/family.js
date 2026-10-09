@@ -2,7 +2,7 @@
 // Always a mother and a father (rule confirmed for M2 — no family-structure
 // variation yet; that belongs to the event engine, M3+).
 
-import { createPerson, pickRandomTraits } from '../engine/person.js';
+import { createPerson, pickRandomTraits, rollStats, ADULT_STAT_RANGES } from '../engine/person.js';
 import { createRelationship } from './relationship.js';
 import { resolveAmount } from './money.js';
 
@@ -19,7 +19,8 @@ function createParent(rng, child, sex, nextPersonId, country) {
   const birth = child.birth - ageAtChildBirthMonths;
   const money = rng.nextInt(...PARENT_MONEY_MULTIPLIER_RANGE) * resolveAmount('large', country);
   const traits = pickRandomTraits(rng, 2);
-  return createPerson({ id: nextPersonId(), sex, birth, countryId: child.countryId, money, traits });
+  const stats = rollStats(rng, ADULT_STAT_RANGES);
+  return createPerson({ id: nextPersonId(), sex, birth, countryId: child.countryId, money, traits, stats });
 }
 
 export function generateParents(rng, child, nextPersonId, country) {

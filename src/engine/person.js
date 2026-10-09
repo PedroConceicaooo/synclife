@@ -1,11 +1,9 @@
 // Minimal person shape. Field names match the full design-doc shape so later
 // milestones can add fields (stats, aptitudes, ...) without renaming.
 
-// Stats default to the flat 50 ("Neutro" on the design doc's own happiness
-// table) since nothing in the engine produces a stat delta yet — any other
-// default would be cosmetic noise with no mechanical meaning. The literal is
-// re-evaluated per call (not a shared module constant) so people never share
-// the same stats object by reference.
+// The flat-50 stats default only exists for tests and hand-built fixtures;
+// real lives roll their stats with rollStats (see life.js / family.js). The
+// literal is re-evaluated per call so people never share a stats object.
 export function createPerson({
   id,
   sex,
@@ -14,8 +12,35 @@ export function createPerson({
   money = 0,
   traits = [],
   stats = { happiness: 50, health: 50, intelligence: 50, looks: 50 },
+  aptitudes = null,
 }) {
-  return { id, sex, birth, countryId, money, traits, stats };
+  return { id, sex, birth, countryId, money, traits, stats, aptitudes };
+}
+
+// [min, maxExclusive] per stat, as rng.nextInt takes them. A newborn starts
+// happy and with low intelligence, which grows through childhood (growth.js).
+export const NEWBORN_STAT_RANGES = {
+  happiness: [60, 91],
+  health: [55, 91],
+  intelligence: [10, 31],
+  looks: [20, 81],
+};
+
+export const ADULT_STAT_RANGES = {
+  happiness: [30, 81],
+  health: [50, 91],
+  intelligence: [30, 81],
+  looks: [20, 81],
+};
+
+export function rollStats(rng, ranges) {
+  return Object.fromEntries(Object.entries(ranges).map(([stat, range]) => [stat, rng.nextInt(...range)]));
+}
+
+// Hidden 0..1 values (design doc: cognitive, physical, social), two decimals.
+export function rollAptitudes(rng) {
+  const roll = () => rng.nextInt(0, 101) / 100;
+  return { cognitive: roll(), physical: roll(), social: roll() };
 }
 
 export function pickRandomCountry(rng, countries) {
