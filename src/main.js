@@ -3,6 +3,9 @@ import { createRng } from './engine/random.js';
 import { toMonthIndex, fromMonthIndex, ageAt, advance } from './engine/time.js';
 import { createPerson, pickRandomCountry, pickRandomBirthMonth } from './engine/person.js';
 import { loadCountries, resolveCountry } from './engine/countries.js';
+import { createIdGenerator } from './engine/id.js';
+import { generateParents, createFamilyRelationships } from './engine/family.js';
+import { decayAll } from './engine/relationship.js';
 
 const START_YEAR = 2000;
 const ADULT_AGE = 18;
@@ -18,11 +21,20 @@ function formatDate(monthIndex) {
   return `${year}-${String(month).padStart(2, '0')}`;
 }
 
+function formatAffinity(relationship) {
+  const sides = Object.entries(relationship.affinity)
+    .map(([personId, value]) => `${personId}=${value.toFixed(1)}`)
+    .join(', ');
+  return `${relationship.id} type=${relationship.type} roles=${JSON.stringify(relationship.roles)} affinity={${sides}}`;
+}
+
 function main() {
   const seed = readSeedFromArgs();
   console.log(`Seed: ${seed}`);
 
   const rng = createRng(seed);
+  const nextPersonId = createIdGenerator('p');
+  const nextRelationshipId = createIdGenerator('r');
 
   const countriesById = loadCountries(COUNTRIES_DIR);
   const playableCountryIds = Object.keys(countriesById).filter((id) => id !== 'default');
@@ -32,9 +44,22 @@ function main() {
   const birthMonthIndex = toMonthIndex({ year: START_YEAR, month: pickRandomBirthMonth(rng) });
   const sex = rng.chance(0.5) ? 'F' : 'M';
 
-  const person = createPerson({ id: 'p_0001', sex, birth: birthMonthIndex, countryId: country.id });
-
+  const person = createPerson({ id: nextPersonId(), sex, birth: birthMonthIndex, countryId: country.id });
   console.log(`Born: ${person.id} sex=${person.sex} country=${person.countryId} date=${formatDate(person.birth)}`);
+
+  const { mother, father } = generateParents(rng, person, nextPersonId);
+  console.log(`Mother: ${mother.id} date=${formatDate(mother.birth)}`);
+  console.log(`Father: ${father.id} date=${formatDate(father.birth)}`);
+
+  const familyRelationships = createFamilyRelationships(
+    rng,
+    { child: person, mother, father },
+    nextRelationshipId,
+    person.birth,
+  );
+
+  const people = { [person.id]: person, [mother.id]: mother, [father.id]: father };
+  let relationships = Object.fromEntries(familyRelationships.map((r) => [r.id, r]));
 
   let currentMonth = person.birth;
 
@@ -42,6 +67,7 @@ function main() {
     const step = rng.chance(0.5) ? 6 : 12;
     const { nextMonthIndex, birthdays } = advance(currentMonth, step, person.birth);
     currentMonth = nextMonthIndex;
+    relationships = decayAll(relationships, step);
 
     for (const birthday of birthdays) {
       console.log(`Turned ${birthday.age} (${formatDate(birthday.monthIndex)})`);
@@ -51,6 +77,11 @@ function main() {
   console.log(
     `Done: ${person.id} age=${ageAt(person.birth, currentMonth)} date=${formatDate(currentMonth)} country=${person.countryId}`,
   );
+
+  console.log('Family summary:');
+  for (const relationship of Object.values(relationships)) {
+    console.log(`  ${formatAffinity(relationship)}`);
+  }
 }
 
 main();
