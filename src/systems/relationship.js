@@ -32,7 +32,7 @@ export function findRelationshipBetween(idA, idB, relationshipsById) {
 // baseline bond with them, and spouses drift apart only so far — below that,
 // it takes fights (parents_fight) to reach divorce. Events and interactions can still push affinity
 // below the floor; decay just never does, and never raises it back either.
-export const DECAY_FLOOR_BY_ROLE = { mother: 60, father: 60, son: 40, daughter: 40, wife: 35, husband: 35 };
+export const DECAY_FLOOR_BY_ROLE = { mother: 60, father: 60, son: 40, daughter: 40, wife: 35, husband: 35, brother: 30, sister: 30 };
 
 // Linear decay proportional to elapsed months (not the yearly-chance formula
 // from random.js — that's for probabilistic events, this is a continuous stat).

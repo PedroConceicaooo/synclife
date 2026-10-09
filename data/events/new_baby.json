@@ -1,0 +1,21 @@
+{
+  "id": "new_baby",
+  "subject": "relationship",
+  "conditions": {
+    "type": "romantic",
+    "state": "married",
+    "maxChildren": 3,
+    "roleMaxAge": {
+      "wife": 42
+    }
+  },
+  "yearlyChance": 0.12,
+  "effects": [
+    {
+      "op": "haveChild"
+    }
+  ],
+  "ifInvolvesPlayer": {
+    "trigger": "new_sibling"
+  }
+}

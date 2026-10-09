@@ -191,5 +191,11 @@
   "event.teacher_confiscates.text": "Um professor confiscou sua mercadoria.",
   "event.dog_runs_away.prompt": "Um dos cachorros escapou da coleira e saiu correndo.",
   "event.dog_runs_away.option.chase_the_dog": "Correr atrás dele",
-  "event.dog_runs_away.option.tell_the_owner": "Avisar o dono e devolver o pagamento"
+  "event.dog_runs_away.option.tell_the_owner": "Avisar o dono e devolver o pagamento",
+  "event.new_baby.text": "Seus pais trouxeram um bebê da maternidade. A família cresceu.",
+  "event.new_sibling.prompt": "Tem um bebê novo em casa, e todo mundo só tem olhos para ele.",
+  "event.new_sibling.option.cuddle": "Fazer carinho no bebê",
+  "event.new_sibling.option.pinch_secretly": "Beliscar escondido",
+  "role.brother": "Irmão",
+  "role.sister": "Irmã"
 }

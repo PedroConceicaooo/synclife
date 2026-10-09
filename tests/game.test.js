@@ -274,3 +274,27 @@ test('availableActivities reflects uses this period', () => {
   const jobs = availableActivities(after).find((g) => g.category === 'odd_jobs').activities;
   assert.deepEqual(jobs.find((a) => a.id === 'odd_job'), { id: 'odd_job', blocker: 'limit' });
 });
+
+test('a new baby joins the family and the player reaction sets the sibling affinity', () => {
+  const base = buildDivorceReadyState();
+  const marriage = { ...base.relationships.r_marriage, affinity: { p_mother: 80, p_father: 80 } };
+  const state = {
+    ...base,
+    relationships: { ...base.relationships, r_marriage: marriage },
+    eventsById: { new_baby: EVENTS_BY_ID.new_baby, new_sibling: EVENTS_BY_ID.new_sibling },
+    rng: createRng(3),
+  };
+  // Forces every roll above 10% (the new_baby roll among them); smaller ones use the seeded rng.
+  const forced = { ...state, rng: { ...state.rng, chance: (p) => (p < 1 && p > 0.1 ? true : state.rng.chance(p)) } };
+
+  const afterAdvance = advanceStep(forced, 12);
+  const babyId = Object.keys(afterAdvance.people).find((id) => !(id in state.people));
+  assert.ok(babyId);
+  assert.deepEqual(afterAdvance.pendingDecisions.map((d) => d.trigger), ['new_sibling']);
+  assert.ok(afterAdvance.history.at(-1).entries.some((e) => e.type === 'worldEvent' && e.eventId === 'new_baby'));
+
+  const cuddled = resolveDecision(afterAdvance, 'cuddle');
+  const siblingRelationship = Object.values(cuddled.relationships).find((r) => babyId in r.roles && 'p_player' in r.roles);
+  assert.equal(siblingRelationship.roles.p_player, 'brother');
+  assert.deepEqual(siblingRelationship.affinity, { p_player: 65, [babyId]: 65 });
+});

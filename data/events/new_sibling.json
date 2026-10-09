@@ -1,0 +1,61 @@
+{
+  "id": "new_sibling",
+  "subject": "player",
+  "options": [
+    {
+      "id": "cuddle",
+      "effects": [
+        {
+          "op": "affinity",
+          "side": "both",
+          "delta": 15,
+          "targetRole": [
+            "brother",
+            "sister"
+          ]
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": 2,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": 2,
+          "targetRole": "father"
+        }
+      ]
+    },
+    {
+      "id": "pinch_secretly",
+      "effects": [
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -15,
+          "targetRole": [
+            "brother",
+            "sister"
+          ]
+        },
+        {
+          "op": "affinity",
+          "side": "player",
+          "delta": -5,
+          "targetRole": [
+            "brother",
+            "sister"
+          ]
+        },
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 1
+        }
+      ]
+    }
+  ]
+}

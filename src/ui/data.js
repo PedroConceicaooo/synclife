@@ -14,6 +14,8 @@ const MANIFEST = {
     'divorce.json',
     'parents_fight.json',
     'parents_make_up.json',
+    'new_baby.json',
+    'new_sibling.json',
     'choose_who_to_live_with.json',
     'refuse_baby_food.json',
     'fight_bedtime.json',
