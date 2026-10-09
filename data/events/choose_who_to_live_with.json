@@ -1,0 +1,20 @@
+{
+  "id": "choose_who_to_live_with",
+  "subject": "player",
+  "options": [
+    {
+      "id": "live_with_mother",
+      "effects": [
+        { "op": "affinity", "side": "both", "delta": 5, "targetRole": "mother" },
+        { "op": "affinity", "side": "both", "delta": -5, "targetRole": "father" }
+      ]
+    },
+    {
+      "id": "live_with_father",
+      "effects": [
+        { "op": "affinity", "side": "both", "delta": 5, "targetRole": "father" },
+        { "op": "affinity", "side": "both", "delta": -5, "targetRole": "mother" }
+      ]
+    }
+  ]
+}

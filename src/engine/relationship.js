@@ -16,8 +16,15 @@ export function createRelationship({ id, roles, type, affinity, since, state = n
 
 export const DEFAULT_AFFINITY_DECAY_RATE_PER_MONTH = 0.2;
 
-function clamp(value, min, max) {
+export function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
+}
+
+export function findRelationshipBetween(idA, idB, relationshipsById) {
+  return (
+    Object.values(relationshipsById).find((relationship) => idA in relationship.roles && idB in relationship.roles) ??
+    null
+  );
 }
 
 // Linear decay proportional to elapsed months (not the yearly-chance formula

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createRelationship, decayAffinity, decayAll } from '../src/engine/relationship.js';
+import { createRelationship, decayAffinity, decayAll, findRelationshipBetween } from '../src/engine/relationship.js';
 
 test('createRelationship fills in defaults', () => {
   const relationship = createRelationship({
@@ -117,4 +117,33 @@ test('decayAll maps over the whole collection, preserving keys, without mutating
   assert.equal(decayed.r_0001.affinity.p_0001, 74);
   assert.equal(decayed.r_0002.affinity.p_0001, 54);
   assert.equal(relationshipsById.r_0001.affinity.p_0001, 80);
+});
+
+test('findRelationshipBetween finds the relationship containing both ids', () => {
+  const relationshipsById = {
+    r_0001: createRelationship({
+      id: 'r_0001',
+      roles: { p_0001: 'mother', p_0002: 'son' },
+      type: 'family',
+      affinity: { p_0001: 80, p_0002: 70 },
+      since: 0,
+    }),
+  };
+
+  assert.equal(findRelationshipBetween('p_0001', 'p_0002', relationshipsById).id, 'r_0001');
+  assert.equal(findRelationshipBetween('p_0002', 'p_0001', relationshipsById).id, 'r_0001');
+});
+
+test('findRelationshipBetween returns null when no relationship connects the two ids', () => {
+  const relationshipsById = {
+    r_0001: createRelationship({
+      id: 'r_0001',
+      roles: { p_0001: 'mother', p_0002: 'son' },
+      type: 'family',
+      affinity: { p_0001: 80, p_0002: 70 },
+      since: 0,
+    }),
+  };
+
+  assert.equal(findRelationshipBetween('p_0001', 'p_0003', relationshipsById), null);
 });

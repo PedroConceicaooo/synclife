@@ -6,10 +6,12 @@ import { loadCountries, resolveCountry } from './engine/countries.js';
 import { createIdGenerator } from './engine/id.js';
 import { generateParents, createFamilyRelationships } from './engine/family.js';
 import { decayAll } from './engine/relationship.js';
+import { loadEvents, processRelationshipEvents, resolveDecision } from './engine/events.js';
 
 const START_YEAR = 2000;
 const ADULT_AGE = 18;
 const COUNTRIES_DIR = fileURLToPath(new URL('../data/countries/', import.meta.url));
+const EVENTS_DIR = fileURLToPath(new URL('../data/events/', import.meta.url));
 
 function readSeedFromArgs() {
   const arg = process.argv.find((a) => a.startsWith('--seed='));
@@ -35,6 +37,8 @@ function main() {
   const rng = createRng(seed);
   const nextPersonId = createIdGenerator('p');
   const nextRelationshipId = createIdGenerator('r');
+
+  const eventsById = loadEvents(EVENTS_DIR);
 
   const countriesById = loadCountries(COUNTRIES_DIR);
   const playableCountryIds = Object.keys(countriesById).filter((id) => id !== 'default');
@@ -68,6 +72,28 @@ function main() {
     const { nextMonthIndex, birthdays } = advance(currentMonth, step, person.birth);
     currentMonth = nextMonthIndex;
     relationships = decayAll(relationships, step);
+
+    const { relationshipsById: afterEvents, fired, pendingDecisions } = processRelationshipEvents(
+      eventsById,
+      relationships,
+      { currentMonthIndex: currentMonth, step, rng, playerId: person.id },
+    );
+    relationships = afterEvents;
+
+    for (const event of fired) {
+      console.log(`Event fired: ${event.eventId} on ${event.relationshipId} (${formatDate(currentMonth)})`);
+    }
+
+    for (const decision of pendingDecisions) {
+      const decisionEvent = eventsById[decision.trigger];
+      const { optionId, relationshipsById: afterDecision } = resolveDecision(decisionEvent, decision.firingRelationship, {
+        rng,
+        playerId: person.id,
+        relationshipsById: relationships,
+      });
+      relationships = afterDecision;
+      console.log(`Decision triggered: ${decision.trigger} -> chose ${optionId}`);
+    }
 
     for (const birthday of birthdays) {
       console.log(`Turned ${birthday.age} (${formatDate(birthday.monthIndex)})`);
