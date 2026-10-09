@@ -30,10 +30,17 @@ export function isAllowanceAge(age) {
   return age >= ALLOWANCE_MIN_AGE;
 }
 
+// The family pays about one "small" per month in total, split between the
+// parents (so each parent's base is half of it). The factors move each
+// parent's share between roughly 0.25x and 1.5x "small" per month.
+const ALLOWANCE_FAMILY_BASE_PER_MONTH = 1; // in "small" units
+const ALLOWANCE_PAYERS = 2;
+const WEALTH_REFERENCE_IN_LARGE = 60; // parents start with 20..100x "large"
+
 export function payAllowance({ parent, relationship, country, step }) {
-  const base = resolveAmount('small', country);
-  const affinityFactor = Math.min(2, Math.max(0.2, relationship.affinity[parent.id] / 50));
+  const base = (resolveAmount('small', country) * ALLOWANCE_FAMILY_BASE_PER_MONTH) / ALLOWANCE_PAYERS;
+  const affinityFactor = Math.min(1.5, Math.max(0.5, relationship.affinity[parent.id] / 50));
   const traitFactor = parent.traits.includes('generous') ? 1.3 : parent.traits.includes('rigid') ? 0.7 : 1;
-  const wealthFactor = Math.min(2, Math.max(0.5, parent.money / (resolveAmount('medium', country) * 20)));
+  const wealthFactor = Math.min(1.5, Math.max(0.5, parent.money / (resolveAmount('large', country) * WEALTH_REFERENCE_IN_LARGE)));
   return Math.round(base * affinityFactor * traitFactor * wealthFactor) * step;
 }

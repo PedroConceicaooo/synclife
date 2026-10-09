@@ -58,3 +58,18 @@ test('payAllowance scales linearly with step', () => {
 
   assert.equal(twelveMonths, sixMonths * 2);
 });
+
+test('payAllowance pays an average parent half a "small" per month', () => {
+  // affinity 50 -> 1x, no trait -> 1x, money = 60x "large" -> 1x
+  const parent = { id: 'p_mother', traits: [], money: 60 * 200 };
+  const relationship = { affinity: { p_mother: 50 } };
+
+  assert.equal(payAllowance({ parent, relationship, country: COUNTRY, step: 12 }), 5 * 12);
+});
+
+test('payAllowance per parent never exceeds 1.5x "small" per month even for the richest, most loving parent', () => {
+  const parent = { id: 'p_mother', traits: ['generous'], money: 1_000_000_000 };
+  const relationship = { affinity: { p_mother: 100 } };
+
+  assert.ok(payAllowance({ parent, relationship, country: COUNTRY, step: 12 }) <= 1.5 * 10 * 12);
+});

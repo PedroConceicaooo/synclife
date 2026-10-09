@@ -7,7 +7,7 @@ import { createRelationship } from '../src/systems/relationship.js';
 import { loadEvents } from '../src/systems/eventsLoader.js';
 import { loadInteractions } from '../src/systems/interactionsLoader.js';
 import { loadActivities } from '../src/systems/activitiesLoader.js';
-import { createGameState, advanceStep, resolveDecision, attemptPlayerInteraction } from '../src/systems/game.js';
+import { createGameState, advanceStep, resolveDecision, attemptPlayerInteraction, isAdult } from '../src/systems/game.js';
 
 const EVENTS_DIR = fileURLToPath(new URL('../data/events/', import.meta.url));
 const INTERACTIONS_DIR = fileURLToPath(new URL('../data/interactions/', import.meta.url));
@@ -62,7 +62,7 @@ function buildDivorceReadyState() {
   });
 
   return {
-    rng: { chance: () => true, nextInt: () => 0 },
+    rng: { chance: () => true, nextInt: () => 0, next: () => 0 },
     player,
     mother,
     father,
@@ -73,10 +73,13 @@ function buildDivorceReadyState() {
     fatherChildId: fatherChild.id,
     marriageId: marriage.id,
     currentMonthIndex: 0,
-    eventsById: EVENTS_BY_ID,
+    // Only the divorce pair, so these tests stay about world events.
+    eventsById: { divorce: EVENTS_BY_ID.divorce, choose_who_to_live_with: EVENTS_BY_ID.choose_who_to_live_with },
     interactionsById: INTERACTIONS_BY_ID,
     activitiesById: ACTIVITIES_BY_ID,
     pendingDecisions: [],
+    firedEvents: [],
+    history: [{ month: 0, entries: [] }],
     lastInteractionResult: null,
   };
 }
@@ -116,7 +119,7 @@ test('attemptPlayerInteraction success path transfers money and adjusts affinity
 });
 
 test('attemptPlayerInteraction failure path only adjusts affinity', () => {
-  const state = { ...buildDivorceReadyState(), rng: { chance: () => false, nextInt: () => 0 } };
+  const state = { ...buildDivorceReadyState(), rng: { chance: () => false, nextInt: () => 0, next: () => 0 } };
   const result = attemptPlayerInteraction(state, 'ask_money', 'p_mother');
 
   assert.equal(result.lastInteractionResult.succeeded, false);
@@ -129,8 +132,8 @@ test('a short sequence of advanceStep and attemptPlayerInteraction is determinis
   function run(seed) {
     let state = createGameState(baseArgs(seed));
     state = advanceStep(state, 6);
-    if (state.pendingDecisions.length > 0) {
-      state = resolveDecision(state, 'live_with_mother');
+    while (state.pendingDecisions.length > 0) {
+      state = resolveDecision(state);
     }
     state = attemptPlayerInteraction(state, 'ask_money', state.mother.id);
     state = advanceStep(state, 12);
@@ -138,4 +141,69 @@ test('a short sequence of advanceStep and attemptPlayerInteraction is determinis
   }
 
   assert.deepEqual(run(2024), run(2024));
+});
+
+function playFullLife(seed) {
+  let state = createGameState(baseArgs(seed));
+  const initialMoney = state.people[state.player.id].money;
+  const advances = [];
+  let step = 6;
+  while (!isAdult(state)) {
+    state = advanceStep(state, step);
+    advances.push({ decisions: state.pendingDecisions.length, adult: isAdult(state) });
+    while (state.pendingDecisions.length > 0) state = resolveDecision(state);
+    step = step === 6 ? 12 : 6;
+  }
+  return { state, initialMoney, advances };
+}
+
+// The advance that reaches 18 is excluded: v1 has no adult events, and the
+// choice at 18 is M6's decision point.
+test('a full life asks at least one decision on every advance before 18', () => {
+  for (const seed of [1, 2, 3, 42]) {
+    const { advances } = playFullLife(seed);
+    assert.ok(advances.filter((a) => !a.adult).every((a) => a.decisions >= 1), `seed ${seed}`);
+  }
+});
+
+test('a full life ends with stats that moved away from their starting values', () => {
+  const { state } = playFullLife(42);
+  const start = createGameState(baseArgs(42)).people[state.player.id].stats;
+  const end = state.people[state.player.id].stats;
+  assert.notDeepEqual(end, start);
+  assert.ok(end.intelligence > start.intelligence + 20);
+});
+
+test('every money change of the player is in the diary', () => {
+  for (const seed of [1, 2, 3, 42]) {
+    let { state, initialMoney } = playFullLife(seed);
+    state = attemptPlayerInteraction(state, 'ask_money', state.mother.id);
+
+    const logged = state.history.flatMap((block) => block.entries).filter((e) => e.type === 'money').reduce((sum, e) => sum + e.amount, 0);
+    assert.equal(state.people[state.player.id].money - initialMoney, logged, `seed ${seed}`);
+  }
+});
+
+test('advanceStep adds one diary block per advance with birthdays and allowance', () => {
+  const { state } = playFullLife(7);
+  const entries = state.history.flatMap((block) => block.entries);
+
+  assert.equal(state.history[0].entries[0].type, 'birth');
+  assert.equal(entries.filter((e) => e.type === 'birthday').length, 18);
+  assert.ok(entries.some((e) => e.type === 'money' && e.source === 'allowance'));
+  assert.ok(entries.some((e) => e.type === 'event' && e.optionId));
+  assert.ok(entries.some((e) => e.type === 'stat'));
+});
+
+test('advanceStep no longer earns money from activities on its own', () => {
+  const { state } = playFullLife(3);
+  const sources = new Set(state.history.flatMap((b) => b.entries).filter((e) => e.type === 'money').map((e) => e.source));
+  assert.deepEqual([...sources], ['allowance']);
+});
+
+test('a full life is deterministic for a fixed seed', () => {
+  const a = playFullLife(2024).state;
+  const b = playFullLife(2024).state;
+  assert.deepEqual(a.history, b.history);
+  assert.deepEqual(a.people, b.people);
 });
