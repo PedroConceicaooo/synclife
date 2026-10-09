@@ -27,6 +27,7 @@ const MANIFEST = {
     'hard_exam.json',
     'school_fight.json',
     'acne.json',
+    'babysitter.json',
     'neighbor_extra_tip.json',
     'teacher_confiscates.json',
     'dog_runs_away.json',

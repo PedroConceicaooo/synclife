@@ -208,5 +208,8 @@
   "interaction.tattle.label": "Dedurar para os pais",
   "interaction.tattle.success": "Seus pais deram razão a você. Seu irmão ou irmã não vai esquecer.",
   "interaction.tattle.failure": "Seus pais não gostaram de dedo-duro.",
-  "ui.years_old": "anos"
+  "ui.years_old": "anos",
+  "event.babysitter.prompt": "Seus pais vão sair e deixaram você com uma babá nova.",
+  "event.babysitter.option.cooperate": "Ser um anjinho",
+  "event.babysitter.option.misbehave": "Aprontar até a babá pedir demissão"
 }

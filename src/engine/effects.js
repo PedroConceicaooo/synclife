@@ -91,10 +91,20 @@ function applyStatEffect(effect, context) {
   };
 }
 
-// Money from or to no one in particular (a tip, a confiscation):
-// { op: "money", target: "player", gain: "small" } or { ..., lose: "small" }.
+// Money from or to no one in particular (a tip, a confiscation, a pricier
+// babysitter): { op: "money", target: "player", gain: "small" } or
+// { op: "money", targetRole: "mother", lose: "medium" }.
+function moneyEffectPersonId(effect, context) {
+  if (effect.targetRole) {
+    const relationship = resolveTargetRelationship(effect.targetRole, context);
+    return relationship ? otherParticipant(relationship, context.playerId) : null;
+  }
+  return effect.target === 'player' ? context.playerId : otherParticipant(context.relationship, context.playerId);
+}
+
 function applyMoneyEffect(effect, context) {
-  const personId = effect.target === 'player' ? context.playerId : otherParticipant(context.relationship, context.playerId);
+  const personId = moneyEffectPersonId(effect, context);
+  if (!personId) return { relationshipsById: context.relationshipsById, peopleById: context.peopleById };
   const amount = effect.gain ? resolveAmount(effect.gain, context.country) : -resolveAmount(effect.lose, context.country);
   return { relationshipsById: context.relationshipsById, peopleById: addMoney(context.peopleById, personId, amount) };
 }

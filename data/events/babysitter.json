@@ -1,0 +1,68 @@
+{
+  "id": "babysitter",
+  "subject": "player",
+  "conditions": {
+    "minAge": 0,
+    "maxAge": 2
+  },
+  "yearlyChance": 0.4,
+  "cooldownMonths": 12,
+  "options": [
+    {
+      "id": "cooperate",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 1
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": 1,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": 1,
+          "targetRole": "father"
+        }
+      ]
+    },
+    {
+      "id": "misbehave",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 2
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -2,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -2,
+          "targetRole": "father"
+        },
+        {
+          "op": "money",
+          "targetRole": "mother",
+          "lose": "medium"
+        },
+        {
+          "op": "money",
+          "targetRole": "father",
+          "lose": "medium"
+        }
+      ]
+    }
+  ]
+}

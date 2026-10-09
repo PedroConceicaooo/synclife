@@ -208,3 +208,16 @@ test('affinity gains diminish only when the context asks for it', () => {
   assert.deepEqual(full, { p_mother: 85, p_player: 80 });
   assert.deepEqual(diminished, { p_mother: 82, p_player: 77.5 });
 });
+
+test('money with targetRole charges the person in that role, even from a player event', () => {
+  const { relationshipsById, peopleById, country } = setup();
+  const result = applyEffects([{ op: 'money', targetRole: 'mother', lose: 'medium' }], {
+    relationship: null,
+    relationshipsById,
+    peopleById,
+    playerId: 'p_player',
+    country,
+  });
+  assert.equal(result.peopleById.p_mother.money, 950);
+  assert.equal(result.peopleById.p_player.money, 0);
+});
