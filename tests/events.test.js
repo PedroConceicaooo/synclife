@@ -3,7 +3,14 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { createRng } from '../src/engine/random.js';
 import { createRelationship } from '../src/systems/relationship.js';
-import { indexEvents, involvesPlayer, processRelationshipEvents, resolveDecision } from '../src/systems/events.js';
+import {
+  indexEvents,
+  involvesPlayer,
+  processRelationshipEvents,
+  processPlayerEvents,
+  resolveDecision,
+  MAX_PLAYER_EVENTS_PER_PERIOD,
+} from '../src/systems/events.js';
 import { loadEvents } from '../src/systems/eventsLoader.js';
 
 const EVENTS_DIR = fileURLToPath(new URL('../data/events/', import.meta.url));
@@ -211,4 +218,91 @@ test('resolveDecision keeps people changes made by stat effects', () => {
 
   assert.equal(result.optionId, 'cry');
   assert.equal(result.peopleById.p_player.stats.happiness, 46);
+});
+
+const PLAYER_EVENTS = indexEvents([
+  {
+    id: 'cry',
+    subject: 'player',
+    conditions: { minAge: 0, maxAge: 2 },
+    yearlyChance: 0.5,
+    cooldownMonths: 12,
+    options: [{ id: 'loud', effects: [{ op: 'stat', target: 'player', stat: 'happiness', delta: -2 }] }],
+  },
+  {
+    id: 'tooth',
+    subject: 'player',
+    conditions: { minAge: 0, maxAge: 2 },
+    yearlyChance: 0.5,
+    effects: [{ op: 'stat', target: 'player', stat: 'health', delta: -3 }],
+  },
+  {
+    id: 'exam',
+    subject: 'player',
+    conditions: { minAge: 12 },
+    yearlyChance: 0.9,
+    options: [{ id: 'study', effects: [] }],
+  },
+  { id: 'world_only', subject: 'player', options: [{ id: 'x', effects: [] }] },
+]);
+
+function playerArgs(overrides = {}) {
+  const player = { id: 'p_player', birth: 0, money: 0, stats: { happiness: 50, health: 50, intelligence: 50, looks: 50 } };
+  return {
+    player,
+    peopleById: { p_player: player },
+    relationshipsById: {},
+    currentMonthIndex: 12,
+    step: 12,
+    rng: createRng(1),
+    ...overrides,
+  };
+}
+
+test('processPlayerEvents applies effects of events without options and queues events with options', () => {
+  const result = processPlayerEvents(PLAYER_EVENTS, playerArgs({ rng: { chance: () => true, nextInt: () => 0, next: () => 0 } }));
+
+  assert.deepEqual(result.fired.map((f) => f.eventId).sort(), ['cry', 'tooth']);
+  assert.equal(result.peopleById.p_player.stats.health, 47);
+  assert.deepEqual(result.pendingDecisions, [{ trigger: 'cry', firingRelationship: null }]);
+});
+
+test('processPlayerEvents respects age conditions and never rolls world-only decisions', () => {
+  const result = processPlayerEvents(PLAYER_EVENTS, playerArgs({ rng: { chance: () => true, nextInt: () => 0, next: () => 0 } }));
+  const ids = result.fired.map((f) => f.eventId);
+  assert.ok(!ids.includes('exam'));
+  assert.ok(!ids.includes('world_only'));
+});
+
+test('processPlayerEvents forces one decision when nothing rolled and none is pending', () => {
+  const neverRng = { chance: () => false, nextInt: () => 0, next: () => 0 };
+  const forced = processPlayerEvents(PLAYER_EVENTS, playerArgs({ rng: neverRng }));
+  assert.deepEqual(forced.pendingDecisions, [{ trigger: 'cry', firingRelationship: null }]);
+
+  const alreadyDeciding = processPlayerEvents(PLAYER_EVENTS, playerArgs({ rng: neverRng, hasDecision: true }));
+  assert.deepEqual(alreadyDeciding.pendingDecisions, []);
+});
+
+test('processPlayerEvents skips events on cooldown, but the forced decision still happens', () => {
+  const firedEvents = [{ eventId: 'cry', month: 6 }];
+  const alwaysRng = { chance: () => true, nextInt: () => 0, next: () => 0 };
+
+  const rolled = processPlayerEvents(PLAYER_EVENTS, playerArgs({ rng: alwaysRng, firedEvents, hasDecision: true }));
+  assert.deepEqual(rolled.fired.map((f) => f.eventId), ['tooth']);
+
+  const forced = processPlayerEvents(PLAYER_EVENTS, playerArgs({ rng: { ...alwaysRng, chance: () => false }, firedEvents }));
+  assert.deepEqual(forced.pendingDecisions.map((d) => d.trigger), ['cry']);
+});
+
+test('processPlayerEvents caps player events per period', () => {
+  const many = indexEvents(
+    Array.from({ length: 6 }, (_, i) => ({ id: `e${i}`, subject: 'player', yearlyChance: 1, effects: [] })),
+  );
+  const result = processPlayerEvents(many, playerArgs());
+  assert.equal(result.fired.length, MAX_PLAYER_EVENTS_PER_PERIOD);
+});
+
+test('processPlayerEvents is deterministic for a fixed seed', () => {
+  const run = () => processPlayerEvents(PLAYER_EVENTS, playerArgs({ rng: createRng(99) }));
+  assert.deepEqual(run(), run());
 });

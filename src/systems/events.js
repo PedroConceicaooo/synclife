@@ -79,3 +79,84 @@ export function resolveDecision(
 
   return { optionId: option.id, relationshipsById: result.relationshipsById, peopleById: result.peopleById };
 }
+
+// Player events: subject "player" with a yearlyChance. Decision events that
+// are only triggered by world events (no yearlyChance) are never rolled here.
+export const MAX_PLAYER_EVENTS_PER_PERIOD = 3;
+
+function isOnCooldown(event, firedEvents, currentMonthIndex) {
+  if (!event.cooldownMonths) return false;
+  return firedEvents.some((f) => f.eventId === event.id && currentMonthIndex - f.month < event.cooldownMonths);
+}
+
+// Fisher-Yates through the seeded rng, so the per-period cap does not always
+// favor the same events.
+function shuffle(items, rng) {
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = rng.nextInt(0, i + 1);
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+function pickWeighted(events, rng) {
+  const total = events.reduce((sum, e) => sum + e.yearlyChance, 0);
+  let roll = rng.next() * total;
+  for (const event of events) {
+    roll -= event.yearlyChance;
+    if (roll < 0) return event;
+  }
+  return events[events.length - 1];
+}
+
+// hasDecision: whether this period already has a decision (e.g. from a world
+// event). If not, one decision event is forced so every advance asks the
+// player something (design doc: "todo avanço tem pelo menos uma decisão").
+export function processPlayerEvents(
+  eventsById,
+  { player, peopleById, relationshipsById, currentMonthIndex, step, rng, country, firedEvents = [], hasDecision = false },
+) {
+  const ageEligible = Object.values(eventsById)
+    .filter((event) => event.subject === 'player' && event.yearlyChance !== undefined)
+    .filter((event) => evaluateConditions(event.conditions, player, { currentMonthIndex }))
+    .sort((a, b) => a.id.localeCompare(b.id));
+  const available = ageEligible.filter((event) => !isOnCooldown(event, firedEvents, currentMonthIndex));
+
+  let people = peopleById;
+  let relationships = relationshipsById;
+  const fired = [];
+  const pendingDecisions = [];
+
+  function fire(event) {
+    fired.push({ eventId: event.id, month: currentMonthIndex });
+    if (event.options) {
+      pendingDecisions.push({ trigger: event.id, firingRelationship: null });
+      return;
+    }
+    const result = applyEffects(event.effects ?? [], {
+      relationship: null,
+      relationshipsById: relationships,
+      peopleById: people,
+      playerId: player.id,
+      country,
+    });
+    people = result.peopleById;
+    relationships = result.relationshipsById;
+  }
+
+  for (const event of shuffle(available, rng)) {
+    if (fired.length >= MAX_PLAYER_EVENTS_PER_PERIOD) break;
+    if (rng.chance(yearlyChanceToPeriod(event.yearlyChance, step))) fire(event);
+  }
+
+  if (!hasDecision && pendingDecisions.length === 0) {
+    const firedIds = new Set(fired.map((f) => f.eventId));
+    const decisionsOffCooldown = available.filter((e) => e.options && !firedIds.has(e.id));
+    // Cooldowns yield before the one-decision rule does.
+    const pool = decisionsOffCooldown.length > 0 ? decisionsOffCooldown : ageEligible.filter((e) => e.options && !firedIds.has(e.id));
+    if (pool.length > 0) fire(pickWeighted(pool, rng));
+  }
+
+  return { peopleById: people, relationshipsById: relationships, fired, pendingDecisions };
+}
