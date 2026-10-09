@@ -1,6 +1,6 @@
 import { fromMonthIndex, ageAt } from '../engine/time.js';
 import { affinityBand } from './affinityColor.js';
-import { isAdult, availableInteractions } from './gameState.js';
+import { isAdult, availableInteractions, availableActivities } from './gameState.js';
 
 function formatDate(monthIndex) {
   const { year, month } = fromMonthIndex(monthIndex);
@@ -32,7 +32,7 @@ function appendBar(container, label, value) {
   container.appendChild(row);
 }
 
-export function renderStatus(dom, state, locale, { onAdvance, onOpenProfile }) {
+export function renderStatus(dom, state, locale, { onAdvance, onOpenProfile, onOpenActivities }) {
   const player = state.people[state.player.id];
 
   dom.statusTitle.textContent = locale.t('ui.status_title');
@@ -69,6 +69,13 @@ export function renderStatus(dom, state, locale, { onAdvance, onOpenProfile }) {
     button.addEventListener('click', () => onOpenProfile(personId));
     dom.statusPeople.appendChild(button);
   }
+
+  clearChildren(dom.statusNav);
+  const activitiesButton = document.createElement('button');
+  activitiesButton.type = 'button';
+  activitiesButton.textContent = locale.t('ui.activities_button');
+  activitiesButton.addEventListener('click', onOpenActivities);
+  dom.statusNav.appendChild(activitiesButton);
 
   clearChildren(dom.statusAdvance);
   if (isAdult(state)) {
@@ -136,6 +143,49 @@ export function renderProfile(dom, state, locale, personId, openCategory, { onIn
 
   const result = state.lastInteractionResult;
   dom.profileResult.textContent = result && result.targetId === personId ? interactionResultText(result, locale) : '';
+}
+
+const ACTIVITY_BLOCKER_KEYS = { limit: 'ui.activity_limit', money: 'ui.activity_no_money' };
+
+function activityResultText(result, locale) {
+  if (!result.attempted) return locale.t(ACTIVITY_BLOCKER_KEYS[result.reason]);
+  // Events with options open the decision modal; the rest are told here.
+  const eventTexts = result.triggeredEvents
+    .map((eventId) => `event.${eventId}.text`)
+    .filter((key) => locale.t(key) !== key)
+    .map((key) => locale.t(key));
+  return [locale.t(`activity.${result.activityId}.done`), ...eventTexts].join(' ');
+}
+
+// Design doc: lists with title and a one-line description. Activities the
+// player can't do right now stay visible, disabled, with the reason.
+export function renderActivities(dom, state, locale, { onDoActivity }) {
+  dom.activitiesBack.textContent = locale.t('ui.back');
+  dom.activitiesTitle.textContent = locale.t('ui.activities_title');
+  dom.activitiesResult.textContent = state.lastActivityResult ? activityResultText(state.lastActivityResult, locale) : '';
+
+  clearChildren(dom.activitiesList);
+  for (const group of availableActivities(state)) {
+    const heading = document.createElement('h2');
+    heading.textContent = locale.t(`activityCategory.${group.category}`);
+    dom.activitiesList.appendChild(heading);
+
+    for (const { id, blocker } of group.activities) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'activity';
+      button.disabled = blocker !== null || state.pendingDecisions.length > 0;
+
+      const title = document.createElement('strong');
+      title.textContent = locale.t(`activity.${id}.title`);
+      const description = document.createElement('span');
+      description.textContent = blocker ? locale.t(ACTIVITY_BLOCKER_KEYS[blocker]) : locale.t(`activity.${id}.description`);
+      button.append(title, description);
+
+      button.addEventListener('click', () => onDoActivity(id));
+      dom.activitiesList.appendChild(button);
+    }
+  }
 }
 
 export function renderDecisionModal(dom, state, locale, { onChoose }) {

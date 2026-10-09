@@ -90,3 +90,13 @@ dl {
   border-left: 3px solid #888;
   margin-bottom: 8px;
 }
+
+.activity {
+  text-align: left;
+}
+
+.activity span {
+  display: block;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
