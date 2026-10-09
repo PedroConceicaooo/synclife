@@ -4,14 +4,19 @@ import { toMonthIndex, fromMonthIndex, ageAt, advance } from './engine/time.js';
 import { createPerson, pickRandomCountry, pickRandomBirthMonth } from './engine/person.js';
 import { loadCountries, resolveCountry } from './engine/countries.js';
 import { createIdGenerator } from './engine/id.js';
-import { generateParents, createFamilyRelationships } from './engine/family.js';
-import { decayAll } from './engine/relationship.js';
-import { loadEvents, processRelationshipEvents, resolveDecision } from './engine/events.js';
+import { generateParents, createFamilyRelationships } from './systems/family.js';
+import { decayAll, resetInteractionsThisPeriod } from './systems/relationship.js';
+import { loadEvents, processRelationshipEvents, resolveDecision } from './systems/events.js';
+import { loadInteractions, attemptInteraction } from './systems/interactions.js';
+import { loadActivities, attemptActivity } from './systems/activities.js';
+import { isAllowanceAge, payAllowance, transferMoney } from './systems/money.js';
 
 const START_YEAR = 2000;
 const ADULT_AGE = 18;
 const COUNTRIES_DIR = fileURLToPath(new URL('../data/countries/', import.meta.url));
 const EVENTS_DIR = fileURLToPath(new URL('../data/events/', import.meta.url));
+const INTERACTIONS_DIR = fileURLToPath(new URL('../data/interactions/', import.meta.url));
+const ACTIVITIES_DIR = fileURLToPath(new URL('../data/activities/', import.meta.url));
 
 function readSeedFromArgs() {
   const arg = process.argv.find((a) => a.startsWith('--seed='));
@@ -30,6 +35,10 @@ function formatAffinity(relationship) {
   return `${relationship.id} type=${relationship.type} roles=${JSON.stringify(relationship.roles)} affinity={${sides}}`;
 }
 
+function formatPerson(person) {
+  return `${person.id} money=${person.money.toFixed(2)} traits=[${person.traits.join(', ')}]`;
+}
+
 function main() {
   const seed = readSeedFromArgs();
   console.log(`Seed: ${seed}`);
@@ -39,6 +48,10 @@ function main() {
   const nextRelationshipId = createIdGenerator('r');
 
   const eventsById = loadEvents(EVENTS_DIR);
+  const interactionsById = loadInteractions(INTERACTIONS_DIR);
+  const activitiesById = loadActivities(ACTIVITIES_DIR);
+  const askMoney = interactionsById.ask_money;
+  const mowLawn = activitiesById.mow_lawn;
 
   const countriesById = loadCountries(COUNTRIES_DIR);
   const playableCountryIds = Object.keys(countriesById).filter((id) => id !== 'default');
@@ -51,19 +64,19 @@ function main() {
   const person = createPerson({ id: nextPersonId(), sex, birth: birthMonthIndex, countryId: country.id });
   console.log(`Born: ${person.id} sex=${person.sex} country=${person.countryId} date=${formatDate(person.birth)}`);
 
-  const { mother, father } = generateParents(rng, person, nextPersonId);
-  console.log(`Mother: ${mother.id} date=${formatDate(mother.birth)}`);
-  console.log(`Father: ${father.id} date=${formatDate(father.birth)}`);
+  const { mother, father } = generateParents(rng, person, nextPersonId, country);
+  console.log(`Mother: ${formatPerson(mother)} date=${formatDate(mother.birth)}`);
+  console.log(`Father: ${formatPerson(father)} date=${formatDate(father.birth)}`);
 
-  const familyRelationships = createFamilyRelationships(
+  const [motherChild, fatherChild, marriage] = createFamilyRelationships(
     rng,
     { child: person, mother, father },
     nextRelationshipId,
     person.birth,
   );
 
-  const people = { [person.id]: person, [mother.id]: mother, [father.id]: father };
-  let relationships = Object.fromEntries(familyRelationships.map((r) => [r.id, r]));
+  let people = { [person.id]: person, [mother.id]: mother, [father.id]: father };
+  let relationships = Object.fromEntries([motherChild, fatherChild, marriage].map((r) => [r.id, r]));
 
   let currentMonth = person.birth;
 
@@ -72,6 +85,7 @@ function main() {
     const { nextMonthIndex, birthdays } = advance(currentMonth, step, person.birth);
     currentMonth = nextMonthIndex;
     relationships = decayAll(relationships, step);
+    relationships = resetInteractionsThisPeriod(relationships);
 
     const { relationshipsById: afterEvents, fired, pendingDecisions } = processRelationshipEvents(
       eventsById,
@@ -95,18 +109,64 @@ function main() {
       console.log(`Decision triggered: ${decision.trigger} -> chose ${optionId}`);
     }
 
+    for (const [parent, relationship] of [
+      [mother, relationships[motherChild.id]],
+      [father, relationships[fatherChild.id]],
+    ]) {
+      const result = attemptInteraction(askMoney, {
+        relationship,
+        player: person,
+        target: parent,
+        peopleById: people,
+        relationshipsById: relationships,
+        country,
+        currentMonthIndex: currentMonth,
+        rng,
+      });
+      relationships = result.relationshipsById;
+      people = result.peopleById;
+      if (result.attempted) {
+        console.log(`Interaction: ask_money -> ${parent.id} ${result.succeeded ? 'succeeded' : 'failed'}`);
+      }
+    }
+
+    const activityResult = attemptActivity(mowLawn, {
+      player: person,
+      peopleById: people,
+      country,
+      currentMonthIndex: currentMonth,
+    });
+    people = activityResult.peopleById;
+    if (activityResult.attempted) {
+      console.log(`Activity: mow_lawn -> earned money`);
+    }
+
+    if (isAllowanceAge(ageAt(person.birth, currentMonth))) {
+      for (const [parent, relationship] of [
+        [mother, relationships[motherChild.id]],
+        [father, relationships[fatherChild.id]],
+      ]) {
+        const amount = payAllowance({ parent: people[parent.id], relationship, country, step });
+        people = transferMoney(people, parent.id, person.id, amount);
+        console.log(`Allowance from ${parent.id}: ${amount.toFixed(2)}`);
+      }
+    }
+
     for (const birthday of birthdays) {
       console.log(`Turned ${birthday.age} (${formatDate(birthday.monthIndex)})`);
     }
   }
 
   console.log(
-    `Done: ${person.id} age=${ageAt(person.birth, currentMonth)} date=${formatDate(currentMonth)} country=${person.countryId}`,
+    `Done: ${formatPerson(people[person.id])} age=${ageAt(person.birth, currentMonth)} date=${formatDate(currentMonth)} country=${person.countryId}`,
   );
 
   console.log('Family summary:');
   for (const relationship of Object.values(relationships)) {
     console.log(`  ${formatAffinity(relationship)}`);
+  }
+  for (const id of [mother.id, father.id]) {
+    console.log(`  ${formatPerson(people[id])}`);
   }
 }
 

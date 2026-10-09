@@ -1,8 +1,8 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { evaluateConditions } from './conditions.js';
-import { applyEffects } from './effects.js';
-import { yearlyChanceToPeriod } from './random.js';
+import { evaluateConditions } from '../engine/conditions.js';
+import { applyEffects } from '../engine/effects.js';
+import { yearlyChanceToPeriod } from '../engine/random.js';
 import { findRelationshipBetween } from './relationship.js';
 
 export function loadEvents(dir) {
@@ -41,7 +41,7 @@ export function processRelationshipEvents(eventsById, relationshipsById, { curre
       const chance = yearlyChanceToPeriod(event.yearlyChance, step);
       if (!rng.chance(chance)) continue;
 
-      accumulator = applyEffects(event.effects, { relationship, relationshipsById: accumulator, playerId });
+      accumulator = applyEffects(event.effects, { relationship, relationshipsById: accumulator, playerId }).relationshipsById;
       fired.push({ eventId: event.id, relationshipId });
 
       if (event.ifInvolvesPlayer && involvesPlayer(accumulator[relationshipId], playerId, accumulator)) {
@@ -61,7 +61,7 @@ export function resolveDecision(decisionEvent, firingRelationship, { rng, player
     relationship: firingRelationship,
     relationshipsById,
     playerId,
-  });
+  }).relationshipsById;
 
   return { optionId: option.id, relationshipsById: nextRelationshipsById };
 }

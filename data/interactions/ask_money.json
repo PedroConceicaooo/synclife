@@ -1,0 +1,17 @@
+{
+  "id": "ask_money",
+  "category": "ask",
+  "conditions": { "targetRole": ["mother", "father"], "minAge": 5 },
+  "chance": {
+    "base": 0.4,
+    "modifiers": [
+      { "factor": "affinity", "weight": 0.5 },
+      { "factor": "targetTrait", "value": "generous", "adjust": 0.2 }
+    ]
+  },
+  "success": [
+    { "op": "transferMoney", "from": "target", "to": "player", "amount": "small" },
+    { "op": "affinity", "side": "target", "delta": -2 }
+  ],
+  "failure": [{ "op": "affinity", "side": "both", "delta": -4 }]
+}

@@ -1,4 +1,5 @@
 {
   "id": "GB",
-  "inherits": "default"
+  "inherits": "default",
+  "currency": { "code": "GBP", "scale": { "small": 4, "medium": 20, "large": 80 } }
 }

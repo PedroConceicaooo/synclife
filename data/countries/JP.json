@@ -1,4 +1,5 @@
 {
   "id": "JP",
-  "inherits": "default"
+  "inherits": "default",
+  "currency": { "code": "JPY", "scale": { "small": 700, "medium": 3500, "large": 14000 } }
 }

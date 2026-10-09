@@ -45,3 +45,11 @@ export function decayAll(relationshipsById, months, ratePerMonth = DEFAULT_AFFIN
   }
   return next;
 }
+
+export function resetInteractionsThisPeriod(relationshipsById) {
+  const next = {};
+  for (const [id, relationship] of Object.entries(relationshipsById)) {
+    next[id] = { ...relationship, interactionsThisPeriod: 0 };
+  }
+  return next;
+}

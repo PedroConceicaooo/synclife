@@ -1,6 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createRelationship, decayAffinity, decayAll, findRelationshipBetween } from '../src/engine/relationship.js';
+import {
+  createRelationship,
+  decayAffinity,
+  decayAll,
+  findRelationshipBetween,
+  resetInteractionsThisPeriod,
+} from '../src/systems/relationship.js';
 
 test('createRelationship fills in defaults', () => {
   const relationship = createRelationship({
@@ -146,4 +152,33 @@ test('findRelationshipBetween returns null when no relationship connects the two
   };
 
   assert.equal(findRelationshipBetween('p_0001', 'p_0003', relationshipsById), null);
+});
+
+test('resetInteractionsThisPeriod zeroes every relationship counter regardless of prior value', () => {
+  const relationshipsById = {
+    r_0001: {
+      ...createRelationship({
+        id: 'r_0001',
+        roles: { p_0001: 'mother', p_0002: 'son' },
+        type: 'family',
+        affinity: { p_0001: 80, p_0002: 70 },
+        since: 0,
+      }),
+      interactionsThisPeriod: 3,
+    },
+    r_0002: createRelationship({
+      id: 'r_0002',
+      roles: { p_0001: 'wife', p_0003: 'husband' },
+      type: 'romantic',
+      affinity: { p_0001: 60, p_0003: 60 },
+      since: 0,
+      state: 'married',
+    }),
+  };
+
+  const reset = resetInteractionsThisPeriod(relationshipsById);
+
+  assert.equal(reset.r_0001.interactionsThisPeriod, 0);
+  assert.equal(reset.r_0002.interactionsThisPeriod, 0);
+  assert.equal(relationshipsById.r_0001.interactionsThisPeriod, 3);
 });

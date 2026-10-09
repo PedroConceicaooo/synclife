@@ -22,6 +22,8 @@ function evaluateCondition(key, expected, target, context) {
       return ageAt(target.birth, context.currentMonthIndex) >= expected;
     case 'maxAge':
       return ageAt(target.birth, context.currentMonthIndex) <= expected;
+    case 'targetRole':
+      return expected.includes(context.relationship.roles[context.targetPersonId]);
     default:
       throw new Error(`Unknown condition: ${key}`);
   }

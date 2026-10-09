@@ -2,8 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { createRng } from '../src/engine/random.js';
-import { createRelationship } from '../src/engine/relationship.js';
-import { loadEvents, involvesPlayer, processRelationshipEvents, resolveDecision } from '../src/engine/events.js';
+import { createRelationship } from '../src/systems/relationship.js';
+import { loadEvents, involvesPlayer, processRelationshipEvents, resolveDecision } from '../src/systems/events.js';
 
 const EVENTS_DIR = fileURLToPath(new URL('../data/events/', import.meta.url));
 

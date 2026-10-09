@@ -1,0 +1,191 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
+import { createRng } from '../src/engine/random.js';
+import { createRelationship } from '../src/systems/relationship.js';
+import {
+  loadInteractions,
+  resolveChance,
+  attemptInteraction,
+  DEFAULT_INTERACTIONS_PER_PERIOD_LIMIT,
+} from '../src/systems/interactions.js';
+
+const INTERACTIONS_DIR = fileURLToPath(new URL('../data/interactions/', import.meta.url));
+const COUNTRY = { currency: { scale: { small: 10, medium: 50, large: 200 } } };
+
+function buildRelationship(affinity) {
+  return createRelationship({
+    id: 'r_0001',
+    roles: { p_player: 'son', p_mother: 'mother' },
+    type: 'family',
+    affinity,
+    since: 0,
+  });
+}
+
+test('loadInteractions loads ask_money by id', () => {
+  const interactionsById = loadInteractions(INTERACTIONS_DIR);
+  assert.ok(interactionsById.ask_money);
+  assert.equal(interactionsById.ask_money.category, 'ask');
+});
+
+test('resolveChance returns the base chance when there are no modifiers', () => {
+  const relationship = buildRelationship({ p_mother: 50, p_player: 50 });
+  const target = { traits: [] };
+  const chance = resolveChance({ base: 0.4, modifiers: [] }, { relationship, targetPersonId: 'p_mother', target });
+  assert.equal(chance, 0.4);
+});
+
+test('resolveChance affinity modifier matches the worked example numbers', () => {
+  const target = { traits: [] };
+  const chance = { base: 0.4, modifiers: [{ factor: 'affinity', weight: 0.5 }] };
+
+  const low = resolveChance(chance, { relationship: buildRelationship({ p_mother: 0, p_player: 50 }), targetPersonId: 'p_mother', target });
+  const mid = resolveChance(chance, { relationship: buildRelationship({ p_mother: 50, p_player: 50 }), targetPersonId: 'p_mother', target });
+  const high = resolveChance(chance, { relationship: buildRelationship({ p_mother: 100, p_player: 50 }), targetPersonId: 'p_mother', target });
+
+  assert.ok(Math.abs(low - 0.15) < 1e-9);
+  assert.ok(Math.abs(mid - 0.4) < 1e-9);
+  assert.ok(Math.abs(high - 0.65) < 1e-9);
+});
+
+test('resolveChance targetTrait adjusts only when the target has the trait', () => {
+  const relationship = buildRelationship({ p_mother: 50, p_player: 50 });
+  const chance = { base: 0.4, modifiers: [{ factor: 'targetTrait', value: 'generous', adjust: 0.2 }] };
+
+  const withTrait = resolveChance(chance, { relationship, targetPersonId: 'p_mother', target: { traits: ['generous'] } });
+  const withoutTrait = resolveChance(chance, { relationship, targetPersonId: 'p_mother', target: { traits: ['rigid'] } });
+
+  assert.ok(Math.abs(withTrait - 0.6) < 1e-9);
+  assert.ok(Math.abs(withoutTrait - 0.4) < 1e-9);
+});
+
+test('resolveChance clamps extreme combinations to [0, 1]', () => {
+  const relationship = buildRelationship({ p_mother: 100, p_player: 50 });
+  const chance = { base: 0.9, modifiers: [{ factor: 'affinity', weight: 1 }, { factor: 'targetTrait', value: 'generous', adjust: 0.5 }] };
+  const result = resolveChance(chance, { relationship, targetPersonId: 'p_mother', target: { traits: ['generous'] } });
+  assert.equal(result, 1);
+});
+
+test('resolveChance throws on an unknown factor', () => {
+  const relationship = buildRelationship({ p_mother: 50, p_player: 50 });
+  assert.throws(() =>
+    resolveChance({ base: 0.4, modifiers: [{ factor: 'notARealFactor' }] }, { relationship, targetPersonId: 'p_mother', target: { traits: [] } }),
+  );
+});
+
+function setup() {
+  const askMoney = loadInteractions(INTERACTIONS_DIR).ask_money;
+  const relationship = buildRelationship({ p_mother: 80, p_player: 70 });
+  const player = { id: 'p_player', birth: -120, traits: [] }; // age 10 relative to currentMonthIndex: 0
+  const target = { id: 'p_mother', traits: [] };
+  const peopleById = { p_player: { id: 'p_player', money: 0 }, p_mother: { id: 'p_mother', money: 1000 } };
+  const relationshipsById = { [relationship.id]: relationship };
+  return { askMoney, relationship, player, target, peopleById, relationshipsById };
+}
+
+test('attemptInteraction is blocked by the per-period limit without rolling or changing anything', () => {
+  const { askMoney, relationship, player, target, peopleById, relationshipsById } = setup();
+  const atLimit = { ...relationship, interactionsThisPeriod: DEFAULT_INTERACTIONS_PER_PERIOD_LIMIT };
+  const relationshipsAtLimit = { [relationship.id]: atLimit };
+
+  let chanceCalls = 0;
+  const spyRng = { chance: () => { chanceCalls++; return true; }, nextInt: () => 0 };
+
+  const result = attemptInteraction(askMoney, {
+    relationship: atLimit,
+    player,
+    target,
+    peopleById,
+    relationshipsById: relationshipsAtLimit,
+    country: COUNTRY,
+    currentMonthIndex: 0,
+    rng: spyRng,
+  });
+
+  assert.equal(result.attempted, false);
+  assert.equal(result.reason, 'limit');
+  assert.equal(chanceCalls, 0);
+  assert.equal(result.relationshipsById[relationship.id].interactionsThisPeriod, DEFAULT_INTERACTIONS_PER_PERIOD_LIMIT);
+});
+
+test('attemptInteraction is blocked when conditions are not met (e.g. player too young)', () => {
+  const { askMoney, relationship, target, peopleById, relationshipsById } = setup();
+  const youngPlayer = { id: 'p_player', birth: 0, traits: [] }; // age 0 at currentMonthIndex 0, minAge 5 fails
+
+  const result = attemptInteraction(askMoney, {
+    relationship,
+    player: youngPlayer,
+    target,
+    peopleById,
+    relationshipsById,
+    country: COUNTRY,
+    currentMonthIndex: 0,
+    rng: { chance: () => true, nextInt: () => 0 },
+  });
+
+  assert.equal(result.attempted, false);
+  assert.equal(result.reason, 'conditions');
+});
+
+test('attemptInteraction success path transfers money, adjusts affinity, and increments the counter', () => {
+  const { askMoney, relationship, player, target, peopleById, relationshipsById } = setup();
+
+  const result = attemptInteraction(askMoney, {
+    relationship,
+    player,
+    target,
+    peopleById,
+    relationshipsById,
+    country: COUNTRY,
+    currentMonthIndex: 0,
+    rng: { chance: () => true, nextInt: () => 0 },
+  });
+
+  assert.equal(result.attempted, true);
+  assert.equal(result.succeeded, true);
+  assert.equal(result.peopleById.p_player.money, 10);
+  assert.equal(result.peopleById.p_mother.money, 990);
+  assert.equal(result.relationshipsById[relationship.id].affinity.p_mother, 78);
+  assert.equal(result.relationshipsById[relationship.id].interactionsThisPeriod, 1);
+  assert.equal(result.relationshipsById[relationship.id].lastInteraction, 0);
+});
+
+test('attemptInteraction failure path only adjusts affinity on both sides', () => {
+  const { askMoney, relationship, player, target, peopleById, relationshipsById } = setup();
+
+  const result = attemptInteraction(askMoney, {
+    relationship,
+    player,
+    target,
+    peopleById,
+    relationshipsById,
+    country: COUNTRY,
+    currentMonthIndex: 0,
+    rng: { chance: () => false, nextInt: () => 0 },
+  });
+
+  assert.equal(result.succeeded, false);
+  assert.equal(result.peopleById.p_player.money, 0);
+  assert.equal(result.relationshipsById[relationship.id].affinity.p_mother, 76);
+  assert.equal(result.relationshipsById[relationship.id].affinity.p_player, 66);
+});
+
+test('attemptInteraction is deterministic for a fixed seed', () => {
+  function run(seed) {
+    const { askMoney, relationship, player, target, peopleById, relationshipsById } = setup();
+    const rng = createRng(seed);
+    return attemptInteraction(askMoney, {
+      relationship,
+      player,
+      target,
+      peopleById,
+      relationshipsById,
+      country: COUNTRY,
+      currentMonthIndex: 0,
+      rng,
+    });
+  }
+
+  assert.deepEqual(run(99), run(99));
+});

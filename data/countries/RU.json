@@ -1,4 +1,5 @@
 {
   "id": "RU",
-  "inherits": "default"
+  "inherits": "default",
+  "currency": { "code": "RUB", "scale": { "small": 450, "medium": 2250, "large": 9000 } }
 }

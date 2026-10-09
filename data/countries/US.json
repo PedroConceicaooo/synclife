@@ -1,4 +1,5 @@
 {
   "id": "US",
-  "inherits": "default"
+  "inherits": "default",
+  "currency": { "code": "USD", "scale": { "small": 5, "medium": 25, "large": 100 } }
 }

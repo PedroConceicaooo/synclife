@@ -41,3 +41,11 @@ test('multiple conditions are combined with AND', () => {
 test('unknown condition keys throw', () => {
   assert.throws(() => evaluateConditions({ notARealCondition: 1 }, {}));
 });
+
+test('targetRole passes when the target person holds one of the expected roles', () => {
+  const relationship = { roles: { p_mother: 'mother', p_player: 'son' } };
+  const context = { relationship, targetPersonId: 'p_mother' };
+
+  assert.equal(evaluateConditions({ targetRole: ['mother', 'father'] }, {}, context), true);
+  assert.equal(evaluateConditions({ targetRole: ['father'] }, {}, context), false);
+});

@@ -24,3 +24,19 @@ test('country-specific fields win over default', () => {
   const resolved = resolveCountry('BR', countriesById);
   assert.equal(resolved.scale, 'large');
 });
+
+test('each real country declares its own currency with an ascending scale', () => {
+  const countriesById = loadCountries(COUNTRIES_DIR);
+  for (const id of ['BR', 'US', 'JP', 'RU', 'GB']) {
+    const country = resolveCountry(id, countriesById);
+    assert.ok(country.currency, `missing currency for ${id}`);
+    assert.ok(typeof country.currency.code === 'string');
+    const { small, medium, large } = country.currency.scale;
+    assert.ok(small < medium && medium < large, `scale not ascending for ${id}`);
+  }
+});
+
+test('default.json has no currency', () => {
+  const countriesById = loadCountries(COUNTRIES_DIR);
+  assert.equal(countriesById.default.currency, undefined);
+});

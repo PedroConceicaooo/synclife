@@ -1,0 +1,6 @@
+{
+  "id": "mow_lawn",
+  "category": "odd_jobs",
+  "conditions": { "minAge": 10 },
+  "earnings": "small"
+}

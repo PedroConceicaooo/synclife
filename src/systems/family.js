@@ -2,8 +2,9 @@
 // Always a mother and a father (rule confirmed for M2 — no family-structure
 // variation yet; that belongs to the event engine, M3+).
 
-import { createPerson } from './person.js';
+import { createPerson, pickRandomTraits } from '../engine/person.js';
 import { createRelationship } from './relationship.js';
+import { resolveAmount } from './money.js';
 
 const PARENT_MIN_AGE_MONTHS = 20 * 12;
 const PARENT_MAX_AGE_MONTHS_EXCLUSIVE = 46 * 12; // ages 20-45 at the child's birth
@@ -11,15 +12,19 @@ const PARENT_MAX_AGE_MONTHS_EXCLUSIVE = 46 * 12; // ages 20-45 at the child's bi
 const CHILD_PARENT_AFFINITY_RANGE = [60, 91]; // nextInt -> 60..90
 const MARRIAGE_AFFINITY_RANGE = [40, 91]; // nextInt -> 40..90
 
-function createParent(rng, child, sex, nextPersonId) {
+const PARENT_MONEY_MULTIPLIER_RANGE = [20, 101]; // nextInt -> 20..100x "large"
+
+function createParent(rng, child, sex, nextPersonId, country) {
   const ageAtChildBirthMonths = rng.nextInt(PARENT_MIN_AGE_MONTHS, PARENT_MAX_AGE_MONTHS_EXCLUSIVE);
   const birth = child.birth - ageAtChildBirthMonths;
-  return createPerson({ id: nextPersonId(), sex, birth, countryId: child.countryId });
+  const money = rng.nextInt(...PARENT_MONEY_MULTIPLIER_RANGE) * resolveAmount('large', country);
+  const traits = pickRandomTraits(rng, 2);
+  return createPerson({ id: nextPersonId(), sex, birth, countryId: child.countryId, money, traits });
 }
 
-export function generateParents(rng, child, nextPersonId) {
-  const mother = createParent(rng, child, 'F', nextPersonId);
-  const father = createParent(rng, child, 'M', nextPersonId);
+export function generateParents(rng, child, nextPersonId, country) {
+  const mother = createParent(rng, child, 'F', nextPersonId, country);
+  const father = createParent(rng, child, 'M', nextPersonId, country);
   return { mother, father };
 }
 

@@ -1,4 +1,5 @@
 {
   "id": "BR",
-  "inherits": "default"
+  "inherits": "default",
+  "currency": { "code": "BRL", "scale": { "small": 25, "medium": 125, "large": 500 } }
 }

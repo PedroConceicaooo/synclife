@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { applyEffects } from '../src/engine/effects.js';
-import { createRelationship } from '../src/engine/relationship.js';
+import { createRelationship } from '../src/systems/relationship.js';
 
 function setup() {
   const marriage = createRelationship({
@@ -20,7 +20,13 @@ function setup() {
     since: 0,
   });
   const relationshipsById = { [marriage.id]: marriage, [motherChild.id]: motherChild };
-  return { marriage, motherChild, relationshipsById };
+  const peopleById = {
+    p_mother: { id: 'p_mother', money: 1000 },
+    p_father: { id: 'p_father', money: 500 },
+    p_player: { id: 'p_player', money: 0 },
+  };
+  const country = { currency: { scale: { small: 10, medium: 50, large: 200 } } };
+  return { marriage, motherChild, relationshipsById, peopleById, country };
 }
 
 test('relationshipState sets state only on the firing relationship', () => {
@@ -31,8 +37,8 @@ test('relationshipState sets state only on the firing relationship', () => {
     playerId: 'p_player',
   });
 
-  assert.equal(result[marriage.id].state, 'divorced');
-  assert.equal(result[motherChild.id].state, null);
+  assert.equal(result.relationshipsById[marriage.id].state, 'divorced');
+  assert.equal(result.relationshipsById[motherChild.id].state, null);
 });
 
 test('affinity effect with side "both" adjusts every side, clamped', () => {
@@ -43,8 +49,8 @@ test('affinity effect with side "both" adjusts every side, clamped', () => {
     playerId: 'p_player',
   });
 
-  assert.equal(result[marriage.id].affinity.p_mother, 0);
-  assert.equal(result[marriage.id].affinity.p_father, 0);
+  assert.equal(result.relationshipsById[marriage.id].affinity.p_mother, 0);
+  assert.equal(result.relationshipsById[marriage.id].affinity.p_father, 0);
 });
 
 test('affinity effect with side "player"/"target" adjusts only the matching person', () => {
@@ -55,8 +61,8 @@ test('affinity effect with side "player"/"target" adjusts only the matching pers
     playerId: 'p_player',
   });
 
-  assert.equal(result[motherChild.id].affinity.p_player, 85);
-  assert.equal(result[motherChild.id].affinity.p_mother, 80);
+  assert.equal(result.relationshipsById[motherChild.id].affinity.p_player, 85);
+  assert.equal(result.relationshipsById[motherChild.id].affinity.p_mother, 80);
 });
 
 test('targetRole redirects the effect to the relationship between that role and the player', () => {
@@ -69,9 +75,37 @@ test('targetRole redirects the effect to the relationship between that role and 
     playerId: 'p_player',
   });
 
-  assert.equal(result['r_0002'].affinity.p_mother, 85);
-  assert.equal(result['r_0002'].affinity.p_player, 80);
-  assert.equal(result['r_0001'].affinity.p_mother, 20);
+  assert.equal(result.relationshipsById['r_0002'].affinity.p_mother, 85);
+  assert.equal(result.relationshipsById['r_0002'].affinity.p_player, 80);
+  assert.equal(result.relationshipsById['r_0001'].affinity.p_mother, 20);
+});
+
+test('transferMoney moves money between the right two people via the country scale', () => {
+  const { marriage, relationshipsById, peopleById, country } = setup();
+  const result = applyEffects([{ op: 'transferMoney', from: 'target', to: 'player', amount: 'small' }], {
+    relationship: marriage,
+    relationshipsById,
+    peopleById,
+    playerId: 'p_mother',
+    country,
+  });
+
+  assert.equal(result.peopleById.p_mother.money, 1010);
+  assert.equal(result.peopleById.p_father.money, 490);
+  assert.equal(result.relationshipsById[marriage.id].affinity.p_mother, 20);
+});
+
+test('transferMoney with an unknown amount scale throws', () => {
+  const { marriage, relationshipsById, peopleById, country } = setup();
+  assert.throws(() =>
+    applyEffects([{ op: 'transferMoney', from: 'target', to: 'player', amount: 'huge' }], {
+      relationship: marriage,
+      relationshipsById,
+      peopleById,
+      playerId: 'p_mother',
+      country,
+    }),
+  );
 });
 
 test('unknown effect op throws', () => {
