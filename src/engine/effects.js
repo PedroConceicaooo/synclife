@@ -9,6 +9,18 @@ import { resolveAmount, transferMoney } from '../systems/money.js';
 function resolveTargetRelationship(targetRole, context) {
   if (!targetRole) return context.relationship;
 
+  // Player events have no firing relationship: find the player's own
+  // relationship whose other side holds targetRole.
+  if (!context.relationship) {
+    return (
+      Object.values(context.relationshipsById).find(
+        (r) =>
+          context.playerId in r.roles &&
+          Object.entries(r.roles).some(([personId, role]) => personId !== context.playerId && role === targetRole),
+      ) ?? null
+    );
+  }
+
   for (const personId of Object.keys(context.relationship.roles)) {
     const relationshipWithPlayer = findRelationshipBetween(personId, context.playerId, context.relationshipsById);
     if (relationshipWithPlayer && relationshipWithPlayer.roles[personId] === targetRole) {
@@ -56,6 +68,22 @@ function applyTransferMoneyEffect(effect, context) {
   };
 }
 
+const STATS = ['happiness', 'health', 'intelligence', 'looks'];
+
+// target "player" works without a firing relationship (player events);
+// "target" means the other participant of the firing relationship.
+function applyStatEffect(effect, context) {
+  if (!STATS.includes(effect.stat)) throw new Error(`Unknown stat: ${effect.stat}`);
+  const personId = effect.target === 'player' ? context.playerId : otherParticipant(context.relationship, context.playerId);
+  const person = context.peopleById[personId];
+  const stats = { ...person.stats, [effect.stat]: clamp(person.stats[effect.stat] + effect.delta, 0, 100) };
+
+  return {
+    relationshipsById: context.relationshipsById,
+    peopleById: { ...context.peopleById, [personId]: { ...person, stats } },
+  };
+}
+
 function applyEffect(effect, context) {
   switch (effect.op) {
     case 'relationshipState':
@@ -70,6 +98,8 @@ function applyEffect(effect, context) {
       return applyAffinityEffect(effect, context);
     case 'transferMoney':
       return applyTransferMoneyEffect(effect, context);
+    case 'stat':
+      return applyStatEffect(effect, context);
     default:
       throw new Error(`Unknown effect op: ${effect.op}`);
   }

@@ -197,3 +197,18 @@ test('resolveDecision throws on an unknown optionId', () => {
     }),
   );
 });
+
+test('resolveDecision keeps people changes made by stat effects', () => {
+  const { relationshipsById } = buildFamily({ marriageAffinity: { p_mother: 50, p_father: 50 } });
+  const peopleById = { p_player: { id: 'p_player', money: 0, stats: { happiness: 50, health: 50, intelligence: 50, looks: 50 } } };
+  const decisionEvent = {
+    id: 'test_event',
+    subject: 'player',
+    options: [{ id: 'cry', effects: [{ op: 'stat', target: 'player', stat: 'happiness', delta: -4 }] }],
+  };
+
+  const result = resolveDecision(decisionEvent, null, { rng: { nextInt: () => 0 }, playerId: 'p_player', relationshipsById, peopleById });
+
+  assert.equal(result.optionId, 'cry');
+  assert.equal(result.peopleById.p_player.stats.happiness, 46);
+});

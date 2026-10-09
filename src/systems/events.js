@@ -18,10 +18,17 @@ export function involvesPlayer(relationship, playerId, relationshipsById) {
   );
 }
 
-export function processRelationshipEvents(eventsById, relationshipsById, { currentMonthIndex, step, rng, playerId }) {
+// peopleById/country are optional so relationship-only callers keep working;
+// they are threaded through so effects on people (stat, money) are not lost.
+export function processRelationshipEvents(
+  eventsById,
+  relationshipsById,
+  { currentMonthIndex, step, rng, playerId, peopleById = {}, country },
+) {
   const relationshipEvents = Object.values(eventsById).filter((event) => event.subject === 'relationship');
 
   let accumulator = relationshipsById;
+  let people = peopleById;
   const fired = [];
   const pendingDecisions = [];
 
@@ -34,7 +41,9 @@ export function processRelationshipEvents(eventsById, relationshipsById, { curre
       const chance = yearlyChanceToPeriod(event.yearlyChance, step);
       if (!rng.chance(chance)) continue;
 
-      accumulator = applyEffects(event.effects, { relationship, relationshipsById: accumulator, playerId }).relationshipsById;
+      const result = applyEffects(event.effects, { relationship, relationshipsById: accumulator, peopleById: people, playerId, country });
+      accumulator = result.relationshipsById;
+      people = result.peopleById;
       fired.push({ eventId: event.id, relationshipId });
 
       if (event.ifInvolvesPlayer && involvesPlayer(accumulator[relationshipId], playerId, accumulator)) {
@@ -43,23 +52,30 @@ export function processRelationshipEvents(eventsById, relationshipsById, { curre
     }
   }
 
-  return { relationshipsById: accumulator, fired, pendingDecisions };
+  return { relationshipsById: accumulator, peopleById: people, fired, pendingDecisions };
 }
 
 // optionId lets a real player choice override the rng pick (M5); omitting it
 // keeps the old auto-resolve behavior (M3's console demo, still used there).
-export function resolveDecision(decisionEvent, firingRelationship, { rng, playerId, relationshipsById, optionId }) {
+// firingRelationship is null for player events.
+export function resolveDecision(
+  decisionEvent,
+  firingRelationship,
+  { rng, playerId, relationshipsById, peopleById = {}, country, optionId },
+) {
   const option = optionId
     ? decisionEvent.options.find((o) => o.id === optionId)
     : decisionEvent.options[rng.nextInt(0, decisionEvent.options.length)];
 
   if (!option) throw new Error(`Unknown option: ${optionId}`);
 
-  const nextRelationshipsById = applyEffects(option.effects, {
+  const result = applyEffects(option.effects, {
     relationship: firingRelationship,
     relationshipsById,
+    peopleById,
     playerId,
-  }).relationshipsById;
+    country,
+  });
 
-  return { optionId: option.id, relationshipsById: nextRelationshipsById };
+  return { optionId: option.id, relationshipsById: result.relationshipsById, peopleById: result.peopleById };
 }

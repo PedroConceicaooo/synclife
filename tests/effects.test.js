@@ -114,3 +114,68 @@ test('unknown effect op throws', () => {
     applyEffects([{ op: 'notARealOp' }], { relationship: marriage, relationshipsById, playerId: 'p_player' }),
   );
 });
+
+function withStats(peopleById) {
+  const stats = { happiness: 50, health: 50, intelligence: 50, looks: 50 };
+  return Object.fromEntries(Object.entries(peopleById).map(([id, p]) => [id, { ...p, stats: { ...stats } }]));
+}
+
+test('stat on player changes only the player stat, clamped to 0..100', () => {
+  const { relationshipsById, peopleById } = setup();
+  const people = withStats(peopleById);
+
+  const up = applyEffects([{ op: 'stat', target: 'player', stat: 'health', delta: 70 }], {
+    relationship: null,
+    relationshipsById,
+    peopleById: people,
+    playerId: 'p_player',
+  });
+  assert.equal(up.peopleById.p_player.stats.health, 100);
+  assert.equal(up.peopleById.p_mother.stats.health, 50);
+  assert.equal(people.p_player.stats.health, 50);
+
+  const down = applyEffects([{ op: 'stat', target: 'player', stat: 'happiness', delta: -80 }], {
+    relationship: null,
+    relationshipsById,
+    peopleById: people,
+    playerId: 'p_player',
+  });
+  assert.equal(down.peopleById.p_player.stats.happiness, 0);
+});
+
+test('stat on target changes the other participant of the firing relationship', () => {
+  const { motherChild, relationshipsById, peopleById } = setup();
+  const result = applyEffects([{ op: 'stat', target: 'target', stat: 'happiness', delta: -5 }], {
+    relationship: motherChild,
+    relationshipsById,
+    peopleById: withStats(peopleById),
+    playerId: 'p_player',
+  });
+  assert.equal(result.peopleById.p_mother.stats.happiness, 45);
+  assert.equal(result.peopleById.p_player.stats.happiness, 50);
+});
+
+test('stat throws on an unknown stat name', () => {
+  const { relationshipsById, peopleById } = setup();
+  assert.throws(() =>
+    applyEffects([{ op: 'stat', target: 'player', stat: 'luck', delta: 1 }], {
+      relationship: null,
+      relationshipsById,
+      peopleById: withStats(peopleById),
+      playerId: 'p_player',
+    }),
+  );
+});
+
+test('affinity with targetRole works without a firing relationship (player events)', () => {
+  const { motherChild, marriage, relationshipsById, peopleById } = setup();
+  const result = applyEffects([{ op: 'affinity', side: 'target', delta: 3, targetRole: 'mother' }], {
+    relationship: null,
+    relationshipsById,
+    peopleById,
+    playerId: 'p_player',
+  });
+  assert.equal(result.relationshipsById[motherChild.id].affinity.p_mother, 83);
+  assert.equal(result.relationshipsById[motherChild.id].affinity.p_player, 75);
+  assert.deepEqual(result.relationshipsById[marriage.id].affinity, marriage.affinity);
+});
