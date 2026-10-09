@@ -1,20 +1,13 @@
-import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+// No fs here — this file must stay loadable from a browser; see
+// eventsLoader.js for the Node-only reader.
+
 import { evaluateConditions } from '../engine/conditions.js';
 import { applyEffects } from '../engine/effects.js';
 import { yearlyChanceToPeriod } from '../engine/random.js';
 import { findRelationshipBetween } from './relationship.js';
 
-export function loadEvents(dir) {
-  const eventsById = {};
-
-  for (const fileName of readdirSync(dir).sort()) {
-    if (!fileName.endsWith('.json')) continue;
-    const event = JSON.parse(readFileSync(join(dir, fileName), 'utf8'));
-    eventsById[event.id] = event;
-  }
-
-  return eventsById;
+export function indexEvents(events) {
+  return Object.fromEntries(events.map((event) => [event.id, event]));
 }
 
 export function involvesPlayer(relationship, playerId, relationshipsById) {
@@ -53,9 +46,14 @@ export function processRelationshipEvents(eventsById, relationshipsById, { curre
   return { relationshipsById: accumulator, fired, pendingDecisions };
 }
 
-export function resolveDecision(decisionEvent, firingRelationship, { rng, playerId, relationshipsById }) {
-  const optionIndex = rng.nextInt(0, decisionEvent.options.length);
-  const option = decisionEvent.options[optionIndex];
+// optionId lets a real player choice override the rng pick (M5); omitting it
+// keeps the old auto-resolve behavior (M3's console demo, still used there).
+export function resolveDecision(decisionEvent, firingRelationship, { rng, playerId, relationshipsById, optionId }) {
+  const option = optionId
+    ? decisionEvent.options.find((o) => o.id === optionId)
+    : decisionEvent.options[rng.nextInt(0, decisionEvent.options.length)];
+
+  if (!option) throw new Error(`Unknown option: ${optionId}`);
 
   const nextRelationshipsById = applyEffects(option.effects, {
     relationship: firingRelationship,

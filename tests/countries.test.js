@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
-import { loadCountries, resolveCountry } from '../src/engine/countries.js';
+import { indexCountries, resolveCountry } from '../src/engine/countries.js';
+import { loadCountries } from '../src/engine/countriesLoader.js';
 
 const COUNTRIES_DIR = fileURLToPath(new URL('../data/countries/', import.meta.url));
 
@@ -39,4 +40,11 @@ test('each real country declares its own currency with an ascending scale', () =
 test('default.json has no currency', () => {
   const countriesById = loadCountries(COUNTRIES_DIR);
   assert.equal(countriesById.default.currency, undefined);
+});
+
+test('indexCountries builds a map by id from an in-memory array (no fs)', () => {
+  const countries = [{ id: 'default' }, { id: 'BR', inherits: 'default' }];
+  const countriesById = indexCountries(countries);
+  assert.deepEqual(Object.keys(countriesById).sort(), ['BR', 'default']);
+  assert.equal(countriesById.BR.inherits, 'default');
 });

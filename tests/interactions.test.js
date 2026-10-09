@@ -4,11 +4,12 @@ import { fileURLToPath } from 'node:url';
 import { createRng } from '../src/engine/random.js';
 import { createRelationship } from '../src/systems/relationship.js';
 import {
-  loadInteractions,
+  indexInteractions,
   resolveChance,
   attemptInteraction,
   DEFAULT_INTERACTIONS_PER_PERIOD_LIMIT,
 } from '../src/systems/interactions.js';
+import { loadInteractions } from '../src/systems/interactionsLoader.js';
 
 const INTERACTIONS_DIR = fileURLToPath(new URL('../data/interactions/', import.meta.url));
 const COUNTRY = { currency: { scale: { small: 10, medium: 50, large: 200 } } };
@@ -188,4 +189,9 @@ test('attemptInteraction is deterministic for a fixed seed', () => {
   }
 
   assert.deepEqual(run(99), run(99));
+});
+
+test('indexInteractions builds a map by id from an in-memory array (no fs)', () => {
+  const interactionsById = indexInteractions([{ id: 'ask_money', category: 'ask' }]);
+  assert.deepEqual(Object.keys(interactionsById), ['ask_money']);
 });

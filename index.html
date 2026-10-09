@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SyncLife</title>
+  <link rel="stylesheet" href="/src/ui/style.css" />
+</head>
+<body>
+  <main id="app">
+    <section id="status-screen">
+      <h1 id="status-title"></h1>
+      <dl id="status-fields"></dl>
+      <div id="status-stats"></div>
+      <div id="status-people"></div>
+      <div id="status-advance"></div>
+    </section>
+
+    <section id="profile-screen" hidden>
+      <button id="profile-back" type="button"></button>
+      <h1 id="profile-title"></h1>
+      <div id="profile-affinity"></div>
+      <div id="profile-interactions"></div>
+      <p id="profile-result"></p>
+    </section>
+
+    <section id="decision-modal" hidden>
+      <div class="modal-box">
+        <p id="decision-prompt"></p>
+        <div id="decision-options"></div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="/src/ui/app.js"></script>
+</body>
+</html>

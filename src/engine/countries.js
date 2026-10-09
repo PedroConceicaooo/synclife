@@ -1,19 +1,9 @@
 // Countries inherit from a default country and only declare what differs (rule 10).
-// The engine never branches on a specific country id.
+// The engine never branches on a specific country id. No fs here — this file
+// must stay loadable from a browser; see countriesLoader.js for the Node-only reader.
 
-import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
-export function loadCountries(dir) {
-  const countriesById = {};
-
-  for (const fileName of readdirSync(dir)) {
-    if (!fileName.endsWith('.json')) continue;
-    const country = JSON.parse(readFileSync(join(dir, fileName), 'utf8'));
-    countriesById[country.id] = country;
-  }
-
-  return countriesById;
+export function indexCountries(countries) {
+  return Object.fromEntries(countries.map((country) => [country.id, country]));
 }
 
 export function resolveCountry(id, countriesById) {

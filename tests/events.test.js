@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { createRng } from '../src/engine/random.js';
 import { createRelationship } from '../src/systems/relationship.js';
-import { loadEvents, involvesPlayer, processRelationshipEvents, resolveDecision } from '../src/systems/events.js';
+import { indexEvents, involvesPlayer, processRelationshipEvents, resolveDecision } from '../src/systems/events.js';
+import { loadEvents } from '../src/systems/eventsLoader.js';
 
 const EVENTS_DIR = fileURLToPath(new URL('../data/events/', import.meta.url));
 
@@ -156,4 +157,43 @@ test('the full event + decision flow is deterministic for a fixed seed', () => {
   }
 
   assert.deepEqual(run(123), run(123));
+});
+
+test('indexEvents builds a map by id from an in-memory array (no fs)', () => {
+  const eventsById = indexEvents([{ id: 'divorce', subject: 'relationship' }, { id: 'choose_who_to_live_with', subject: 'player' }]);
+  assert.deepEqual(Object.keys(eventsById).sort(), ['choose_who_to_live_with', 'divorce']);
+});
+
+test('resolveDecision honors an explicit optionId over the rng pick', () => {
+  const { marriage, motherChild, fatherChild, relationshipsById } = buildFamily({
+    marriageAffinity: { p_mother: 10, p_father: 10 },
+  });
+  const decisionEvent = loadEvents(EVENTS_DIR).choose_who_to_live_with;
+  // nextInt(0) would pick option 0 (live_with_mother) if optionId were ignored.
+  const rngThatWouldPickMother = { nextInt: () => 0 };
+
+  const { optionId, relationshipsById: afterDecision } = resolveDecision(decisionEvent, marriage, {
+    rng: rngThatWouldPickMother,
+    playerId: 'p_player',
+    relationshipsById,
+    optionId: 'live_with_father',
+  });
+
+  assert.equal(optionId, 'live_with_father');
+  assert.equal(afterDecision[fatherChild.id].affinity.p_father, 85);
+  assert.equal(afterDecision[motherChild.id].affinity.p_mother, 75);
+});
+
+test('resolveDecision throws on an unknown optionId', () => {
+  const { marriage, relationshipsById } = buildFamily({ marriageAffinity: { p_mother: 10, p_father: 10 } });
+  const decisionEvent = loadEvents(EVENTS_DIR).choose_who_to_live_with;
+
+  assert.throws(() =>
+    resolveDecision(decisionEvent, marriage, {
+      rng: { nextInt: () => 0 },
+      playerId: 'p_player',
+      relationshipsById,
+      optionId: 'not_a_real_option',
+    }),
+  );
 });

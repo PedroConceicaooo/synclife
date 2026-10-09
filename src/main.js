@@ -1,14 +1,17 @@
 import { fileURLToPath } from 'node:url';
 import { createRng } from './engine/random.js';
-import { toMonthIndex, fromMonthIndex, ageAt, advance } from './engine/time.js';
-import { createPerson, pickRandomCountry, pickRandomBirthMonth } from './engine/person.js';
-import { loadCountries, resolveCountry } from './engine/countries.js';
+import { fromMonthIndex, ageAt, advance } from './engine/time.js';
+import { resolveCountry } from './engine/countries.js';
+import { loadCountries } from './engine/countriesLoader.js';
 import { createIdGenerator } from './engine/id.js';
-import { generateParents, createFamilyRelationships } from './systems/family.js';
+import { createNewLife } from './systems/life.js';
 import { decayAll, resetInteractionsThisPeriod } from './systems/relationship.js';
-import { loadEvents, processRelationshipEvents, resolveDecision } from './systems/events.js';
-import { loadInteractions, attemptInteraction } from './systems/interactions.js';
-import { loadActivities, attemptActivity } from './systems/activities.js';
+import { processRelationshipEvents, resolveDecision } from './systems/events.js';
+import { loadEvents } from './systems/eventsLoader.js';
+import { attemptInteraction } from './systems/interactions.js';
+import { loadInteractions } from './systems/interactionsLoader.js';
+import { attemptActivity } from './systems/activities.js';
+import { loadActivities } from './systems/activitiesLoader.js';
 import { isAllowanceAge, payAllowance, transferMoney } from './systems/money.js';
 
 const START_YEAR = 2000;
@@ -57,23 +60,17 @@ function main() {
   const playableCountryIds = Object.keys(countriesById).filter((id) => id !== 'default');
   const countries = playableCountryIds.map((id) => resolveCountry(id, countriesById));
 
-  const country = pickRandomCountry(rng, countries);
-  const birthMonthIndex = toMonthIndex({ year: START_YEAR, month: pickRandomBirthMonth(rng) });
-  const sex = rng.chance(0.5) ? 'F' : 'M';
+  const {
+    player: person,
+    mother,
+    father,
+    country,
+    relationships: { motherChild, fatherChild, marriage },
+  } = createNewLife(rng, { countries, nextPersonId, nextRelationshipId, startYear: START_YEAR });
 
-  const person = createPerson({ id: nextPersonId(), sex, birth: birthMonthIndex, countryId: country.id });
   console.log(`Born: ${person.id} sex=${person.sex} country=${person.countryId} date=${formatDate(person.birth)}`);
-
-  const { mother, father } = generateParents(rng, person, nextPersonId, country);
   console.log(`Mother: ${formatPerson(mother)} date=${formatDate(mother.birth)}`);
   console.log(`Father: ${formatPerson(father)} date=${formatDate(father.birth)}`);
-
-  const [motherChild, fatherChild, marriage] = createFamilyRelationships(
-    rng,
-    { child: person, mother, father },
-    nextRelationshipId,
-    person.birth,
-  );
 
   let people = { [person.id]: person, [mother.id]: mother, [father.id]: father };
   let relationships = Object.fromEntries([motherChild, fatherChild, marriage].map((r) => [r.id, r]));

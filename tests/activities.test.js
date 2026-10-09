@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
-import { loadActivities, attemptActivity } from '../src/systems/activities.js';
+import { indexActivities, attemptActivity } from '../src/systems/activities.js';
+import { loadActivities } from '../src/systems/activitiesLoader.js';
 
 const ACTIVITIES_DIR = fileURLToPath(new URL('../data/activities/', import.meta.url));
 const COUNTRY = { currency: { scale: { small: 10, medium: 50, large: 200 } } };
@@ -32,4 +33,9 @@ test('attemptActivity does not pay when the player is under minAge', () => {
 
   assert.equal(result.attempted, false);
   assert.equal(result.peopleById.p_player.money, 0);
+});
+
+test('indexActivities builds a map by id from an in-memory array (no fs)', () => {
+  const activitiesById = indexActivities([{ id: 'mow_lawn', earnings: 'small' }]);
+  assert.deepEqual(Object.keys(activitiesById), ['mow_lawn']);
 });

@@ -1,0 +1,82 @@
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, sans-serif;
+  --very_high: #2e7d32;
+  --high: #8bc34a;
+  --neutral: #fbc02d;
+  --low: #fb8c00;
+  --very_low: #e53935;
+}
+
+body {
+  margin: 0;
+  padding: 16px;
+  max-width: 480px;
+  margin-inline: auto;
+}
+
+button {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  margin: 8px 0;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #888;
+  background: #f5f5f5;
+}
+
+button:disabled {
+  opacity: 0.5;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+}
+
+.stat-bar,
+.affinity-bar {
+  display: grid;
+  grid-template-columns: 100px 1fr 3em;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+.bar-track {
+  background: #ddd;
+  border-radius: 6px;
+  height: 12px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+}
+
+.bar-fill.very_high { background: var(--very_high); }
+.bar-fill.high { background: var(--high); }
+.bar-fill.neutral { background: var(--neutral); }
+.bar-fill.low { background: var(--low); }
+.bar-fill.very_low { background: var(--very_low); }
+
+/* :not([hidden]) so the [hidden] UA rule's display:none isn't overridden by
+   this higher-specificity id selector while the modal should stay hidden. */
+#decision-modal:not([hidden]) {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-box {
+  background: white;
+  color: black;
+  padding: 16px;
+  border-radius: 8px;
+  max-width: 90%;
+}

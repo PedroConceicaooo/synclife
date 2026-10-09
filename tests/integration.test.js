@@ -7,8 +7,10 @@ import { createPerson } from '../src/engine/person.js';
 import { createIdGenerator } from '../src/engine/id.js';
 import { generateParents, createFamilyRelationships } from '../src/systems/family.js';
 import { decayAll, resetInteractionsThisPeriod } from '../src/systems/relationship.js';
-import { loadInteractions, attemptInteraction } from '../src/systems/interactions.js';
-import { loadActivities, attemptActivity } from '../src/systems/activities.js';
+import { attemptInteraction } from '../src/systems/interactions.js';
+import { loadInteractions } from '../src/systems/interactionsLoader.js';
+import { attemptActivity } from '../src/systems/activities.js';
+import { loadActivities } from '../src/systems/activitiesLoader.js';
 import { payAllowance, transferMoney } from '../src/systems/money.js';
 
 const INTERACTIONS_DIR = fileURLToPath(new URL('../data/interactions/', import.meta.url));

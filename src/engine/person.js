@@ -1,8 +1,21 @@
 // Minimal person shape. Field names match the full design-doc shape so later
 // milestones can add fields (stats, aptitudes, ...) without renaming.
 
-export function createPerson({ id, sex, birth, countryId, money = 0, traits = [] }) {
-  return { id, sex, birth, countryId, money, traits };
+// Stats default to the flat 50 ("Neutro" on the design doc's own happiness
+// table) since nothing in the engine produces a stat delta yet — any other
+// default would be cosmetic noise with no mechanical meaning. The literal is
+// re-evaluated per call (not a shared module constant) so people never share
+// the same stats object by reference.
+export function createPerson({
+  id,
+  sex,
+  birth,
+  countryId,
+  money = 0,
+  traits = [],
+  stats = { happiness: 50, health: 50, intelligence: 50, looks: 50 },
+}) {
+  return { id, sex, birth, countryId, money, traits, stats };
 }
 
 export function pickRandomCountry(rng, countries) {

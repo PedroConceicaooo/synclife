@@ -1,18 +1,11 @@
-import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+// No fs here — this file must stay loadable from a browser; see
+// activitiesLoader.js for the Node-only reader.
+
 import { evaluateConditions } from '../engine/conditions.js';
 import { addMoney, resolveAmount } from './money.js';
 
-export function loadActivities(dir) {
-  const activitiesById = {};
-
-  for (const fileName of readdirSync(dir).sort()) {
-    if (!fileName.endsWith('.json')) continue;
-    const activity = JSON.parse(readFileSync(join(dir, fileName), 'utf8'));
-    activitiesById[activity.id] = activity;
-  }
-
-  return activitiesById;
+export function indexActivities(activities) {
+  return Object.fromEntries(activities.map((activity) => [activity.id, activity]));
 }
 
 // No success roll — the design doc's one worked example (mow_lawn) has no

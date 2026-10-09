@@ -1,18 +1,11 @@
-import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+// No fs here — this file must stay loadable from a browser; see
+// interactionsLoader.js for the Node-only reader.
+
 import { evaluateConditions } from '../engine/conditions.js';
 import { applyEffects } from '../engine/effects.js';
 
-export function loadInteractions(dir) {
-  const interactionsById = {};
-
-  for (const fileName of readdirSync(dir).sort()) {
-    if (!fileName.endsWith('.json')) continue;
-    const interaction = JSON.parse(readFileSync(join(dir, fileName), 'utf8'));
-    interactionsById[interaction.id] = interaction;
-  }
-
-  return interactionsById;
+export function indexInteractions(interactions) {
+  return Object.fromEntries(interactions.map((interaction) => [interaction.id, interaction]));
 }
 
 export function resolveChance(chance, { relationship, targetPersonId, target }) {
