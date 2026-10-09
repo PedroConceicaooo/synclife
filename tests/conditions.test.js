@@ -49,3 +49,9 @@ test('targetRole passes when the target person holds one of the expected roles',
   assert.equal(evaluateConditions({ targetRole: ['mother', 'father'] }, {}, context), true);
   assert.equal(evaluateConditions({ targetRole: ['father'] }, {}, context), false);
 });
+
+test('minMoney compares the target money against the country scale', () => {
+  const country = { currency: { scale: { small: 10, medium: 50, large: 200 } } };
+  assert.equal(evaluateConditions({ minMoney: 'small' }, { money: 10 }, { country }), true);
+  assert.equal(evaluateConditions({ minMoney: 'medium' }, { money: 49 }, { country }), false);
+});

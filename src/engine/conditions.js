@@ -2,6 +2,7 @@
 // key is interpreted by the engine; an implicit AND holds over present keys.
 
 import { ageAt } from './time.js';
+import { resolveAmount } from '../systems/money.js';
 
 export function evaluateConditions(conditions = {}, target, context = {}) {
   for (const [key, expected] of Object.entries(conditions)) {
@@ -22,6 +23,8 @@ function evaluateCondition(key, expected, target, context) {
       return ageAt(target.birth, context.currentMonthIndex) >= expected;
     case 'maxAge':
       return ageAt(target.birth, context.currentMonthIndex) <= expected;
+    case 'minMoney':
+      return target.money >= resolveAmount(expected, context.country);
     case 'targetRole':
       return expected.includes(context.relationship.roles[context.targetPersonId]);
     default:

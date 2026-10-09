@@ -41,6 +41,7 @@ export function attemptInteraction(
     currentMonthIndex,
     relationship,
     targetPersonId: target.id,
+    country,
   });
   if (!conditionsMet) {
     return { attempted: false, reason: 'conditions', relationshipsById, peopleById };
@@ -62,4 +63,22 @@ export function attemptInteraction(
   );
 
   return { attempted: true, succeeded, relationshipsById: nextRelationshipsById, peopleById: nextPeopleById };
+}
+
+// Display order of the profile's categories (design doc: up to six).
+export const INTERACTION_CATEGORIES = ['talk', 'spend_time', 'ask', 'give', 'conflict', 'relationship'];
+
+// Interactions whose conditions pass for this target, grouped by category in
+// display order. Categories with no available option are left out, so the UI
+// only shows what the player can actually do.
+export function listAvailableInteractions(interactionsById, { relationship, player, target, country, currentMonthIndex }) {
+  const context = { currentMonthIndex, relationship, targetPersonId: target.id, country };
+  const available = Object.values(interactionsById)
+    .filter((interaction) => evaluateConditions(interaction.conditions, player, context))
+    .sort((a, b) => a.id.localeCompare(b.id));
+
+  return INTERACTION_CATEGORIES.map((category) => ({
+    category,
+    interactionIds: available.filter((i) => i.category === category).map((i) => i.id),
+  })).filter((group) => group.interactionIds.length > 0);
 }

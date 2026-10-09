@@ -7,6 +7,7 @@ import {
   indexInteractions,
   resolveChance,
   attemptInteraction,
+  listAvailableInteractions,
   DEFAULT_INTERACTIONS_PER_PERIOD_LIMIT,
 } from '../src/systems/interactions.js';
 import { loadInteractions } from '../src/systems/interactionsLoader.js';
@@ -194,4 +195,36 @@ test('attemptInteraction is deterministic for a fixed seed', () => {
 test('indexInteractions builds a map by id from an in-memory array (no fs)', () => {
   const interactionsById = indexInteractions([{ id: 'ask_money', category: 'ask' }]);
   assert.deepEqual(Object.keys(interactionsById), ['ask_money']);
+});
+
+const LISTING_FIXTURE = indexInteractions([
+  { id: 'chat', category: 'talk', conditions: { targetRole: ['mother', 'father'], minAge: 3 } },
+  { id: 'argue', category: 'conflict', conditions: { targetRole: ['mother', 'father'], minAge: 4 } },
+  { id: 'give_gift', category: 'give', conditions: { targetRole: ['mother', 'father'], minAge: 5, minMoney: 'small' } },
+  { id: 'flirt', category: 'talk', conditions: { targetRole: ['crush'], minAge: 12 } },
+]);
+
+function listingArgs({ ageYears, money = 0 }) {
+  return {
+    relationship: buildRelationship({ p_player: 50, p_mother: 50 }),
+    player: { id: 'p_player', birth: 0, money },
+    target: { id: 'p_mother', traits: [] },
+    country: COUNTRY,
+    currentMonthIndex: ageYears * 12,
+  };
+}
+
+test('listAvailableInteractions groups by category in display order and drops empty categories', () => {
+  const groups = listAvailableInteractions(LISTING_FIXTURE, listingArgs({ ageYears: 6, money: 10 }));
+  assert.deepEqual(groups, [
+    { category: 'talk', interactionIds: ['chat'] },
+    { category: 'give', interactionIds: ['give_gift'] },
+    { category: 'conflict', interactionIds: ['argue'] },
+  ]);
+});
+
+test('listAvailableInteractions hides options by age, role and money', () => {
+  assert.deepEqual(listAvailableInteractions(LISTING_FIXTURE, listingArgs({ ageYears: 2 })), []);
+  const broke = listAvailableInteractions(LISTING_FIXTURE, listingArgs({ ageYears: 6, money: 9 }));
+  assert.ok(!broke.some((g) => g.category === 'give'));
 });

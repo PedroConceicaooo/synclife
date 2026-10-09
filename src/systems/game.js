@@ -13,7 +13,7 @@ import { resolveCountry } from '../engine/countries.js';
 import { createNewLife } from './life.js';
 import { decayAll, resetInteractionsThisPeriod, findRelationshipBetween } from './relationship.js';
 import { processRelationshipEvents, processPlayerEvents, resolveDecision as resolveDecisionEvent } from './events.js';
-import { attemptInteraction } from './interactions.js';
+import { attemptInteraction, listAvailableInteractions } from './interactions.js';
 import { isAllowanceAge, payAllowance, transferMoney } from './money.js';
 import { growStats } from './growth.js';
 
@@ -220,6 +220,7 @@ export function attemptPlayerInteraction(state, interactionId, targetPersonId) {
     ? [
         { type: 'interaction', interactionId, targetId: targetPersonId, succeeded: result.succeeded },
         ...moneyEntries(playerBefore, result.peopleById[state.player.id], { source: 'interaction', interactionId, fromId: targetPersonId }),
+        ...statEntries(playerBefore, result.peopleById[state.player.id]),
       ]
     : [];
 
@@ -230,4 +231,14 @@ export function attemptPlayerInteraction(state, interactionId, targetPersonId) {
     lastInteractionResult: result,
     history: entries.length > 0 ? appendToCurrentBlock(state.history, entries) : state.history,
   };
+}
+
+export function availableInteractions(state, targetPersonId) {
+  return listAvailableInteractions(state.interactionsById, {
+    relationship: findRelationshipBetween(state.player.id, targetPersonId, state.relationships),
+    player: state.people[state.player.id],
+    target: state.people[targetPersonId],
+    country: state.country,
+    currentMonthIndex: state.currentMonthIndex,
+  });
 }
