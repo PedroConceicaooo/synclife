@@ -1,0 +1,52 @@
+{
+  "id": "curfew",
+  "subject": "player",
+  "conditions": {
+    "minAge": 13,
+    "maxAge": 17
+  },
+  "yearlyChance": 0.5,
+  "cooldownMonths": 12,
+  "options": [
+    {
+      "id": "come_home_on_time",
+      "effects": [
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": 2,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": 2,
+          "targetRole": "father"
+        }
+      ]
+    },
+    {
+      "id": "stay_out_late",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 2
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -4,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -4,
+          "targetRole": "father"
+        }
+      ]
+    }
+  ]
+}

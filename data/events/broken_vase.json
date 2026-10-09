@@ -1,0 +1,58 @@
+{
+  "id": "broken_vase",
+  "subject": "player",
+  "conditions": {
+    "minAge": 4,
+    "maxAge": 11
+  },
+  "yearlyChance": 0.4,
+  "cooldownMonths": 24,
+  "options": [
+    {
+      "id": "confess",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": -1
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": 1,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": 1,
+          "targetRole": "father"
+        }
+      ]
+    },
+    {
+      "id": "blame_the_cat",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 1
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -2,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -2,
+          "targetRole": "father"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "id": "chickenpox",
+  "subject": "player",
+  "conditions": {
+    "minAge": 3,
+    "maxAge": 10
+  },
+  "yearlyChance": 0.2,
+  "cooldownMonths": 1200,
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": -5
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": -1
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -2
+    }
+  ]
+}

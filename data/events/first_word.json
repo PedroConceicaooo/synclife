@@ -1,0 +1,34 @@
+{
+  "id": "first_word",
+  "subject": "player",
+  "conditions": {
+    "minAge": 1,
+    "maxAge": 2
+  },
+  "yearlyChance": 0.6,
+  "cooldownMonths": 1200,
+  "options": [
+    {
+      "id": "say_mama",
+      "effects": [
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": 4,
+          "targetRole": "mother"
+        }
+      ]
+    },
+    {
+      "id": "say_papa",
+      "effects": [
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": 4,
+          "targetRole": "father"
+        }
+      ]
+    }
+  ]
+}

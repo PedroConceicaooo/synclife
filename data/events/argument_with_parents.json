@@ -1,0 +1,58 @@
+{
+  "id": "argument_with_parents",
+  "subject": "player",
+  "conditions": {
+    "minAge": 13,
+    "maxAge": 17
+  },
+  "yearlyChance": 0.5,
+  "cooldownMonths": 12,
+  "options": [
+    {
+      "id": "apologize",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": -1
+        },
+        {
+          "op": "affinity",
+          "side": "both",
+          "delta": 2,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "both",
+          "delta": 2,
+          "targetRole": "father"
+        }
+      ]
+    },
+    {
+      "id": "slam_the_door",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 1
+        },
+        {
+          "op": "affinity",
+          "side": "both",
+          "delta": -3,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "both",
+          "delta": -3,
+          "targetRole": "father"
+        }
+      ]
+    }
+  ]
+}

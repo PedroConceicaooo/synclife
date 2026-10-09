@@ -1,0 +1,24 @@
+{
+  "id": "growth_spurt",
+  "subject": "player",
+  "conditions": {
+    "minAge": 12,
+    "maxAge": 15
+  },
+  "yearlyChance": 0.4,
+  "cooldownMonths": 1200,
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 2
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": 3
+    }
+  ]
+}

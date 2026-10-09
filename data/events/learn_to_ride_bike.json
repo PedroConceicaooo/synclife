@@ -1,0 +1,40 @@
+{
+  "id": "learn_to_ride_bike",
+  "subject": "player",
+  "conditions": {
+    "minAge": 5,
+    "maxAge": 9
+  },
+  "yearlyChance": 0.5,
+  "cooldownMonths": 1200,
+  "options": [
+    {
+      "id": "keep_trying",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "health",
+          "delta": 2
+        },
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 2
+        }
+      ]
+    },
+    {
+      "id": "give_up",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": -1
+        }
+      ]
+    }
+  ]
+}

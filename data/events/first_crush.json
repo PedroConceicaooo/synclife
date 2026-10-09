@@ -1,0 +1,34 @@
+{
+  "id": "first_crush",
+  "subject": "player",
+  "conditions": {
+    "minAge": 12,
+    "maxAge": 17
+  },
+  "yearlyChance": 0.5,
+  "cooldownMonths": 12,
+  "options": [
+    {
+      "id": "talk_to_them",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 3
+        }
+      ]
+    },
+    {
+      "id": "keep_it_secret",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": -1
+        }
+      ]
+    }
+  ]
+}

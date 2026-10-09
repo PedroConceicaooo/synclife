@@ -1,0 +1,36 @@
+{
+  "id": "first_steps",
+  "subject": "player",
+  "conditions": {
+    "minAge": 1,
+    "maxAge": 2
+  },
+  "yearlyChance": 0.6,
+  "cooldownMonths": 1200,
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 2
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": 2,
+      "targetRole": "mother"
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": 2,
+      "targetRole": "father"
+    }
+  ]
+}

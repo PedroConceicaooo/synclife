@@ -1,0 +1,46 @@
+{
+  "id": "join_sports_team",
+  "subject": "player",
+  "conditions": {
+    "minAge": 12,
+    "maxAge": 17
+  },
+  "yearlyChance": 0.4,
+  "cooldownMonths": 24,
+  "options": [
+    {
+      "id": "join",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "health",
+          "delta": 4
+        },
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 2
+        },
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "intelligence",
+          "delta": -1
+        }
+      ]
+    },
+    {
+      "id": "stay_home",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "intelligence",
+          "delta": 1
+        }
+      ]
+    }
+  ]
+}
