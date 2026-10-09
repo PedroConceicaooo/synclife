@@ -1,6 +1,6 @@
 # SyncLife — Documento de Design (v1)
 
-Atualizado em 2026-10-09. Fonte principal: Claude Doc "SyncLife — Documento de Design (v1)". Ao mudar o design, atualize os dois.
+Atualizado em 2026-10-09 (inclui seção Interface). Fonte principal: Claude Doc "SyncLife — Documento de Design (v1)". Ao mudar o design, atualize os dois.
 
 ## Visão geral
 
@@ -341,6 +341,54 @@ O valor `50` de aceitação é exemplo, não dado real.
 ```
 
 `saveVersion` permite converter saves antigos quando um formato mudar. `seed` alimenta todos os sorteios: a mesma semente reproduz a mesma vida, o que facilita corrigir bugs.
+
+## Interface
+
+A tela gira em torno do **diário da vida**: cada avanço de tempo acrescenta um bloco de texto contando o que aconteceu. Referência de estrutura: o BitLife. A identidade visual (cores, ícones, estilo dos botões) é própria do SyncLife.
+
+### Tela principal
+
+| Área | Conteúdo |
+| --- | --- |
+| Cabeçalho, à esquerda | Bandeira do país, nome completo do personagem e, embaixo, a fase da vida (Bebê, Criança, Adolescente) |
+| Cabeçalho, à direita | Saldo com o símbolo da moeda do país (US$ 1.250, R$ 300, ¥ 2.000), formatado com `Intl.NumberFormat`; embaixo, o rótulo "Saldo" |
+| Centro | Diário da vida, com rolagem; o bloco mais recente fica embaixo e a tela rola até ele após cada avanço |
+| Navegação | Botão grande central para avançar, com as duas opções lado a lado: 6 meses e 1 ano. Não existe voltar no tempo; abas ao redor: fase atual, relacionamentos, atividades e bens |
+| Rodapé fixo | As quatro barras de status (felicidade, saúde, inteligência, aparência) com porcentagem, sempre visíveis |
+
+Países aparecem sempre pelo nome completo no idioma do jogo ("Estados Unidos", nunca "US") e com bandeira. Emojis de bandeira não aparecem no Windows (viram as letras "US"), então as bandeiras usam imagens SVG embutidas, não emojis.
+
+### Diário da vida
+
+Cada bloco começa com a idade ("Idade: 3 anos" ou "Idade: 3 anos e 6 meses"). A data do calendário é opcional e, se aparecer, fica só no diário, não no cabeçalho.
+
+O **primeiro bloco** apresenta o personagem e a família: nome completo, sexo, cidade e país de nascimento, data de aniversário, e o nome, a profissão e a idade de cada pai ou mãe. Exemplo: "Eu nasci menina em Chicago, Estados Unidos. Meu aniversário é 14 de março. Meu nome é Sofia Reed. Minha mãe é Laura Reed, enfermeira (29 anos). Meu pai é Daniel Reed, motorista de ônibus (31 anos)."
+
+Os **blocos seguintes** registram tudo o que aconteceu no período: eventos e a escolha feita com o resultado, aniversários, mudanças de status relevantes, dinheiro ganho ou perdido (mesada, bicos, presentes) e eventos do mundo que envolvem pessoas próximas ("Seus pais tiveram uma briga feia"). Nada que mude o personagem acontece sem aparecer no diário.
+
+### Escolhas
+
+Eventos com escolha e pontos de decisão aparecem num pop-up por cima da tela principal, durante o avanço. Depois da escolha, o resultado entra no bloco do período.
+
+### Telas secundárias
+
+- **Início:** nova vida aleatória ou vida personalizada (nome, sexo, país, cidade).
+- **Relacionamentos:** só pessoas próximas: família (pais, irmãos, padrastos), namorado(a) e amigos. Cada uma com nome, papel e barra de relação dupla; tocar abre o perfil com as categorias de interação. Conhecidos (colegas de classe, professores, colegas de trabalho no futuro) ficam dentro da tela do lugar onde convivem, como a escola, para a lista não ficar poluída. Um colega que vira amigo passa para Relacionamentos.
+- **Atividades e bens:** listas com ícone, título e uma linha de descrição.
+
+### Para depois
+
+Talento especial do personagem (por exemplo, basquete), mostrado com um ícone ao lado do nome.
+
+### Problemas encontrados no M5 (corrigir no M5.1)
+
+- [ ] Nome do personagem não aparece na tela.
+- [ ] País aparece como código ("US") em vez de nome completo e bandeira.
+- [ ] Saldo aparece como a palavra "dinheiro" em vez do símbolo da moeda do país.
+- [ ] O diário não apresenta o personagem nem os pais ao nascer.
+- [ ] Status ficam parados em 50: não há valores iniciais sorteados, crescimento pelas aptidões nem efeitos de eventos sobre eles.
+- [ ] Poucos eventos: em um ano houve só um (separação dos pais). A regra de pelo menos uma decisão por avanço não está sendo cumprida.
+- [ ] Dinheiro entra sem explicação: em 18 anos acumulou cerca de 4.212 sem que o diário mostrasse de onde veio, e não há em que gastar.
 
 ## Arquitetura técnica e marcos
 
