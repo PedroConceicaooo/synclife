@@ -59,7 +59,14 @@ export function attemptInteraction(
 
   const { relationshipsById: nextRelationshipsById, peopleById: nextPeopleById } = applyEffects(
     succeeded ? interaction.success : interaction.failure,
-    { relationship: touched, relationshipsById: relationshipsWithCounter, peopleById, playerId: player.id, country },
+    {
+      relationship: touched,
+      relationshipsById: relationshipsWithCounter,
+      peopleById,
+      playerId: player.id,
+      country,
+      diminishingAffinityGains: true,
+    },
   );
 
   return { attempted: true, succeeded, relationshipsById: nextRelationshipsById, peopleById: nextPeopleById };

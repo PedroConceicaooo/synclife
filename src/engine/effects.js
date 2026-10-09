@@ -31,6 +31,16 @@ function resolveTargetRelationship(targetRole, context) {
   return null;
 }
 
+// Repeatable actions (interactions) get closer less and less as affinity
+// rises: full gain up to this value, then linearly down to 0 at 100. Losses
+// are never reduced.
+const DIMINISHING_GAINS_FROM = 50;
+
+export function diminishedGain(current, delta) {
+  if (delta <= 0) return delta;
+  return delta * Math.min(1, (100 - current) / (100 - DIMINISHING_GAINS_FROM));
+}
+
 function applyAffinityEffect(effect, context) {
   const target = resolveTargetRelationship(effect.targetRole, context);
   if (!target) return { relationshipsById: context.relationshipsById, peopleById: context.peopleById };
@@ -42,7 +52,8 @@ function applyAffinityEffect(effect, context) {
       (effect.side === 'player' && personId === context.playerId) ||
       (effect.side === 'target' && personId !== context.playerId);
     if (appliesToThisSide) {
-      affinity[personId] = clamp(affinity[personId] + effect.delta, 0, 100);
+      const delta = context.diminishingAffinityGains ? diminishedGain(affinity[personId], effect.delta) : effect.delta;
+      affinity[personId] = clamp(affinity[personId] + delta, 0, 100);
     }
   }
 

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { applyEffects } from '../src/engine/effects.js';
+import { applyEffects, diminishedGain } from '../src/engine/effects.js';
 import { createRelationship } from '../src/systems/relationship.js';
 
 function setup() {
@@ -187,4 +187,24 @@ test('money gains or loses a country-scaled amount for the player, from no one',
   assert.equal(applyEffects([{ op: 'money', target: 'player', gain: 'medium' }], context).peopleById.p_player.money, 50);
   assert.equal(applyEffects([{ op: 'money', target: 'player', lose: 'small' }], context).peopleById.p_player.money, -10);
   assert.equal(applyEffects([{ op: 'money', target: 'player', gain: 'small' }], context).peopleById.p_mother.money, 1000);
+});
+
+test('diminishedGain keeps full gains up to 50, shrinks them toward 0 at 100, and never touches losses', () => {
+  assert.equal(diminishedGain(30, 4), 4);
+  assert.equal(diminishedGain(50, 4), 4);
+  assert.equal(diminishedGain(75, 4), 2);
+  assert.equal(diminishedGain(100, 4), 0);
+  assert.equal(diminishedGain(90, -4), -4);
+});
+
+test('affinity gains diminish only when the context asks for it', () => {
+  const { motherChild, relationshipsById } = setup(); // p_mother 80, p_player 75
+  const effects = [{ op: 'affinity', side: 'both', delta: 5 }];
+  const base = { relationship: motherChild, relationshipsById, playerId: 'p_player' };
+
+  const full = applyEffects(effects, base).relationshipsById[motherChild.id].affinity;
+  const diminished = applyEffects(effects, { ...base, diminishingAffinityGains: true }).relationshipsById[motherChild.id].affinity;
+
+  assert.deepEqual(full, { p_mother: 85, p_player: 80 });
+  assert.deepEqual(diminished, { p_mother: 82, p_player: 77.5 });
 });
