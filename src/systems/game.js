@@ -14,6 +14,8 @@ import { createNewLife } from './life.js';
 import { decayAll, resetInteractionsThisPeriod, findRelationshipBetween } from './relationship.js';
 import { processRelationshipEvents, processPlayerEvents, resolveDecision as resolveDecisionEvent } from './events.js';
 import { attemptInteraction, listAvailableInteractions } from './interactions.js';
+import { attemptActivity, listActivities } from './activities.js';
+import { applyEffects } from '../engine/effects.js';
 import { isAllowanceAge, payAllowance, transferMoney } from './money.js';
 import { growStats } from './growth.js';
 
@@ -56,8 +58,10 @@ export function createGameState({ seed, countriesById, eventsById, interactionsB
     activitiesById,
     pendingDecisions: [],
     firedEvents: [],
+    activityUsesThisPeriod: {},
     history: [{ month: player.birth, entries: [{ type: 'birth' }] }],
     lastInteractionResult: null,
+    lastActivityResult: null,
   };
 }
 
@@ -162,6 +166,8 @@ export function advanceStep(state, months) {
     birthdays,
     fired: world.fired,
     pendingDecisions: [...world.pendingDecisions, ...playerEvents.pendingDecisions],
+    activityUsesThisPeriod: {},
+    lastActivityResult: null,
     firedEvents: [
       ...state.firedEvents,
       ...world.fired.map((f) => ({ eventId: f.eventId, month: nextMonthIndex })),
@@ -241,4 +247,77 @@ export function availableInteractions(state, targetPersonId) {
     country: state.country,
     currentMonthIndex: state.currentMonthIndex,
   });
+}
+
+export function availableActivities(state) {
+  return listActivities(state.activitiesById, {
+    player: state.people[state.player.id],
+    country: state.country,
+    currentMonthIndex: state.currentMonthIndex,
+    usesById: state.activityUsesThisPeriod ?? {},
+  });
+}
+
+// Events triggered by an activity have no yearlyChance of their own: ones
+// with options become a decision, the rest apply right away.
+export function attemptPlayerActivity(state, activityId) {
+  const activity = state.activitiesById[activityId];
+  const playerId = state.player.id;
+  const playerBefore = state.people[playerId];
+  const uses = state.activityUsesThisPeriod ?? {};
+
+  const result = attemptActivity(activity, {
+    player: playerBefore,
+    peopleById: state.people,
+    relationshipsById: state.relationships,
+    country: state.country,
+    currentMonthIndex: state.currentMonthIndex,
+    rng: state.rng,
+    usesThisPeriod: uses[activityId] ?? 0,
+  });
+
+  if (!result.attempted) {
+    return { ...state, lastActivityResult: { attempted: false, reason: result.reason, activityId } };
+  }
+
+  let people = result.peopleById;
+  let relationships = result.relationshipsById;
+  const entries = [{ type: 'activity', activityId }];
+  const eventEntries = [];
+  const pendingDecisions = [];
+
+  for (const eventId of result.triggeredEvents) {
+    const event = state.eventsById[eventId];
+    if (event.options) {
+      pendingDecisions.push({ trigger: eventId, firingRelationship: null });
+      continue;
+    }
+    const applied = applyEffects(event.effects ?? [], {
+      relationship: null,
+      relationshipsById: relationships,
+      peopleById: people,
+      playerId,
+      country: state.country,
+    });
+    people = applied.peopleById;
+    relationships = applied.relationshipsById;
+    eventEntries.push({ type: 'event', eventId });
+  }
+
+  entries.push(
+    ...eventEntries,
+    ...moneyEntries(playerBefore, people[playerId], { source: 'activity', activityId }),
+    ...statEntries(playerBefore, people[playerId]),
+  );
+
+  return {
+    ...state,
+    people,
+    relationships,
+    activityUsesThisPeriod: { ...uses, [activityId]: (uses[activityId] ?? 0) + 1 },
+    pendingDecisions: [...state.pendingDecisions, ...pendingDecisions],
+    firedEvents: [...state.firedEvents, ...result.triggeredEvents.map((eventId) => ({ eventId, month: state.currentMonthIndex }))],
+    history: appendToCurrentBlock(state.history, entries),
+    lastActivityResult: { attempted: true, activityId, triggeredEvents: result.triggeredEvents },
+  };
 }

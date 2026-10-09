@@ -7,7 +7,15 @@ import { createRelationship } from '../src/systems/relationship.js';
 import { loadEvents } from '../src/systems/eventsLoader.js';
 import { loadInteractions } from '../src/systems/interactionsLoader.js';
 import { loadActivities } from '../src/systems/activitiesLoader.js';
-import { createGameState, advanceStep, resolveDecision, attemptPlayerInteraction, isAdult } from '../src/systems/game.js';
+import {
+  createGameState,
+  advanceStep,
+  resolveDecision,
+  attemptPlayerInteraction,
+  attemptPlayerActivity,
+  availableActivities,
+  isAdult,
+} from '../src/systems/game.js';
 
 const EVENTS_DIR = fileURLToPath(new URL('../data/events/', import.meta.url));
 const INTERACTIONS_DIR = fileURLToPath(new URL('../data/interactions/', import.meta.url));
@@ -206,4 +214,63 @@ test('a full life is deterministic for a fixed seed', () => {
   const b = playFullLife(2024).state;
   assert.deepEqual(a.history, b.history);
   assert.deepEqual(a.people, b.people);
+});
+
+const ACTIVITY_FIXTURE = {
+  odd_job: { id: 'odd_job', category: 'odd_jobs', conditions: { minAge: 5 }, earnings: 'medium', randomEvents: [{ event: 'tip', chance: 1 }] },
+  risky_job: { id: 'risky_job', category: 'odd_jobs', conditions: { minAge: 5 }, earnings: 'small', randomEvents: [{ event: 'dilemma', chance: 1 }] },
+  park: { id: 'park', category: 'leisure', conditions: { minAge: 5 }, cost: 'medium', effects: [{ op: 'stat', target: 'player', stat: 'happiness', delta: 5 }] },
+};
+const ACTIVITY_EVENTS = {
+  tip: { id: 'tip', subject: 'player', effects: [{ op: 'money', target: 'player', gain: 'small' }] },
+  dilemma: { id: 'dilemma', subject: 'player', options: [{ id: 'ok', effects: [] }] },
+};
+
+function activityState() {
+  const state = buildDivorceReadyState();
+  return { ...state, activitiesById: ACTIVITY_FIXTURE, eventsById: { ...state.eventsById, ...ACTIVITY_EVENTS }, activityUsesThisPeriod: {} };
+}
+
+test('attemptPlayerActivity pays, applies triggered events and logs everything in the current block', () => {
+  const after = attemptPlayerActivity(activityState(), 'odd_job');
+
+  // medium (125) + tip (small, 25) in the BR fixture currency
+  assert.equal(after.people.p_player.money, 150);
+  assert.deepEqual(after.history[0].entries, [
+    { type: 'activity', activityId: 'odd_job' },
+    { type: 'event', eventId: 'tip' },
+    { type: 'money', amount: 150, source: 'activity', activityId: 'odd_job' },
+  ]);
+});
+
+test('attemptPlayerActivity allows each activity once per period and resets on advance', () => {
+  const once = attemptPlayerActivity(activityState(), 'odd_job');
+  const twice = attemptPlayerActivity(once, 'odd_job');
+
+  assert.equal(twice.lastActivityResult.reason, 'limit');
+  assert.equal(twice.people.p_player.money, 150);
+
+  const nextPeriod = advanceStep(twice, 6);
+  assert.deepEqual(nextPeriod.activityUsesThisPeriod, {});
+});
+
+test('attemptPlayerActivity spends money on leisure and blocks it without money', () => {
+  const state = activityState();
+  assert.equal(attemptPlayerActivity(state, 'park').lastActivityResult.reason, 'money');
+
+  const rich = { ...state, people: { ...state.people, p_player: { ...state.people.p_player, money: 200 } } };
+  const after = attemptPlayerActivity(rich, 'park');
+  assert.equal(after.people.p_player.money, 75);
+  assert.equal(after.people.p_player.stats.happiness, 55);
+});
+
+test('an activity event with options becomes a pending decision', () => {
+  const after = attemptPlayerActivity(activityState(), 'risky_job');
+  assert.deepEqual(after.pendingDecisions, [{ trigger: 'dilemma', firingRelationship: null }]);
+});
+
+test('availableActivities reflects uses this period', () => {
+  const after = attemptPlayerActivity(activityState(), 'odd_job');
+  const jobs = availableActivities(after).find((g) => g.category === 'odd_jobs').activities;
+  assert.deepEqual(jobs.find((a) => a.id === 'odd_job'), { id: 'odd_job', blocker: 'limit' });
 });

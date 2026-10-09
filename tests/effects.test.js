@@ -179,3 +179,12 @@ test('affinity with targetRole works without a firing relationship (player event
   assert.equal(result.relationshipsById[motherChild.id].affinity.p_player, 75);
   assert.deepEqual(result.relationshipsById[marriage.id].affinity, marriage.affinity);
 });
+
+test('money gains or loses a country-scaled amount for the player, from no one', () => {
+  const { relationshipsById, peopleById, country } = setup();
+  const context = { relationship: null, relationshipsById, peopleById, playerId: 'p_player', country };
+
+  assert.equal(applyEffects([{ op: 'money', target: 'player', gain: 'medium' }], context).peopleById.p_player.money, 50);
+  assert.equal(applyEffects([{ op: 'money', target: 'player', lose: 'small' }], context).peopleById.p_player.money, -10);
+  assert.equal(applyEffects([{ op: 'money', target: 'player', gain: 'small' }], context).peopleById.p_mother.money, 1000);
+});

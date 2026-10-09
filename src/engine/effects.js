@@ -1,7 +1,7 @@
 // Closed vocabulary for event/interaction effects (rule 4 — no code in data).
 
 import { clamp, findRelationshipBetween } from '../systems/relationship.js';
-import { resolveAmount, transferMoney } from '../systems/money.js';
+import { resolveAmount, transferMoney, addMoney } from '../systems/money.js';
 
 // targetRole names the role a participant of the firing relationship holds
 // in THEIR OWN relationship with the player (e.g. "mother"), not a role
@@ -84,6 +84,14 @@ function applyStatEffect(effect, context) {
   };
 }
 
+// Money from or to no one in particular (a tip, a confiscation):
+// { op: "money", target: "player", gain: "small" } or { ..., lose: "small" }.
+function applyMoneyEffect(effect, context) {
+  const personId = effect.target === 'player' ? context.playerId : otherParticipant(context.relationship, context.playerId);
+  const amount = effect.gain ? resolveAmount(effect.gain, context.country) : -resolveAmount(effect.lose, context.country);
+  return { relationshipsById: context.relationshipsById, peopleById: addMoney(context.peopleById, personId, amount) };
+}
+
 function applyEffect(effect, context) {
   switch (effect.op) {
     case 'relationshipState':
@@ -100,6 +108,8 @@ function applyEffect(effect, context) {
       return applyTransferMoneyEffect(effect, context);
     case 'stat':
       return applyStatEffect(effect, context);
+    case 'money':
+      return applyMoneyEffect(effect, context);
     default:
       throw new Error(`Unknown effect op: ${effect.op}`);
   }
