@@ -1,0 +1,39 @@
+{
+  "id": "dog_runs_away",
+  "subject": "player",
+  "options": [
+    {
+      "id": "chase_the_dog",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "health",
+          "delta": 2
+        },
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 1
+        }
+      ]
+    },
+    {
+      "id": "tell_the_owner",
+      "effects": [
+        {
+          "op": "money",
+          "target": "player",
+          "lose": "small"
+        },
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": -2
+        }
+      ]
+    }
+  ]
+}

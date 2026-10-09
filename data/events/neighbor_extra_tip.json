@@ -1,0 +1,17 @@
+{
+  "id": "neighbor_extra_tip",
+  "subject": "player",
+  "effects": [
+    {
+      "op": "money",
+      "target": "player",
+      "gain": "small"
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ]
+}

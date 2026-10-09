@@ -1,0 +1,22 @@
+{
+  "id": "carry_groceries",
+  "category": "odd_jobs",
+  "conditions": {
+    "minAge": 7
+  },
+  "earnings": "small",
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 1
+    }
+  ],
+  "randomEvents": [
+    {
+      "event": "neighbor_extra_tip",
+      "chance": 0.15
+    }
+  ]
+}

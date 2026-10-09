@@ -1,0 +1,16 @@
+{
+  "id": "amusement_park",
+  "category": "leisure",
+  "conditions": {
+    "minAge": 6
+  },
+  "cost": "medium",
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 5
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "id": "walk_dogs",
+  "category": "odd_jobs",
+  "conditions": {
+    "minAge": 9
+  },
+  "earnings": "medium",
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 2
+    }
+  ],
+  "randomEvents": [
+    {
+      "event": "dog_runs_away",
+      "chance": 0.15
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "babysit",
+  "category": "odd_jobs",
+  "conditions": {
+    "minAge": 14
+  },
+  "earnings": "medium",
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -1
+    }
+  ]
+}

@@ -25,6 +25,9 @@ const MANIFEST = {
     'hard_exam.json',
     'school_fight.json',
     'acne.json',
+    'neighbor_extra_tip.json',
+    'teacher_confiscates.json',
+    'dog_runs_away.json',
     'first_steps.json',
     'first_word.json',
     'pull_tablecloth.json',
@@ -58,7 +61,19 @@ const MANIFEST = {
     'insult.json',
     'help_at_home.json',
   ],
-  activities: ['mow_lawn.json'],
+  activities: [
+    'carry_groceries.json',
+    'wash_cars.json',
+    'walk_dogs.json',
+    'mow_lawn.json',
+    'sell_at_recess.json',
+    'babysit.json',
+    'amusement_park.json',
+    'buy_book.json',
+    'buy_video_game.json',
+    'buy_clothes.json',
+    'gym.json',
+  ],
 };
 
 async function fetchAll(dir, files) {

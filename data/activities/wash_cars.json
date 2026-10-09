@@ -1,0 +1,14 @@
+{
+  "id": "wash_cars",
+  "category": "odd_jobs",
+  "conditions": {
+    "minAge": 8
+  },
+  "earnings": "small",
+  "randomEvents": [
+    {
+      "event": "neighbor_extra_tip",
+      "chance": 0.15
+    }
+  ]
+}

@@ -68,6 +68,7 @@ function runShortLife(seed) {
       peopleById: people,
       country: COUNTRY,
       currentMonthIndex: currentMonth,
+      rng,
     });
     people = activityResult.peopleById;
 

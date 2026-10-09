@@ -1,0 +1,16 @@
+{
+  "id": "sell_at_recess",
+  "category": "odd_jobs",
+  "conditions": {
+    "minAge": 10,
+    "maxAge": 17
+  },
+  "earnings": "medium",
+  "cost": "small",
+  "randomEvents": [
+    {
+      "event": "teacher_confiscates",
+      "chance": 0.25
+    }
+  ]
+}

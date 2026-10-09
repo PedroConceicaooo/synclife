@@ -1,0 +1,22 @@
+{
+  "id": "buy_clothes",
+  "category": "leisure",
+  "conditions": {
+    "minAge": 12
+  },
+  "cost": "medium",
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": 2
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    }
+  ]
+}

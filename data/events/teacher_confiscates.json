@@ -1,0 +1,17 @@
+{
+  "id": "teacher_confiscates",
+  "subject": "player",
+  "effects": [
+    {
+      "op": "money",
+      "target": "player",
+      "lose": "medium"
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -3
+    }
+  ]
+}

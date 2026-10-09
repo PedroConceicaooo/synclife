@@ -1,6 +1,22 @@
 {
   "id": "mow_lawn",
   "category": "odd_jobs",
-  "conditions": { "minAge": 10 },
-  "earnings": "small"
+  "conditions": {
+    "minAge": 10
+  },
+  "earnings": "medium",
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 1
+    }
+  ],
+  "randomEvents": [
+    {
+      "event": "neighbor_extra_tip",
+      "chance": 0.15
+    }
+  ]
 }

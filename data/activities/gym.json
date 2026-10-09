@@ -1,0 +1,22 @@
+{
+  "id": "gym",
+  "category": "leisure",
+  "conditions": {
+    "minAge": 14
+  },
+  "cost": "small",
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 3
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": 1
+    }
+  ]
+}
