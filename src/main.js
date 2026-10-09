@@ -1,21 +1,12 @@
 import { fileURLToPath } from 'node:url';
 import { createRng } from './engine/random.js';
-import { fromMonthIndex, ageAt, advance } from './engine/time.js';
-import { resolveCountry } from './engine/countries.js';
+import { fromMonthIndex, ageAt } from './engine/time.js';
 import { loadCountries } from './engine/countriesLoader.js';
-import { createIdGenerator } from './engine/id.js';
-import { createNewLife } from './systems/life.js';
-import { decayAll, resetInteractionsThisPeriod } from './systems/relationship.js';
-import { processRelationshipEvents, resolveDecision } from './systems/events.js';
 import { loadEvents } from './systems/eventsLoader.js';
-import { attemptInteraction } from './systems/interactions.js';
 import { loadInteractions } from './systems/interactionsLoader.js';
-import { attemptActivity } from './systems/activities.js';
 import { loadActivities } from './systems/activitiesLoader.js';
-import { isAllowanceAge, payAllowance, transferMoney } from './systems/money.js';
+import { createGameState, advanceStep, resolveDecision, isAdult } from './systems/game.js';
 
-const START_YEAR = 2000;
-const ADULT_AGE = 18;
 const COUNTRIES_DIR = fileURLToPath(new URL('../data/countries/', import.meta.url));
 const EVENTS_DIR = fileURLToPath(new URL('../data/events/', import.meta.url));
 const INTERACTIONS_DIR = fileURLToPath(new URL('../data/interactions/', import.meta.url));
@@ -31,139 +22,76 @@ function formatDate(monthIndex) {
   return `${year}-${String(month).padStart(2, '0')}`;
 }
 
-function formatAffinity(relationship) {
-  const sides = Object.entries(relationship.affinity)
-    .map(([personId, value]) => `${personId}=${value.toFixed(1)}`)
-    .join(', ');
-  return `${relationship.id} type=${relationship.type} roles=${JSON.stringify(relationship.roles)} affinity={${sides}}`;
+function formatStats(person) {
+  return Object.entries(person.stats)
+    .map(([stat, value]) => `${stat}=${Math.round(value)}`)
+    .join(' ');
 }
 
 function formatPerson(person) {
-  return `${person.id} money=${person.money.toFixed(2)} traits=[${person.traits.join(', ')}]`;
+  return `${person.id} money=${person.money} traits=[${person.traits.join(', ')}] ${formatStats(person)}`;
+}
+
+// Console output is a developer view of the diary entries (ids, not texts).
+function formatEntry(entry) {
+  switch (entry.type) {
+    case 'birth':
+      return 'born';
+    case 'birthday':
+      return `turned ${entry.age} (${formatDate(entry.month)})`;
+    case 'event':
+      return entry.optionId ? `event ${entry.eventId} -> chose ${entry.optionId}` : `event ${entry.eventId}`;
+    case 'worldEvent':
+      return `world event ${entry.eventId} on ${entry.relationshipId}`;
+    case 'money':
+      return `money ${entry.amount > 0 ? '+' : ''}${entry.amount} (${entry.source}${entry.fromId ? ` from ${entry.fromId}` : ''})`;
+    case 'stat':
+      return `${entry.stat} ${entry.delta > 0 ? '+' : ''}${entry.delta}`;
+    case 'interaction':
+      return `interaction ${entry.interactionId} -> ${entry.targetId} ${entry.succeeded ? 'succeeded' : 'failed'}`;
+    default:
+      return JSON.stringify(entry);
+  }
+}
+
+function printBlock(state, block) {
+  console.log(`[${formatDate(block.month)}] age ${ageAt(state.player.birth, block.month)}`);
+  for (const entry of block.entries) console.log(`  ${formatEntry(entry)}`);
 }
 
 function main() {
   const seed = readSeedFromArgs();
   console.log(`Seed: ${seed}`);
 
-  const rng = createRng(seed);
-  const nextPersonId = createIdGenerator('p');
-  const nextRelationshipId = createIdGenerator('r');
+  let state = createGameState({
+    seed,
+    countriesById: loadCountries(COUNTRIES_DIR),
+    eventsById: loadEvents(EVENTS_DIR),
+    interactionsById: loadInteractions(INTERACTIONS_DIR),
+    activitiesById: loadActivities(ACTIVITIES_DIR),
+  });
 
-  const eventsById = loadEvents(EVENTS_DIR);
-  const interactionsById = loadInteractions(INTERACTIONS_DIR);
-  const activitiesById = loadActivities(ACTIVITIES_DIR);
-  const askMoney = interactionsById.ask_money;
-  const mowLawn = activitiesById.mow_lawn;
+  console.log(`Born: ${formatPerson(state.player)} sex=${state.player.sex} country=${state.country.id}`);
+  console.log(`Mother: ${formatPerson(state.mother)}`);
+  console.log(`Father: ${formatPerson(state.father)}`);
 
-  const countriesById = loadCountries(COUNTRIES_DIR);
-  const playableCountryIds = Object.keys(countriesById).filter((id) => id !== 'default');
-  const countries = playableCountryIds.map((id) => resolveCountry(id, countriesById));
+  // Step choice is separate from the game's rng so it doesn't shift the life's
+  // draws; same seed still means the same life.
+  const stepRng = createRng(seed ^ 0x5eed);
 
-  const {
-    player: person,
-    mother,
-    father,
-    country,
-    relationships: { motherChild, fatherChild, marriage },
-  } = createNewLife(rng, { countries, nextPersonId, nextRelationshipId, startYear: START_YEAR });
-
-  console.log(`Born: ${person.id} sex=${person.sex} country=${person.countryId} date=${formatDate(person.birth)}`);
-  console.log(`Mother: ${formatPerson(mother)} date=${formatDate(mother.birth)}`);
-  console.log(`Father: ${formatPerson(father)} date=${formatDate(father.birth)}`);
-
-  let people = { [person.id]: person, [mother.id]: mother, [father.id]: father };
-  let relationships = Object.fromEntries([motherChild, fatherChild, marriage].map((r) => [r.id, r]));
-
-  let currentMonth = person.birth;
-
-  while (ageAt(person.birth, currentMonth) < ADULT_AGE) {
-    const step = rng.chance(0.5) ? 6 : 12;
-    const { nextMonthIndex, birthdays } = advance(currentMonth, step, person.birth);
-    currentMonth = nextMonthIndex;
-    relationships = decayAll(relationships, step);
-    relationships = resetInteractionsThisPeriod(relationships);
-
-    const { relationshipsById: afterEvents, fired, pendingDecisions } = processRelationshipEvents(
-      eventsById,
-      relationships,
-      { currentMonthIndex: currentMonth, step, rng, playerId: person.id },
-    );
-    relationships = afterEvents;
-
-    for (const event of fired) {
-      console.log(`Event fired: ${event.eventId} on ${event.relationshipId} (${formatDate(currentMonth)})`);
-    }
-
-    for (const decision of pendingDecisions) {
-      const decisionEvent = eventsById[decision.trigger];
-      const { optionId, relationshipsById: afterDecision } = resolveDecision(decisionEvent, decision.firingRelationship, {
-        rng,
-        playerId: person.id,
-        relationshipsById: relationships,
-      });
-      relationships = afterDecision;
-      console.log(`Decision triggered: ${decision.trigger} -> chose ${optionId}`);
-    }
-
-    for (const [parent, relationship] of [
-      [mother, relationships[motherChild.id]],
-      [father, relationships[fatherChild.id]],
-    ]) {
-      const result = attemptInteraction(askMoney, {
-        relationship,
-        player: person,
-        target: parent,
-        peopleById: people,
-        relationshipsById: relationships,
-        country,
-        currentMonthIndex: currentMonth,
-        rng,
-      });
-      relationships = result.relationshipsById;
-      people = result.peopleById;
-      if (result.attempted) {
-        console.log(`Interaction: ask_money -> ${parent.id} ${result.succeeded ? 'succeeded' : 'failed'}`);
-      }
-    }
-
-    const activityResult = attemptActivity(mowLawn, {
-      player: person,
-      peopleById: people,
-      country,
-      currentMonthIndex: currentMonth,
-    });
-    people = activityResult.peopleById;
-    if (activityResult.attempted) {
-      console.log(`Activity: mow_lawn -> earned money`);
-    }
-
-    if (isAllowanceAge(ageAt(person.birth, currentMonth))) {
-      for (const [parent, relationship] of [
-        [mother, relationships[motherChild.id]],
-        [father, relationships[fatherChild.id]],
-      ]) {
-        const amount = payAllowance({ parent: people[parent.id], relationship, country, step });
-        people = transferMoney(people, parent.id, person.id, amount);
-        console.log(`Allowance from ${parent.id}: ${amount.toFixed(2)}`);
-      }
-    }
-
-    for (const birthday of birthdays) {
-      console.log(`Turned ${birthday.age} (${formatDate(birthday.monthIndex)})`);
-    }
+  while (!isAdult(state)) {
+    state = advanceStep(state, stepRng.chance(0.5) ? 6 : 12);
+    while (state.pendingDecisions.length > 0) state = resolveDecision(state);
+    printBlock(state, state.history[state.history.length - 1]);
   }
 
-  console.log(
-    `Done: ${formatPerson(people[person.id])} age=${ageAt(person.birth, currentMonth)} date=${formatDate(currentMonth)} country=${person.countryId}`,
-  );
-
-  console.log('Family summary:');
-  for (const relationship of Object.values(relationships)) {
-    console.log(`  ${formatAffinity(relationship)}`);
-  }
-  for (const id of [mother.id, father.id]) {
-    console.log(`  ${formatPerson(people[id])}`);
+  const player = state.people[state.player.id];
+  console.log(`Done: ${formatPerson(player)} age=${ageAt(player.birth, state.currentMonthIndex)} date=${formatDate(state.currentMonthIndex)}`);
+  for (const relationship of Object.values(state.relationships)) {
+    const sides = Object.entries(relationship.affinity)
+      .map(([personId, value]) => `${personId}=${value.toFixed(1)}`)
+      .join(', ');
+    console.log(`  ${relationship.id} ${relationship.type}${relationship.state ? `/${relationship.state}` : ''} {${sides}}`);
   }
 }
 
