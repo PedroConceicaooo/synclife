@@ -7,7 +7,7 @@ import { createRelationship } from '../src/systems/relationship.js';
 import { loadEvents } from '../src/systems/eventsLoader.js';
 import { loadInteractions } from '../src/systems/interactionsLoader.js';
 import { loadActivities } from '../src/systems/activitiesLoader.js';
-import { createGameState, advanceStep, resolveDecision, attemptPlayerInteraction } from '../src/ui/gameState.js';
+import { createGameState, advanceStep, resolveDecision, attemptPlayerInteraction } from '../src/systems/game.js';
 
 const EVENTS_DIR = fileURLToPath(new URL('../data/events/', import.meta.url));
 const INTERACTIONS_DIR = fileURLToPath(new URL('../data/interactions/', import.meta.url));
