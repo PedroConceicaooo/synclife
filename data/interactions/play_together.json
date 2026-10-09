@@ -1,0 +1,41 @@
+{
+  "id": "play_together",
+  "category": "spend_time",
+  "conditions": {
+    "targetRole": [
+      "mother",
+      "father"
+    ],
+    "minAge": 1
+  },
+  "chance": {
+    "base": 0.75,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.4
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": 2
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    }
+  ],
+  "failure": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -1
+    }
+  ]
+}

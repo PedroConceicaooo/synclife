@@ -1,0 +1,39 @@
+{
+  "id": "compliment",
+  "category": "talk",
+  "conditions": {
+    "targetRole": [
+      "mother",
+      "father"
+    ],
+    "minAge": 4
+  },
+  "chance": {
+    "base": 0.75,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.3
+      },
+      {
+        "factor": "targetTrait",
+        "value": "sociable",
+        "adjust": 0.1
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": 3
+    }
+  ],
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -1
+    }
+  ]
+}

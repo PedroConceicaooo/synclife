@@ -1,0 +1,47 @@
+{
+  "id": "give_gift",
+  "category": "give",
+  "conditions": {
+    "targetRole": [
+      "mother",
+      "father"
+    ],
+    "minAge": 5,
+    "minMoney": "small"
+  },
+  "chance": {
+    "base": 0.85,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.3
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "transferMoney",
+      "from": "player",
+      "to": "target",
+      "amount": "small"
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": 5
+    }
+  ],
+  "failure": [
+    {
+      "op": "transferMoney",
+      "from": "player",
+      "to": "target",
+      "amount": "small"
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": 1
+    }
+  ]
+}

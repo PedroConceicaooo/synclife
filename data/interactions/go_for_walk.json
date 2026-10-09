@@ -1,0 +1,46 @@
+{
+  "id": "go_for_walk",
+  "category": "spend_time",
+  "conditions": {
+    "targetRole": [
+      "mother",
+      "father"
+    ],
+    "minAge": 2
+  },
+  "chance": {
+    "base": 0.7,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.4
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": 2
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 1
+    }
+  ],
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": -1
+    }
+  ]
+}

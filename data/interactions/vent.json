@@ -1,0 +1,56 @@
+{
+  "id": "vent",
+  "category": "talk",
+  "conditions": {
+    "targetRole": [
+      "mother",
+      "father"
+    ],
+    "minAge": 6
+  },
+  "chance": {
+    "base": 0.6,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.6
+      },
+      {
+        "factor": "targetTrait",
+        "value": "patient",
+        "adjust": 0.2
+      },
+      {
+        "factor": "targetTrait",
+        "value": "explosive",
+        "adjust": -0.2
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": 2
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 3
+    }
+  ],
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "player",
+      "delta": -2
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -1
+    }
+  ]
+}

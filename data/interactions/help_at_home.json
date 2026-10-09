@@ -1,0 +1,29 @@
+{
+  "id": "help_at_home",
+  "category": "relationship",
+  "conditions": {
+    "targetRole": [
+      "mother",
+      "father"
+    ],
+    "minAge": 4
+  },
+  "chance": {
+    "base": 0.9,
+    "modifiers": []
+  },
+  "success": [
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": 4
+    }
+  ],
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -1
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "yell",
+  "category": "conflict",
+  "conditions": {
+    "targetRole": [
+      "mother",
+      "father"
+    ],
+    "minAge": 6
+  },
+  "chance": {
+    "base": 0.2,
+    "modifiers": [
+      {
+        "factor": "targetTrait",
+        "value": "explosive",
+        "adjust": -0.2
+      },
+      {
+        "factor": "targetTrait",
+        "value": "patient",
+        "adjust": 0.1
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -6
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ],
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -8
+    },
+    {
+      "op": "affinity",
+      "side": "player",
+      "delta": -3
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -3
+    }
+  ]
+}

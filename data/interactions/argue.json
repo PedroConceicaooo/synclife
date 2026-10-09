@@ -1,0 +1,56 @@
+{
+  "id": "argue",
+  "category": "conflict",
+  "conditions": {
+    "targetRole": [
+      "mother",
+      "father"
+    ],
+    "minAge": 4
+  },
+  "chance": {
+    "base": 0.4,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.3
+      },
+      {
+        "factor": "targetTrait",
+        "value": "stubborn",
+        "adjust": -0.2
+      },
+      {
+        "factor": "targetTrait",
+        "value": "patient",
+        "adjust": 0.1
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -3
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    }
+  ],
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": -4
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -2
+    }
+  ]
+}

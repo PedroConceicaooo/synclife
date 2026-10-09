@@ -1,0 +1,56 @@
+{
+  "id": "ask_for_something",
+  "category": "ask",
+  "conditions": {
+    "targetRole": [
+      "mother",
+      "father"
+    ],
+    "minAge": 4
+  },
+  "chance": {
+    "base": 0.35,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.5
+      },
+      {
+        "factor": "targetTrait",
+        "value": "generous",
+        "adjust": 0.2
+      },
+      {
+        "factor": "targetTrait",
+        "value": "rigid",
+        "adjust": -0.2
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -1
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 3
+    }
+  ],
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": -2
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -2
+    }
+  ]
+}
