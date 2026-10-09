@@ -197,5 +197,17 @@
   "event.new_sibling.option.cuddle": "Fazer carinho no bebê",
   "event.new_sibling.option.pinch_secretly": "Beliscar escondido",
   "role.brother": "Irmão",
-  "role.sister": "Irmã"
+  "role.sister": "Irmã",
+  "interaction.tease.label": "Implicar",
+  "interaction.tease.success": "Você arrancou risadas, menos de quem foi implicado.",
+  "interaction.tease.failure": "A brincadeira não teve graça nenhuma.",
+  "interaction.fight_sibling.label": "Brigar",
+  "interaction.fight_sibling.success": "Você levou a melhor na briga.",
+  "interaction.fight_sibling.failure": "Você apanhou, e seus pais ficaram sabendo.",
+  "interaction.ask_sibling_help.label": "Pedir ajuda",
+  "interaction.ask_sibling_help.success": "Te ajudaram, e ainda explicaram direitinho.",
+  "interaction.ask_sibling_help.failure": "Responderam que você que se vire.",
+  "interaction.tattle.label": "Dedurar para os pais",
+  "interaction.tattle.success": "Seus pais deram razão a você. Seu irmão ou irmã não vai esquecer.",
+  "interaction.tattle.failure": "Seus pais não gostaram de dedo-duro."
 }

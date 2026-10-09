@@ -1,0 +1,54 @@
+{
+  "id": "tattle",
+  "category": "relationship",
+  "conditions": {
+    "targetRole": [
+      "brother",
+      "sister"
+    ],
+    "minAge": 4,
+    "targetMinAge": 3
+  },
+  "chance": {
+    "base": 0.7,
+    "modifiers": []
+  },
+  "success": [
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -8
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": 1,
+      "targetRole": "mother"
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": 1,
+      "targetRole": "father"
+    }
+  ],
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -4
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -1,
+      "targetRole": "mother"
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -1,
+      "targetRole": "father"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "fight_sibling",
+  "category": "conflict",
+  "conditions": {
+    "targetRole": [
+      "brother",
+      "sister"
+    ],
+    "minAge": 4,
+    "targetMinAge": 3
+  },
+  "chance": {
+    "base": 0.5,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": -0.2
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": -1
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -5
+    }
+  ],
+  "failure": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -2
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": -3
+    },
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": -5
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -2,
+      "targetRole": "mother"
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -2,
+      "targetRole": "father"
+    }
+  ]
+}

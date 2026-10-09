@@ -1,0 +1,48 @@
+{
+  "id": "tease",
+  "category": "conflict",
+  "conditions": {
+    "targetRole": [
+      "brother",
+      "sister"
+    ],
+    "minAge": 3,
+    "targetMinAge": 2
+  },
+  "chance": {
+    "base": 0.6,
+    "modifiers": [
+      {
+        "factor": "targetTrait",
+        "value": "patient",
+        "adjust": 0.2
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -2
+    }
+  ],
+  "failure": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -1
+    },
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": -3
+    }
+  ]
+}

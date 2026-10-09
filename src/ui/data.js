@@ -62,6 +62,10 @@ const MANIFEST = {
     'yell.json',
     'insult.json',
     'help_at_home.json',
+    'tease.json',
+    'fight_sibling.json',
+    'ask_sibling_help.json',
+    'tattle.json',
   ],
   activities: [
     'carry_groceries.json',

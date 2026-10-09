@@ -4,9 +4,12 @@
   "conditions": {
     "targetRole": [
       "mother",
-      "father"
+      "father",
+      "brother",
+      "sister"
     ],
-    "minAge": 3
+    "minAge": 3,
+    "targetMinAge": 3
   },
   "chance": {
     "base": 0.8,
