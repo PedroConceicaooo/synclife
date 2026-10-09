@@ -4,6 +4,7 @@ import {
   createRelationship,
   decayAffinity,
   decayAll,
+  DECAY_FLOOR_BY_ROLE,
   findRelationshipBetween,
   resetInteractionsThisPeriod,
 } from '../src/systems/relationship.js';
@@ -75,8 +76,8 @@ test('decay is proportional to months: 12 months is exactly double 6 months', ()
 test('decayAffinity clamps at 0', () => {
   const relationship = createRelationship({
     id: 'r_0001',
-    roles: { p_0001: 'mother', p_0002: 'son' },
-    type: 'family',
+    roles: { p_0001: 'wife', p_0002: 'husband' },
+    type: 'romantic',
     affinity: { p_0001: 5, p_0002: 5 },
     since: 100,
   });
@@ -88,8 +89,8 @@ test('decayAffinity clamps at 0', () => {
 test('decayAffinity clamps at 100', () => {
   const relationship = createRelationship({
     id: 'r_0001',
-    roles: { p_0001: 'mother', p_0002: 'son' },
-    type: 'family',
+    roles: { p_0001: 'wife', p_0002: 'husband' },
+    type: 'romantic',
     affinity: { p_0001: 95, p_0002: 95 },
     since: 100,
   });
@@ -181,4 +182,41 @@ test('resetInteractionsThisPeriod zeroes every relationship counter regardless o
   assert.equal(reset.r_0001.interactionsThisPeriod, 0);
   assert.equal(reset.r_0002.interactionsThisPeriod, 0);
   assert.equal(relationshipsById.r_0001.interactionsThisPeriod, 3);
+});
+
+test('decayAffinity stops at the role floor for parents and children', () => {
+  const relationship = createRelationship({
+    id: 'r_0001',
+    roles: { p_0001: 'mother', p_0002: 'son' },
+    type: 'family',
+    affinity: { p_0001: 80, p_0002: 70 },
+    since: 100,
+  });
+
+  const decayed = decayAffinity(relationship, 216);
+  assert.deepEqual(decayed.affinity, { p_0001: DECAY_FLOOR_BY_ROLE.mother, p_0002: DECAY_FLOOR_BY_ROLE.son });
+});
+
+test('decayAffinity leaves affinity already below the floor where events put it', () => {
+  const relationship = createRelationship({
+    id: 'r_0001',
+    roles: { p_0001: 'father', p_0002: 'daughter' },
+    type: 'family',
+    affinity: { p_0001: 30, p_0002: 10 },
+    since: 100,
+  });
+
+  assert.deepEqual(decayAffinity(relationship, 12).affinity, { p_0001: 30, p_0002: 10 });
+});
+
+test('decayAffinity has no floor for roles without one (e.g. a marriage)', () => {
+  const relationship = createRelationship({
+    id: 'r_0001',
+    roles: { p_0001: 'wife', p_0002: 'husband' },
+    type: 'romantic',
+    affinity: { p_0001: 50, p_0002: 50 },
+    since: 100,
+  });
+
+  assert.deepEqual(decayAffinity(relationship, 12, 1).affinity, { p_0001: 38, p_0002: 38 });
 });
