@@ -59,5 +59,8 @@
   "event.school_fight.prompt": "Um colega te provocou na saída da escola.",
   "event.school_fight.option.walk_away": "Ir embora",
   "event.school_fight.option.fight_back": "Revidar",
-  "event.acne.text": "Seu rosto amanheceu cheio de espinhas."
+  "event.acne.text": "Seu rosto amanheceu cheio de espinhas.",
+  "event.parents_fight.text": "Seus pais tiveram uma briga feia.",
+  "event.parents_make_up.text": "Seus pais fizeram as pazes e saíram para jantar.",
+  "event.divorce.text": "Seus pais se separaram."
 }

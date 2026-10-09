@@ -28,10 +28,11 @@ export function findRelationshipBetween(idA, idB, relationshipsById) {
 }
 
 // Passive decay stops at a floor that depends on the person's role: parents
-// do not stop loving a child just because time passes, and a child keeps a
-// baseline bond with them. Events and interactions can still push affinity
+// do not stop loving a child just because time passes, a child keeps a
+// baseline bond with them, and spouses drift apart only so far — below that,
+// it takes fights (parents_fight) to reach divorce. Events and interactions can still push affinity
 // below the floor; decay just never does, and never raises it back either.
-export const DECAY_FLOOR_BY_ROLE = { mother: 60, father: 60, son: 40, daughter: 40 };
+export const DECAY_FLOOR_BY_ROLE = { mother: 60, father: 60, son: 40, daughter: 40, wife: 35, husband: 35 };
 
 // Linear decay proportional to elapsed months (not the yearly-chance formula
 // from random.js — that's for probabilistic events, this is a continuous stat).

@@ -1,0 +1,22 @@
+{
+  "id": "parents_make_up",
+  "subject": "relationship",
+  "conditions": {
+    "type": "romantic",
+    "state": "married"
+  },
+  "yearlyChance": 0.3,
+  "effects": [
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": 5
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ]
+}

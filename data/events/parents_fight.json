@@ -1,0 +1,22 @@
+{
+  "id": "parents_fight",
+  "subject": "relationship",
+  "conditions": {
+    "type": "romantic",
+    "state": "married"
+  },
+  "yearlyChance": 0.3,
+  "effects": [
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": -6
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -2
+    }
+  ]
+}

@@ -15,6 +15,12 @@ import { loadEvents } from '../src/systems/eventsLoader.js';
 
 const EVENTS_DIR = fileURLToPath(new URL('../data/events/', import.meta.url));
 
+// Only the divorce pair, so these tests stay about divorce and don't need people.
+function loadDivorceEvents() {
+  const { divorce, choose_who_to_live_with } = loadEvents(EVENTS_DIR);
+  return { divorce, choose_who_to_live_with };
+}
+
 function buildFamily({ marriageAffinity }) {
   const marriage = createRelationship({
     id: 'r_marriage',
@@ -72,7 +78,7 @@ test('involvesPlayer is false when nobody is connected to the player', () => {
 });
 
 test('processRelationshipEvents does not fire divorce above the affinity threshold', () => {
-  const eventsById = loadEvents(EVENTS_DIR);
+  const eventsById = loadDivorceEvents();
   const { relationshipsById } = buildFamily({ marriageAffinity: { p_mother: 80, p_father: 80 } });
   const forcedFireRng = { chance: () => true, nextInt: () => 0 };
 
@@ -87,7 +93,7 @@ test('processRelationshipEvents does not fire divorce above the affinity thresho
 });
 
 test('processRelationshipEvents fires divorce and raises a pending decision when the player is connected', () => {
-  const eventsById = loadEvents(EVENTS_DIR);
+  const eventsById = loadDivorceEvents();
   const { marriage, relationshipsById } = buildFamily({ marriageAffinity: { p_mother: 10, p_father: 10 } });
   const forcedFireRng = { chance: () => true, nextInt: () => 0 };
 
@@ -105,7 +111,7 @@ test('processRelationshipEvents fires divorce and raises a pending decision when
 });
 
 test('resolveDecision applies the chosen option to the correct parent relationships, not the marriage', () => {
-  const eventsById = loadEvents(EVENTS_DIR);
+  const eventsById = loadDivorceEvents();
   const { marriage, motherChild, fatherChild, relationshipsById } = buildFamily({
     marriageAffinity: { p_mother: 10, p_father: 10 },
   });
@@ -136,7 +142,7 @@ test('resolveDecision applies the chosen option to the correct parent relationsh
 });
 
 test('the full event + decision flow is deterministic for a fixed seed', () => {
-  const eventsById = loadEvents(EVENTS_DIR);
+  const eventsById = loadDivorceEvents();
 
   function run(seed) {
     const rng = createRng(seed);

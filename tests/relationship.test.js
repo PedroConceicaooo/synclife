@@ -76,8 +76,8 @@ test('decay is proportional to months: 12 months is exactly double 6 months', ()
 test('decayAffinity clamps at 0', () => {
   const relationship = createRelationship({
     id: 'r_0001',
-    roles: { p_0001: 'wife', p_0002: 'husband' },
-    type: 'romantic',
+    roles: { p_0001: 'friend', p_0002: 'friend' },
+    type: 'friendship',
     affinity: { p_0001: 5, p_0002: 5 },
     since: 100,
   });
@@ -89,8 +89,8 @@ test('decayAffinity clamps at 0', () => {
 test('decayAffinity clamps at 100', () => {
   const relationship = createRelationship({
     id: 'r_0001',
-    roles: { p_0001: 'wife', p_0002: 'husband' },
-    type: 'romantic',
+    roles: { p_0001: 'friend', p_0002: 'friend' },
+    type: 'friendship',
     affinity: { p_0001: 95, p_0002: 95 },
     since: 100,
   });
@@ -209,14 +209,27 @@ test('decayAffinity leaves affinity already below the floor where events put it'
   assert.deepEqual(decayAffinity(relationship, 12).affinity, { p_0001: 30, p_0002: 10 });
 });
 
-test('decayAffinity has no floor for roles without one (e.g. a marriage)', () => {
+test('decayAffinity has no floor for roles without one', () => {
   const relationship = createRelationship({
     id: 'r_0001',
-    roles: { p_0001: 'wife', p_0002: 'husband' },
-    type: 'romantic',
+    roles: { p_0001: 'friend', p_0002: 'friend' },
+    type: 'friendship',
     affinity: { p_0001: 50, p_0002: 50 },
     since: 100,
   });
 
-  assert.deepEqual(decayAffinity(relationship, 12, 1).affinity, { p_0001: 38, p_0002: 38 });
+  assert.deepEqual(decayAffinity(relationship, 100, 1).affinity, { p_0001: 0, p_0002: 0 });
+});
+
+test('spouses only drift apart down to their floor, so divorce needs fights', () => {
+  const marriage = createRelationship({
+    id: 'r_0001',
+    roles: { p_0001: 'wife', p_0002: 'husband' },
+    type: 'romantic',
+    state: 'married',
+    affinity: { p_0001: 90, p_0002: 40 },
+    since: 100,
+  });
+
+  assert.deepEqual(decayAffinity(marriage, 216, 1).affinity, { p_0001: DECAY_FLOOR_BY_ROLE.wife, p_0002: DECAY_FLOOR_BY_ROLE.husband });
 });

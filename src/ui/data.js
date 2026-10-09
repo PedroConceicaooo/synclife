@@ -12,6 +12,8 @@ const MANIFEST = {
   countries: ['default.json', 'BR.json', 'US.json', 'JP.json', 'RU.json', 'GB.json'],
   events: [
     'divorce.json',
+    'parents_fight.json',
+    'parents_make_up.json',
     'choose_who_to_live_with.json',
     'refuse_baby_food.json',
     'fight_bedtime.json',

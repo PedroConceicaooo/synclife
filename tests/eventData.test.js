@@ -50,3 +50,9 @@ test('the browser manifest lists every event file', () => {
     assert.ok(UI_DATA.includes(`'${fileName}'`), fileName);
   }
 });
+
+test('every world event has a diary text in pt-BR', () => {
+  for (const event of EVENTS.filter((e) => e.subject === 'relationship')) {
+    assert.ok(LOCALE[`event.${event.id}.text`], `${event.id}.text`);
+  }
+});
