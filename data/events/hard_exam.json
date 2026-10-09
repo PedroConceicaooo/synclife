@@ -1,0 +1,46 @@
+{
+  "id": "hard_exam",
+  "subject": "player",
+  "conditions": {
+    "minAge": 12,
+    "maxAge": 17
+  },
+  "yearlyChance": 0.6,
+  "cooldownMonths": 6,
+  "options": [
+    {
+      "id": "study_all_night",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "intelligence",
+          "delta": 3
+        },
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "health",
+          "delta": -2
+        }
+      ]
+    },
+    {
+      "id": "wing_it",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 1
+        },
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "intelligence",
+          "delta": -1
+        }
+      ]
+    }
+  ]
+}

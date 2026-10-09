@@ -1,0 +1,58 @@
+{
+  "id": "toy_tantrum",
+  "subject": "player",
+  "conditions": {
+    "minAge": 3,
+    "maxAge": 11
+  },
+  "yearlyChance": 0.5,
+  "cooldownMonths": 12,
+  "options": [
+    {
+      "id": "ask_nicely",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 1
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": 1,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": 1,
+          "targetRole": "father"
+        }
+      ]
+    },
+    {
+      "id": "throw_tantrum",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 2
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -3,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -3,
+          "targetRole": "father"
+        }
+      ]
+    }
+  ]
+}

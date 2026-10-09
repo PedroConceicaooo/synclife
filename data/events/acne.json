@@ -1,0 +1,24 @@
+{
+  "id": "acne",
+  "subject": "player",
+  "conditions": {
+    "minAge": 12,
+    "maxAge": 17
+  },
+  "yearlyChance": 0.3,
+  "cooldownMonths": 24,
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": -3
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -2
+    }
+  ]
+}

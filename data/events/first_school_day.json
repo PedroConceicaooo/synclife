@@ -1,0 +1,46 @@
+{
+  "id": "first_school_day",
+  "subject": "player",
+  "conditions": {
+    "minAge": 5,
+    "maxAge": 6
+  },
+  "yearlyChance": 0.9,
+  "cooldownMonths": 1200,
+  "options": [
+    {
+      "id": "make_a_friend",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 4
+        },
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "intelligence",
+          "delta": 1
+        }
+      ]
+    },
+    {
+      "id": "cling_to_parent",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": -2
+        },
+        {
+          "op": "affinity",
+          "side": "player",
+          "delta": 2,
+          "targetRole": "mother"
+        }
+      ]
+    }
+  ]
+}

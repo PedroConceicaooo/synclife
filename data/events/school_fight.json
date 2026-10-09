@@ -1,0 +1,52 @@
+{
+  "id": "school_fight",
+  "subject": "player",
+  "conditions": {
+    "minAge": 12,
+    "maxAge": 17
+  },
+  "yearlyChance": 0.3,
+  "cooldownMonths": 12,
+  "options": [
+    {
+      "id": "walk_away",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": -2
+        }
+      ]
+    },
+    {
+      "id": "fight_back",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "health",
+          "delta": -4
+        },
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 2
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -3,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -3,
+          "targetRole": "father"
+        }
+      ]
+    }
+  ]
+}

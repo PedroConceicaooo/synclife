@@ -1,0 +1,52 @@
+{
+  "id": "fight_bedtime",
+  "subject": "player",
+  "conditions": {
+    "minAge": 0,
+    "maxAge": 2
+  },
+  "yearlyChance": 0.6,
+  "cooldownMonths": 12,
+  "options": [
+    {
+      "id": "fall_asleep",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "health",
+          "delta": 2
+        },
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 1
+        }
+      ]
+    },
+    {
+      "id": "cry_all_night",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "health",
+          "delta": -1
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -2,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -2,
+          "targetRole": "father"
+        }
+      ]
+    }
+  ]
+}

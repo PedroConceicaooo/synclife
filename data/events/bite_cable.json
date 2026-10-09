@@ -1,0 +1,40 @@
+{
+  "id": "bite_cable",
+  "subject": "player",
+  "conditions": {
+    "minAge": 1,
+    "maxAge": 2
+  },
+  "yearlyChance": 0.4,
+  "cooldownMonths": 24,
+  "options": [
+    {
+      "id": "leave_it",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "intelligence",
+          "delta": 1
+        }
+      ]
+    },
+    {
+      "id": "bite_it",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "health",
+          "delta": -5
+        },
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": -2
+        }
+      ]
+    }
+  ]
+}
