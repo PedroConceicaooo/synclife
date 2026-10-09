@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createIdGenerator } from '../src/engine/id.js';
+import { createIdGenerator, nextIdAfter } from '../src/engine/id.js';
 
 test('generates sequential zero-padded ids', () => {
   const nextId = createIdGenerator('p');
@@ -21,4 +21,9 @@ test('padding holds past single digits', () => {
   let last;
   for (let i = 0; i < 11; i++) last = nextId();
   assert.equal(last, 'r_0011');
+});
+
+test('nextIdAfter continues after the highest id with that prefix', () => {
+  assert.equal(nextIdAfter('p', ['p_0001', 'p_0003', 'r_0009']), 'p_0004');
+  assert.equal(nextIdAfter('r', []), 'r_0001');
 });

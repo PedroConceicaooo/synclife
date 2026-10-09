@@ -36,12 +36,21 @@ export function processRelationshipEvents(
     for (const event of relationshipEvents) {
       const relationship = accumulator[relationshipId];
 
-      if (!evaluateConditions(event.conditions, relationship, { currentMonthIndex })) continue;
+      const conditionContext = { currentMonthIndex, peopleById: people, relationshipsById: accumulator };
+      if (!evaluateConditions(event.conditions, relationship, conditionContext)) continue;
 
       const chance = yearlyChanceToPeriod(event.yearlyChance, step);
       if (!rng.chance(chance)) continue;
 
-      const result = applyEffects(event.effects, { relationship, relationshipsById: accumulator, peopleById: people, playerId, country });
+      const result = applyEffects(event.effects, {
+        relationship,
+        relationshipsById: accumulator,
+        peopleById: people,
+        playerId,
+        country,
+        rng,
+        currentMonthIndex,
+      });
       accumulator = result.relationshipsById;
       people = result.peopleById;
       fired.push({ eventId: event.id, relationshipId });

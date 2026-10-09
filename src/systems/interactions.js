@@ -41,6 +41,7 @@ export function attemptInteraction(
     currentMonthIndex,
     relationship,
     targetPersonId: target.id,
+    target,
     country,
   });
   if (!conditionsMet) {
@@ -79,7 +80,7 @@ export const INTERACTION_CATEGORIES = ['talk', 'spend_time', 'ask', 'give', 'con
 // display order. Categories with no available option are left out, so the UI
 // only shows what the player can actually do.
 export function listAvailableInteractions(interactionsById, { relationship, player, target, country, currentMonthIndex }) {
-  const context = { currentMonthIndex, relationship, targetPersonId: target.id, country };
+  const context = { currentMonthIndex, relationship, targetPersonId: target.id, target, country };
   const available = Object.values(interactionsById)
     .filter((interaction) => evaluateConditions(interaction.conditions, player, context))
     // Simplest first: by minimum age, then id for a stable order.

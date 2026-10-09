@@ -2,33 +2,29 @@
 
 import { clamp, findRelationshipBetween } from '../systems/relationship.js';
 import { resolveAmount, transferMoney, addMoney } from '../systems/money.js';
+import { addChild } from '../systems/birth.js';
 
-// targetRole names the role a participant of the firing relationship holds
-// in THEIR OWN relationship with the player (e.g. "mother"), not a role
-// within the firing relationship itself (which may be "wife"/"husband").
+// targetRole (a role or a list of roles) names the role a person holds in
+// THEIR OWN relationship with the player (e.g. "mother"), not a role within
+// the firing relationship itself (which may be "wife"/"husband"). People in
+// the firing relationship are tried first; otherwise the player's own
+// relationships are searched, newest first (e.g. the sibling just born).
 function resolveTargetRelationship(targetRole, context) {
   if (!targetRole) return context.relationship;
+  const roles = [].concat(targetRole);
+  const otherRoleMatches = (r, personId) => roles.includes(r.roles[personId]);
 
-  // Player events have no firing relationship: find the player's own
-  // relationship whose other side holds targetRole.
-  if (!context.relationship) {
-    return (
-      Object.values(context.relationshipsById).find(
-        (r) =>
-          context.playerId in r.roles &&
-          Object.entries(r.roles).some(([personId, role]) => personId !== context.playerId && role === targetRole),
-      ) ?? null
-    );
-  }
-
-  for (const personId of Object.keys(context.relationship.roles)) {
-    const relationshipWithPlayer = findRelationshipBetween(personId, context.playerId, context.relationshipsById);
-    if (relationshipWithPlayer && relationshipWithPlayer.roles[personId] === targetRole) {
-      return relationshipWithPlayer;
+  if (context.relationship) {
+    for (const personId of Object.keys(context.relationship.roles)) {
+      const relationshipWithPlayer = findRelationshipBetween(personId, context.playerId, context.relationshipsById);
+      if (relationshipWithPlayer && otherRoleMatches(relationshipWithPlayer, personId)) return relationshipWithPlayer;
     }
   }
 
-  return null;
+  const candidates = Object.values(context.relationshipsById)
+    .filter((r) => context.playerId in r.roles && Object.keys(r.roles).some((id) => id !== context.playerId && otherRoleMatches(r, id)))
+    .sort((a, b) => b.since - a.since || b.id.localeCompare(a.id));
+  return candidates[0] ?? null;
 }
 
 // Repeatable actions (interactions) get closer less and less as affinity
@@ -103,6 +99,17 @@ function applyMoneyEffect(effect, context) {
   return { relationshipsById: context.relationshipsById, peopleById: addMoney(context.peopleById, personId, amount) };
 }
 
+// The firing relationship (a couple) has a baby. Needs rng and the month.
+function applyHaveChildEffect(effect, context) {
+  const result = addChild(context.rng, {
+    parentIds: Object.keys(context.relationship.roles),
+    peopleById: context.peopleById,
+    relationshipsById: context.relationshipsById,
+    monthIndex: context.currentMonthIndex,
+  });
+  return { relationshipsById: result.relationshipsById, peopleById: result.peopleById };
+}
+
 function applyEffect(effect, context) {
   switch (effect.op) {
     case 'relationshipState':
@@ -121,6 +128,8 @@ function applyEffect(effect, context) {
       return applyStatEffect(effect, context);
     case 'money':
       return applyMoneyEffect(effect, context);
+    case 'haveChild':
+      return applyHaveChildEffect(effect, context);
     default:
       throw new Error(`Unknown effect op: ${effect.op}`);
   }
