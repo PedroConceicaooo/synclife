@@ -1,7 +1,9 @@
 // Deterministic PRNG (mulberry32). All randomness in the engine must go through here.
 
-export function createRng(seed) {
-  let state = seed >>> 0;
+// savedState (from getState) resumes a generator exactly where it was, so a
+// loaded game keeps drawing the same numbers it would have drawn.
+export function createRng(seed, savedState) {
+  let state = savedState === undefined ? seed >>> 0 : savedState | 0;
 
   function next() {
     state |= 0;
@@ -19,7 +21,7 @@ export function createRng(seed) {
     return next() < p;
   }
 
-  return { next, nextInt, chance };
+  return { next, nextInt, chance, getState: () => state | 0 };
 }
 
 export function yearlyChanceToPeriod(yearlyChance, months) {

@@ -42,6 +42,7 @@ export function createGameState({ seed, countriesById, eventsById, interactionsB
   } = createNewLife(rng, { countries, nextPersonId, nextRelationshipId, startYear: START_YEAR });
 
   return {
+    seed,
     rng,
     player,
     mother,
@@ -59,9 +60,40 @@ export function createGameState({ seed, countriesById, eventsById, interactionsB
     pendingDecisions: [],
     firedEvents: [],
     activityUsesThisPeriod: {},
+    pastLives: [],
     history: [{ month: player.birth, entries: [{ type: 'birth' }] }],
     lastInteractionResult: null,
     lastActivityResult: null,
+  };
+}
+
+function otherSide(relationship, personId) {
+  return Object.keys(relationship.roles).find((id) => id !== personId);
+}
+
+// The player's snapshot and family pointers (mother, father, their
+// relationships with the player and their marriage) are all derived from
+// playerId and the relationships, so a loaded save or a new player (a
+// sibling at 18) gets them the same way.
+export function focusOnPlayer(state, playerId) {
+  const withRole = (role) =>
+    Object.values(state.relationships).find((r) => playerId in r.roles && r.roles[otherSide(r, playerId)] === role);
+  const motherChild = withRole('mother');
+  const fatherChild = withRole('father');
+  const motherId = otherSide(motherChild, playerId);
+  const fatherId = otherSide(fatherChild, playerId);
+  const marriage = Object.values(state.relationships).find(
+    (r) => r.type === 'romantic' && motherId in r.roles && fatherId in r.roles,
+  );
+
+  return {
+    ...state,
+    player: state.people[playerId],
+    mother: state.people[motherId],
+    father: state.people[fatherId],
+    motherChildId: motherChild.id,
+    fatherChildId: fatherChild.id,
+    marriageId: marriage?.id ?? null,
   };
 }
 

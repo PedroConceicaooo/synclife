@@ -49,3 +49,11 @@ test('yearlyChanceToPeriod matches the proportional-chance formula', () => {
   assert.equal(yearlyChanceToPeriod(0, 6), 0);
   assert.equal(yearlyChanceToPeriod(1, 6), 1);
 });
+
+test('getState and a saved state resume the exact same sequence', () => {
+  const original = createRng(42);
+  original.next();
+  original.nextInt(0, 10);
+  const resumed = createRng(42, original.getState());
+  for (let i = 0; i < 20; i++) assert.equal(resumed.next(), original.next());
+});
