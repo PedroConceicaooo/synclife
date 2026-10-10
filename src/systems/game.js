@@ -32,7 +32,8 @@ export const ADULT_AGE = 18;
 // Smaller stat changes are still applied, just not worth a diary line.
 const MIN_LOGGED_STAT_DELTA = 1;
 
-export function createGameState({ seed, countriesById, eventsById, interactionsById, activitiesById }) {
+// choices: see createNewLife (custom name, sex, country and city).
+export function createGameState({ seed, countriesById, eventsById, interactionsById, activitiesById, choices }) {
   const rng = createRng(seed);
   const nextPersonId = createIdGenerator('p');
   const nextRelationshipId = createIdGenerator('r');
@@ -46,7 +47,7 @@ export function createGameState({ seed, countriesById, eventsById, interactionsB
     father,
     country,
     relationships: { motherChild, fatherChild, marriage },
-  } = createNewLife(rng, { countries, nextPersonId, nextRelationshipId, startYear: START_YEAR });
+  } = createNewLife(rng, { countries, nextPersonId, nextRelationshipId, startYear: START_YEAR, choices });
 
   return {
     seed,
@@ -466,4 +467,12 @@ const PHASES = [
 export function lifePhase(state) {
   const age = ageAt(state.player.birth, state.currentMonthIndex);
   return PHASES.filter(([, minAge]) => age >= minAge).at(-1)[0];
+}
+
+// Countries a life can start in (all but the default template).
+export function playableCountries(countriesById) {
+  return Object.keys(countriesById)
+    .filter((id) => id !== 'default')
+    .sort()
+    .map((id) => resolveCountry(id, countriesById));
 }

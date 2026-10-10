@@ -18,6 +18,7 @@ import {
   availableInteractions,
   closePeople,
   lifePhase,
+  playableCountries,
   isAdult,
 } from '../src/systems/game.js';
 
@@ -357,4 +358,32 @@ test('siblings grow up too, not only the player', () => {
     const ageYears = (state.currentMonthIndex - sibling.birth) / 12;
     if (ageYears >= 3) assert.ok(sibling.stats.intelligence > 30, `${sibling.id} at ${ageYears}: ${sibling.stats.intelligence}`);
   }
+});
+
+test('a custom life uses the chosen name, sex, country and city', () => {
+  const state = createGameState({ ...baseArgs(5), choices: { firstName: '  Bia  ', sex: 'F', countryId: 'JP', cityId: 'kyoto' } });
+  assert.equal(state.player.firstName, 'Bia');
+  assert.equal(state.player.sex, 'F');
+  assert.equal(state.country.id, 'JP');
+  assert.equal(state.player.cityId, 'kyoto');
+  assert.equal(state.mother.cityId, 'kyoto');
+  assert.equal(state.player.lastName, state.father.lastName);
+});
+
+test('invalid or empty choices fall back to the rolled values', () => {
+  const rolled = createGameState(baseArgs(5));
+  const state = createGameState({ ...baseArgs(5), choices: { firstName: '   ', sex: 'X', countryId: 'ZZ', cityId: 'atlantis' } });
+  assert.deepEqual(state.player, rolled.player);
+  assert.equal(state.country.id, rolled.country.id);
+});
+
+test('a city from another country is ignored', () => {
+  const state = createGameState({ ...baseArgs(5), choices: { countryId: 'BR', cityId: 'kyoto' } });
+  assert.ok(state.country.cities.includes(state.player.cityId));
+});
+
+test('playableCountries lists the five countries, resolved', () => {
+  const countries = playableCountries(COUNTRIES_BY_ID);
+  assert.deepEqual(countries.map((c) => c.id), ['BR', 'GB', 'JP', 'RU', 'US']);
+  assert.ok(countries.every((c) => c.cities.length > 0));
 });

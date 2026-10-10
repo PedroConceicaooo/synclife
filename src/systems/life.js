@@ -14,10 +14,17 @@ import {
 import { generateParents, createFamilyRelationships } from './family.js';
 import { nameParents, nameChild } from './naming.js';
 
-export function createNewLife(rng, { countries, nextPersonId, nextRelationshipId, startYear }) {
-  const country = pickRandomCountry(rng, countries);
+export const MAX_FIRST_NAME_LENGTH = 30;
+
+// choices (design doc: "vida personalizada"): { firstName, sex, countryId,
+// cityId }, each optional. The rng still draws every value, so the same
+// seed lives the same life apart from what the player chose.
+export function createNewLife(rng, { countries, nextPersonId, nextRelationshipId, startYear, choices = {} }) {
+  const rolledCountry = pickRandomCountry(rng, countries);
+  const country = countries.find((c) => c.id === choices.countryId) ?? rolledCountry;
   const birthMonthIndex = toMonthIndex({ year: startYear, month: pickRandomBirthMonth(rng) });
-  const sex = rng.chance(0.5) ? 'F' : 'M';
+  const rolledSex = rng.chance(0.5) ? 'F' : 'M';
+  const sex = ['F', 'M'].includes(choices.sex) ? choices.sex : rolledSex;
 
   const stats = rollStats(rng, NEWBORN_STAT_RANGES);
   const aptitudes = rollAptitudes(rng);
@@ -35,12 +42,15 @@ export function createNewLife(rng, { countries, nextPersonId, nextRelationshipId
 
   // Names, home city and jobs are rolled after everything else so adding
   // them did not reshuffle the earlier draws.
-  const cityId = country.cities[rng.nextInt(0, country.cities.length)];
+  const rolledCityId = country.cities[rng.nextInt(0, country.cities.length)];
+  const cityId = country.cities.includes(choices.cityId) ? choices.cityId : rolledCityId;
   const pickOccupation = () => ({ type: 'job', title: country.occupations[rng.nextInt(0, country.occupations.length)] });
   const named = nameParents(rng, { ...parents, country });
   const mother = { ...named.mother, cityId, occupation: pickOccupation() };
   const father = { ...named.father, cityId, occupation: pickOccupation() };
-  const player = { ...nameChild(rng, unnamedPlayer, { mother, father, country }), cityId };
+  const namedPlayer = nameChild(rng, unnamedPlayer, { mother, father, country });
+  const chosenName = (choices.firstName ?? '').trim().slice(0, MAX_FIRST_NAME_LENGTH);
+  const player = { ...namedPlayer, firstName: chosenName || namedPlayer.firstName, cityId };
 
   return { player, mother, father, country, relationships: { motherChild, fatherChild, marriage } };
 }
