@@ -72,6 +72,12 @@ function occupationLabel(state, locale) {
 
 const ageOf = (state, person) => ageAt(person.birth, state.currentMonthIndex);
 
+// Babies and puppies in months ("8 meses"), everyone else in years.
+function ageText(state, locale, person) {
+  const months = state.currentMonthIndex - person.birth;
+  return months < 24 ? locale.age(months) : locale.plural('age.years', ageAt(person.birth, state.currentMonthIndex));
+}
+
 export function renderHeader(dom, state, locale) {
   const player = state.people[state.player.id];
   const countryName = locale.t(`country.${state.country.id}`);
@@ -257,7 +263,7 @@ function personRow(state, locale, personId, onOpenProfile) {
       className: 'detail',
       text: locale.format('ui.person_subtitle', {
         role: roleLabel(locale, relationship.roles[personId], person),
-        age: locale.plural('age.years', ageAt(person.birth, state.currentMonthIndex)),
+        age: ageText(state, locale, person),
       }),
     }),
     meter(locale.t('ui.affinity_they_feel'), relationship.affinity[personId]),
@@ -321,7 +327,7 @@ export function renderProfile(dom, state, locale, personId, openCategory, { onBa
   dom.profileTitle.append(avatarElement(person, ageOf(state, person), 56), el('span', { text: fullName(person, state.country) }));
   dom.profileSubtitle.textContent = locale.format('ui.person_subtitle', {
     role: roleLabel(locale, role, person),
-    age: locale.plural('age.years', ageAt(person.birth, state.currentMonthIndex)),
+    age: ageText(state, locale, person),
   });
 
   // Mood and personality help the player guess how an interaction will go.

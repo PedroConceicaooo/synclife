@@ -1,6 +1,6 @@
 {
   "id": "pet_animal",
-  "category": "talk",
+  "category": "spend_time",
   "conditions": {
     "targetRole": [
       "pet"
