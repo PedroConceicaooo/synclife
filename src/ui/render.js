@@ -58,6 +58,7 @@ export function renderStats(dom, state, locale) {
 }
 
 export function renderDiary(dom, state, locale) {
+  dom.disclaimer.textContent = locale.t('ui.disclaimer');
   clearChildren(dom.diary);
   for (const { header, lines } of describeHistory(state, locale)) {
     const block = el('li', { className: 'diary-block' });

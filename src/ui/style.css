@@ -460,3 +460,9 @@ h1 {
   color: var(--pen);
   border: 1px solid var(--pen);
 }
+
+#disclaimer {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-bottom: 16px;
+}

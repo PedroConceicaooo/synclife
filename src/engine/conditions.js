@@ -4,6 +4,7 @@
 import { ageAt } from './time.js';
 import { resolveAmount } from '../systems/money.js';
 import { childrenOf } from '../systems/birth.js';
+import { schoolStageAt } from '../systems/school.js';
 
 export function evaluateConditions(conditions = {}, target, context = {}) {
   for (const [key, expected] of Object.entries(conditions)) {
@@ -41,6 +42,9 @@ function evaluateCondition(key, expected, target, context) {
     // Interactions: the other person's age (a newborn sibling can't chat).
     case 'targetMinAge':
       return ageAt(context.target.birth, context.currentMonthIndex) >= expected;
+    // School by the country calendar (needs context.country).
+    case 'inSchool':
+      return (schoolStageAt(target.birth, context.currentMonthIndex, context.country.education) !== null) === expected;
     case 'minMoney':
       return target.money >= resolveAmount(expected, context.country);
     case 'targetRole':

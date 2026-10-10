@@ -146,7 +146,7 @@ export function processPlayerEvents(
 ) {
   const ageEligible = Object.values(eventsById)
     .filter((event) => event.subject === 'player' && event.yearlyChance !== undefined)
-    .filter((event) => evaluateConditions(event.conditions, player, { currentMonthIndex }))
+    .filter((event) => evaluateConditions(event.conditions, player, { currentMonthIndex, country }))
     .sort((a, b) => a.id.localeCompare(b.id));
   const available = ageEligible.filter((event) => !isOnCooldown(event, firedEvents, currentMonthIndex));
 

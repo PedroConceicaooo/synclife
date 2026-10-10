@@ -338,5 +338,6 @@
   "event.school_report.success": "Fim do ano letivo: boletim com notas boas.",
   "event.school_report.failure": "Fim do ano letivo: notas baixas no boletim.",
   "diary.school_stage": "Nova etapa na escola: {stage}.",
-  "milestone.entrance_exam": "Exame de admissão"
+  "milestone.entrance_exam": "Exame de admissão",
+  "ui.disclaimer": "Isto é uma simulação. Leis, escolas e costumes de cada país são aproximados e podem ter imprecisões."
 }

@@ -168,7 +168,7 @@ function processCalendar(state, points, { people, relationships }) {
     if (point.on === 'stageStart') entries.push({ type: 'schoolStage', stageId: point.stageId });
     for (const event of calendarEventsAt(state.eventsById, point)) {
       const player = peopleNow[state.player.id];
-      if (!evaluateConditions(event.conditions, player, { currentMonthIndex: point.month })) continue;
+      if (!evaluateConditions(event.conditions, player, { currentMonthIndex: point.month, country: state.country })) continue;
       const result = firePlayerEvent(event, { player, peopleById: peopleNow, relationshipsById: relationshipsNow, country: state.country, rng: state.rng });
       peopleNow = result.peopleById;
       relationshipsNow = result.relationshipsById;

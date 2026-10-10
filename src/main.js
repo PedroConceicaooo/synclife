@@ -5,7 +5,7 @@ import { loadCountries } from './engine/countriesLoader.js';
 import { loadEvents } from './systems/eventsLoader.js';
 import { loadInteractions } from './systems/interactionsLoader.js';
 import { loadActivities } from './systems/activitiesLoader.js';
-import { createGameState, advanceStep, resolveDecision, isAdult } from './systems/game.js';
+import { createGameState, advanceStep, resolveDecision, continueAdvance, canContinueAdvance, isAdult } from './systems/game.js';
 import { lifeSummary } from './systems/lifeEnd.js';
 
 const COUNTRIES_DIR = fileURLToPath(new URL('../data/countries/', import.meta.url));
@@ -38,9 +38,12 @@ function formatEntry(entry) {
   switch (entry.type) {
     case 'birth':
       return 'born';
+    case 'schoolStage':
+      return `school stage ${entry.stageId}`;
     case 'birthday':
       return `turned ${entry.age} (${formatDate(entry.month)})`;
     case 'event':
+      if (entry.succeeded !== undefined) return `event ${entry.eventId} -> ${entry.succeeded ? 'success' : 'failure'}`;
       return entry.optionId ? `event ${entry.eventId} -> chose ${entry.optionId}` : `event ${entry.eventId}`;
     case 'worldEvent':
       return `world event ${entry.eventId} on ${entry.relationshipId}`;
@@ -82,8 +85,13 @@ function main() {
 
   while (!isAdult(state)) {
     state = advanceStep(state, stepRng.chance(0.5) ? 6 : 12);
-    while (state.pendingDecisions.length > 0) state = resolveDecision(state);
-    printBlock(state, state.history[state.history.length - 1]);
+    // A dated decision may cut the advance short; the rest follows after it.
+    for (;;) {
+      while (state.pendingDecisions.length > 0) state = resolveDecision(state);
+      printBlock(state, state.history[state.history.length - 1]);
+      if (!canContinueAdvance(state)) break;
+      state = continueAdvance(state);
+    }
   }
 
   const player = state.people[state.player.id];

@@ -55,3 +55,12 @@ test('minMoney compares the target money against the country scale', () => {
   assert.equal(evaluateConditions({ minMoney: 'small' }, { money: 10 }, { country }), true);
   assert.equal(evaluateConditions({ minMoney: 'medium' }, { money: 49 }, { country }), false);
 });
+
+test('inSchool follows the country school calendar', () => {
+  const country = { education: { schoolYearStartMonth: 4, stages: [{ id: 'elementary', startAge: 6, years: 6 }] } };
+  const child = { birth: toMonthIndex({ year: 2000, month: 5 }) }; // enters April 2007
+  const at = (year, month) => ({ country, currentMonthIndex: toMonthIndex({ year, month }) });
+  assert.equal(evaluateConditions({ inSchool: true }, child, at(2007, 3)), false);
+  assert.equal(evaluateConditions({ inSchool: true }, child, at(2007, 4)), true);
+  assert.equal(evaluateConditions({ inSchool: false }, child, at(2007, 3)), true);
+});

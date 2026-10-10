@@ -3,7 +3,8 @@
   "subject": "player",
   "conditions": {
     "minAge": 12,
-    "maxAge": 17
+    "maxAge": 17,
+    "inSchool": true
   },
   "yearlyChance": 0.6,
   "cooldownMonths": 6,

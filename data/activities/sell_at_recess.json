@@ -3,7 +3,8 @@
   "category": "odd_jobs",
   "conditions": {
     "minAge": 10,
-    "maxAge": 17
+    "maxAge": 17,
+    "inSchool": true
   },
   "earnings": "medium",
   "cost": "small",

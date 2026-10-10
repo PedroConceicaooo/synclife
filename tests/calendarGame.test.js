@@ -104,3 +104,15 @@ test('an interrupted advance survives a save', () => {
   assert.equal(loaded.remainingMonths, state.remainingMonths);
   assert.ok(loaded.remainingMonths > 0);
 });
+
+test('school events and school jobs never happen before the child starts school', () => {
+  const schoolOnly = Object.values(DATA.eventsById).filter((e) => e.conditions?.inSchool).map((e) => e.id);
+  assert.ok(schoolOnly.includes('school_play'));
+  for (const countryId of ['JP', 'BR', 'RU', 'GB', 'US']) {
+    const state = playTo18(newLifeIn(countryId));
+    const entry = schoolEntryMonth(state.player.birth, state.country.education);
+    for (const fired of state.firedEvents.filter((f) => f.playerId === state.player.id && schoolOnly.includes(f.eventId))) {
+      assert.ok(fired.month >= entry, `${countryId} ${fired.eventId} at ${fired.month} before ${entry}`);
+    }
+  }
+});

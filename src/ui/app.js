@@ -6,6 +6,7 @@ import {
   resolveDecision,
   attemptPlayerInteraction,
   attemptPlayerActivity,
+  continueAdvance,
 } from './gameState.js';
 import { toSave, fromSave } from '../systems/save.js';
 import { continueAsSibling } from '../systems/lifeEnd.js';
@@ -32,6 +33,7 @@ const dom = {
   screens: byId('screens'),
   lifeScreen: byId('life-screen'),
   diary: byId('diary'),
+  disclaimer: byId('disclaimer'),
   summary: byId('summary'),
   summaryTitle: byId('summary-title'),
   summaryStatsTitle: byId('summary-stats-title'),
@@ -157,8 +159,10 @@ async function main() {
     }
 
     renderDecisionModal(dom, state, locale, {
+      // After the last choice of an interrupted advance, the rest of the time
+      // passes on its own (continueAdvance does nothing otherwise).
       onChoose: (optionId) => {
-        update(resolveDecision(state, optionId));
+        update(continueAdvance(resolveDecision(state, optionId)));
         if (view.screen === 'life') scrollDiaryToEnd();
       },
     });
