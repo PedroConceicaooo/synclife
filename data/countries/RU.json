@@ -42,34 +42,46 @@
   },
   "legalSources": {
     "ages.majority": {
-      "source": "pravo.gov.ru: Código Civil da Federação Russa, art. 21 (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "Código Civil, art. 21: capacidade civil plena ao atingir 18 anos (texto consolidado no ConsultantPlus; pravo.gov.ru inacessível na conferência)",
+      "checkedUrl": "https://www.consultant.ru/document/cons_doc_LAW_5142/9e6e097ccc381775641f6a57435aa14a854c504c/",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     },
     "ages.drinking": {
-      "source": "pravo.gov.ru / consultant.ru: Lei Federal 171-FZ, venda de álcool proibida a menores de 18 (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "Lei Federal 171-FZ, art. 16, item 2, subitem 11: vedada a venda a varejo de bebida alcoólica a menores (ConsultantPlus)",
+      "checkedUrl": "https://www.consultant.ru/document/cons_doc_LAW_8368/d3618b9062472ca3182811e431fa7d71b532e447/",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     },
     "ages.smoking": {
-      "source": "pravo.gov.ru / consultant.ru: Lei Federal 15-FZ, venda de tabaco proibida a menores de 18 (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "Lei Federal 15-FZ, art. 20: proibição da venda de tabaco e de produtos com nicotina a menores (ConsultantPlus)",
+      "checkedUrl": "https://www.consultant.ru/document/cons_doc_LAW_142515/382b0b5ae542851db6ce836ce3bac60c5d44ef4b/",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     },
     "ages.driving": {
-      "source": "pravo.gov.ru: lei de trânsito, categoria B aos 18 (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "Lei Federal 196-FZ 'Sobre a segurança viária', art. 26: categoria B a partir dos 18 (ConsultantPlus)",
+      "checkedUrl": "https://www.consultant.ru/document/cons_doc_LAW_8585/70ea47b006c38d44a2a9f4dafac36c108e41f0bd/",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     },
     "ages.criminalResponsibility": {
-      "source": "pravo.gov.ru: Código Penal, art. 20; em geral 16 anos, 14 para os crimes listados no próprio artigo, entre eles o furto (art. 158). O jogo usa 14 porque seus delitos são furtos (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "Código Penal, art. 20: 16 anos em geral; parte 2, 14 anos para a lista que inclui furto (кража, art. 158). O jogo usa 14 porque seus delitos são furtos (ConsultantPlus)",
+      "checkedUrl": "https://www.consultant.ru/document/cons_doc_LAW_10699/fd969cc22a68d513db2c83a94d6ad355a95dbec7/",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     },
     "education": {
-      "source": "pravo.gov.ru: Lei Federal 273-FZ 'Sobre a educação'; ano letivo de setembro a maio (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "⚠️ Não verificado na fonte primária: Lei 273-FZ, art. 67: entrada na escola entre 6 anos e meio e 8 anos (conferido; o jogo usa 7). Início em setembro e fim em maio vêm de regulamento do Ministério da Educação, não conferido. Pendente: regulamento do calendário escolar",
+      "checkedUrl": "https://www.consultant.ru/document/cons_doc_LAW_140174/16e2e6dcd017a68bc8b1a445142f9c86a69f3ffa/",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "needs_primary_check"
     }
   },
   "ages": {
@@ -80,9 +92,11 @@
       "legal": "restricted",
       "acceptance": 14,
       "risk": null,
-      "source": "Legal: casamento proibido pela Constituição (2020); lei de 'propaganda' estendida a adultos em 2022; 'movimento LGBT internacional' declarado extremista em 2023; risco alto, pravo.gov.ru e Suprema Corte da Rússia. Aceitação: Pew Research Center 2019, 'a homossexualidade deve ser aceita pela sociedade': 14% (outra pergunta e outro ano; a Rússia não entrou na pesquisa de 2023), https://www.pewresearch.org/global/2020/06/25/global-divide-on-homosexuality/ (pesquisado em 2026-10-10)",
+      "source": "⚠️ Não verificado na fonte primária: Legal: casamento só entre homem e mulher na Constituição (emenda de 2020); lei de 'propaganda' estendida a adultos em 2022; 'movimento LGBT internacional' declarado extremista em 2023. Aceitação: Pew Research Center 2019, Q31 'a homossexualidade deve ser aceita pela sociedade', Rússia 14% (74% não, 12% não sabem), relatório de 2020, p. 25 (https://www.pewresearch.org/wp-content/uploads/sites/20/2020/06/PG_2020.06.25_Global-Views-Homosexuality_FINAL.pdf); outra pergunta e outro ano, porque a Rússia não entrou na pesquisa de 2023. Pendente: status legal: Constituição e decisões da Suprema Corte russa não abertas na conferência (pravo.gov.ru inacessível)",
+      "checkedUrl": "https://www.pewresearch.org/wp-content/uploads/sites/20/2020/06/PG_2020.06.25_Global-Views-Homosexuality_FINAL.pdf",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "needs_primary_check"
     }
   }
 }

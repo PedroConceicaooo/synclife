@@ -49,32 +49,44 @@
   },
   "legalSources": {
     "ages.majority": {
-      "source": "⚠️ Não verificado na fonte primária: 18 na maioria dos estados; 19 no Alabama e Nebraska, 21 no Mississippi (legislação estadual) (pesquisado em 2026-10-10)",
+      "source": "⚠️ Não verificado na fonte primária: 18 na maioria dos estados; 19 no Alabama (Ala. Code § 26-1-1) e Nebraska; 21 no Mississippi (Miss. Code § 1-3-27), que usa 18 em outras leis. Pendente: lei de cada estado; conferido só em fonte secundária",
+      "checkedUrl": "https://www.law.cornell.edu/wex/age_of_majority",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
       "reviewStatus": "needs_primary_check"
     },
     "ages.drinking": {
-      "source": "congress.gov: National Minimum Drinking Age Act de 1984 (23 U.S.C. § 158) (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "23 U.S.C. § 158: retenção de verbas federais de estados que permitam compra ou porte público de álcool por menores de 21 anos",
+      "checkedUrl": "https://www.law.cornell.edu/uscode/text/23/158",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     },
     "ages.smoking": {
-      "source": "FDA: lei federal Tobacco 21, em vigor desde dezembro de 2019 (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "FDA, Tobacco 21: idade mínima federal de venda de produtos de tabaco elevada de 18 para 21, sancionada em 20/12/2019 e em vigor imediatamente",
+      "checkedUrl": "https://www.fda.gov/tobacco-products/retail-sales-tobacco-products/tobacco-21",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     },
     "ages.driving": {
-      "source": "⚠️ Não verificado na fonte primária: varia por estado, em geral 16 com restrições (DMV de cada estado) (pesquisado em 2026-10-10)",
+      "source": "⚠️ Não verificado na fonte primária: habilitação graduada estadual: permissão de aprendiz entre 14 e 17 anos, licença restrita em geral aos 16 (de 15 a 17 conforme o estado). Pendente: lei de cada estado; o jogo usa 16",
+      "checkedUrl": "https://www.iihs.org/research-areas/teenagers/graduated-licensing-laws-table",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
       "reviewStatus": "needs_primary_check"
     },
     "ages.criminalResponsibility": {
-      "source": "⚠️ Não verificado na fonte primária: varia por estado; 10 é uma simplificação do jogo (legislação estadual) (pesquisado em 2026-10-10)",
+      "source": "⚠️ Não verificado na fonte primária: a maioria dos estados não fixa idade mínima para a justiça juvenil; onde há, vai de 10 a 12 anos. Pendente: lei de cada estado; o jogo usa 10",
+      "checkedUrl": "https://ojjdp.ojp.gov/model-programs-guide/literature-reviews/age-boundaries-of-the-juvenile-justice-system",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
       "reviewStatus": "needs_primary_check"
     },
     "education": {
-      "source": "⚠️ Não verificado na fonte primária: ano letivo em geral de agosto/setembro a maio/junho, varia por estado e distrito; o jogo usa setembro a junho (pesquisado em 2026-10-10)",
+      "source": "⚠️ Não verificado na fonte primária: ano letivo em geral de agosto/setembro a maio/junho, definido por estado e distrito; o jogo usa setembro a junho. Pendente: calendário de cada estado e distrito",
+      "checkedUrl": "https://nces.ed.gov/programs/statereform/",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
       "reviewStatus": "needs_primary_check"
     }
@@ -84,9 +96,11 @@
       "legal": "permitted",
       "acceptance": 63,
       "risk": null,
-      "source": "Legal: casamento permitido em todo o país desde 2015 (Obergefell v. Hodges), supremecourt.gov. Aceitação: Pew Research Center 2023, apoio ao casamento entre pessoas do mesmo sexo: 63%, https://www.pewresearch.org/short-reads/2023/11/27/how-people-around-the-world-view-same-sex-marriage/ (pesquisado em 2026-10-10)",
+      "source": "Legal: Obergefell v. Hodges, 26/06/2015: \"same-sex couples may exercise the fundamental right to marry in all States\". Aceitação: Pew Research Center 2023, 63% (https://www.pewresearch.org/short-reads/2023/11/27/how-people-around-the-world-view-same-sex-marriage/)",
+      "checkedUrl": "https://www.law.cornell.edu/supremecourt/text/14-556",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     }
   }
 }

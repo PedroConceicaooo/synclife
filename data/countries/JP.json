@@ -52,34 +52,46 @@
   },
   "legalSources": {
     "ages.majority": {
-      "source": "e-Gov Japan: Código Civil, maioridade aos 18 desde abril de 2022 (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "Código Civil (民法), art. 4: 年齢十八歳をもって、成年とする",
+      "checkedUrl": "https://laws.e-gov.go.jp/law/129AC0000000089",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     },
     "ages.drinking": {
-      "source": "e-Gov Japan: lei de proibição do consumo de álcool por menores de 20 anos (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "Lei de proibição do consumo de álcool por menores de 20 anos (二十歳未満ノ者ノ飲酒ノ禁止ニ関スル法律, Taishō 11, lei nº 20), art. 1",
+      "checkedUrl": "https://laws.e-gov.go.jp/law/211AC1000000020",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     },
     "ages.smoking": {
-      "source": "e-Gov Japan: lei de proibição do fumo por menores de 20 anos (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "Lei de proibição do fumo por menores de 20 anos (二十歳未満ノ者ノ喫煙ノ禁止ニ関スル法律, Meiji 33, lei nº 33), art. 1",
+      "checkedUrl": "https://laws.e-gov.go.jp/law/133AC1000000033",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     },
     "ages.driving": {
-      "source": "e-Gov Japan: Lei de Trânsito Rodoviário, carteira comum aos 18 (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "Lei de Trânsito Rodoviário (道路交通法), art. 88(1)(i): licença comum (普通免許) só a partir dos 18",
+      "checkedUrl": "https://www.japaneselawtranslation.go.jp/en/laws/view/2962",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     },
     "ages.criminalResponsibility": {
-      "source": "e-Gov Japan: responsabilidade a partir de 14; casos de menores vão à Vara de Família (Lei de Menores) (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "Código Penal (刑法), art. 41: \"An act of a person less than 14 years of age is not punishable\"",
+      "checkedUrl": "https://www.japaneselawtranslation.go.jp/en/laws/view/3581",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     },
     "education": {
-      "source": "e-Gov Japan: Lei de Educação Escolar; ano letivo de abril a março, ensino médio com exame de admissão (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "Regulamento da Lei de Educação Escolar (学校教育法施行規則), art. 59 (ano letivo de 1º de abril a 31 de março) e art. 90 (entrada no ensino médio por seleção com exame)",
+      "checkedUrl": "https://laws.e-gov.go.jp/law/322M40000080011",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     }
   },
   "topics": {
@@ -87,7 +99,9 @@
       "legal": "not_recognized",
       "acceptance": 68,
       "risk": null,
-      "source": "⚠️ Não verificado na fonte primária: Legal: não reconhecida nacionalmente; muitas prefeituras e cidades emitem certificados de parceria sem efeito de casamento; a Suprema Corte deve decidir a constitucionalidade em 2027, courts.go.jp. Aceitação: Pew Research Center 2023, apoio ao casamento entre pessoas do mesmo sexo: 68%, https://www.pewresearch.org/short-reads/2023/11/27/how-people-around-the-world-view-same-sex-marriage/ (pesquisado em 2026-10-10)",
+      "source": "⚠️ Não verificado na fonte primária: Legal: não reconhecida nacionalmente; em 25/03/2026 a Suprema Corte enviou seis ações ao pleno (Grand Bench), com decisão esperada para o início de 2027. Aceitação: Pew Research Center 2023, 68% (https://www.pewresearch.org/short-reads/2023/11/27/how-people-around-the-world-view-same-sex-marriage/). Pendente: decisão do pleno da Suprema Corte (conferir em courts.go.jp quando sair)",
+      "checkedUrl": "https://www.japantimes.co.jp/news/2026/03/26/japan/crime-legal/court-same-sex-marriage/",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
       "reviewStatus": "needs_primary_check"
     }

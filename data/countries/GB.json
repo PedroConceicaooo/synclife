@@ -45,34 +45,46 @@
   },
   "legalSources": {
     "ages.majority": {
-      "source": "legislation.gov.uk: Family Law Reform Act 1969, s. 1 (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "Family Law Reform Act 1969, s. 1(1): \"a person shall attain full age on attaining the age of eighteen\"",
+      "checkedUrl": "https://www.legislation.gov.uk/ukpga/1969/46/section/1",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     },
     "ages.drinking": {
-      "source": "⚠️ Não verificado na fonte primária: gov.uk: compra de álcool aos 18; de 16 a 17 podem beber cerveja, vinho ou sidra numa refeição com um adulto (o jogo usa a idade de compra) (pesquisado em 2026-10-10)",
+      "source": "Licensing Act 2003, s. 149 (compra de álcool por menores de 18 é crime) e s. 150(4) (exceção: 16 ou 17 anos, cerveja, vinho ou sidra numa refeição acompanhada de um adulto). O jogo usa a idade de compra",
+      "checkedUrl": "https://www.legislation.gov.uk/ukpga/2003/17/section/150",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "needs_primary_check"
+      "reviewStatus": "ai_checked"
     },
     "ages.smoking": {
-      "source": "⚠️ Não verificado na fonte primária: gov.uk / legislation.gov.uk: compra de tabaco aos 18; verificar a proibição geracional para nascidos a partir de 2009 (as vidas do jogo começam em 2000) (pesquisado em 2026-10-10)",
+      "source": "⚠️ Não verificado na fonte primária: SI 2007/767 elevou a idade de venda de tabaco de 16 para 18. O Tobacco and Vapes Act 2026 (sanção em 29/04/2026, gov.uk) proíbe vender tabaco a quem nasceu a partir de 1º/01/2009; as vidas do jogo nascem em 2000, então 18 continua valendo para elas. Pendente: data de entrada em vigor da proibição geracional (fontes secundárias citam 1º/01/2027)",
+      "checkedUrl": "https://www.gov.uk/government/news/tobacco-and-vapes-bill-becomes-law",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
       "reviewStatus": "needs_primary_check"
     },
     "ages.driving": {
-      "source": "gov.uk: carro a partir dos 17 (Road Traffic Act 1988) (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "gov.uk: \"Most people can start learning to drive when they're 17\" (carro, categoria B)",
+      "checkedUrl": "https://www.gov.uk/vehicles-can-drive",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     },
     "ages.criminalResponsibility": {
-      "source": "legislation.gov.uk: Children and Young Persons Act 1933, s. 50; responsabilidade a partir de 10 (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "Children and Young Persons Act 1933, s. 50: \"no child under the age of ten years can be guilty of any offence\"",
+      "checkedUrl": "https://www.legislation.gov.uk/ukpga/Geo5/23-24/12/section/50",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     },
     "education": {
-      "source": "gov.uk: Inglaterra, ano letivo de setembro a julho; reception aos 4, secundário aos 11, estudo ou formação até os 18 (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "source": "⚠️ Não verificado na fonte primária: Inglaterra: reception aos 4, secundário aos 11, estudo ou formação até os 18; ano letivo de setembro a julho, mas as datas são definidas por cada conselho local (gov.uk). Pendente: calendário de cada conselho local",
+      "checkedUrl": "https://www.gov.uk/school-term-holiday-dates",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "needs_primary_check"
     }
   },
   "topics": {
@@ -80,9 +92,11 @@
       "legal": "permitted",
       "acceptance": 74,
       "risk": null,
-      "source": "Legal: casamento permitido desde 2014 (Marriage (Same Sex Couples) Act 2013), legislation.gov.uk. Aceitação: Pew Research Center 2023, apoio ao casamento entre pessoas do mesmo sexo: 74%, https://www.pewresearch.org/short-reads/2023/11/27/how-people-around-the-world-view-same-sex-marriage/ (pesquisado em 2026-10-10)",
+      "source": "Legal: Marriage (Same Sex Couples) Act 2013, s. 1(1): \"Marriage of same sex couples is lawful\". Aceitação: Pew Research Center 2023, 74% (https://www.pewresearch.org/short-reads/2023/11/27/how-people-around-the-world-view-same-sex-marriage/)",
+      "checkedUrl": "https://www.legislation.gov.uk/ukpga/2013/30/section/1",
+      "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "researched"
+      "reviewStatus": "ai_checked"
     }
   }
 }

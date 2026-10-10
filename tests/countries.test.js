@@ -107,8 +107,9 @@ test('every country has legal ages and a school system covering childhood, with 
     // date), and unverified items say so.
     for (const entry of [...Object.values(country.legalSources), country.topics.same_sex_relationship]) {
       if (entry.verifiedAt === null) {
-        assert.ok(['ai_draft', 'researched', 'needs_primary_check'].includes(entry.reviewStatus), id);
+        assert.ok(['ai_draft', 'researched', 'ai_checked', 'needs_primary_check'].includes(entry.reviewStatus), id);
         if (entry.reviewStatus === 'needs_primary_check') assert.match(entry.source, /^⚠️ Não verificado na fonte primária/, id);
+        if (entry.reviewStatus === 'ai_checked') assert.ok(entry.checkedUrl && entry.checkedAt, `${id} checked without a url`);
       } else {
         assert.equal(entry.reviewStatus, 'verified', id);
       }
