@@ -382,13 +382,13 @@ Talento especial do personagem (por exemplo, basquete), mostrado com um ícone a
 
 ### Problemas encontrados no M5 (corrigir no M5.1)
 
-- [ ] Nome do personagem não aparece na tela.
-- [ ] País aparece como código ("US") em vez de nome completo e bandeira.
-- [ ] Saldo aparece como a palavra "dinheiro" em vez do símbolo da moeda do país.
-- [ ] O diário não apresenta o personagem nem os pais ao nascer.
-- [ ] Status ficam parados em 50: não há valores iniciais sorteados, crescimento pelas aptidões nem efeitos de eventos sobre eles.
-- [ ] Poucos eventos: em um ano houve só um (separação dos pais). A regra de pelo menos uma decisão por avanço não está sendo cumprida.
-- [ ] Dinheiro entra sem explicação: em 18 anos acumulou cerca de 4.212 sem que o diário mostrasse de onde veio, e não há em que gastar.
+- [x] Nome do personagem não aparece na tela.
+- [x] País aparece como código ("US") em vez de nome completo e bandeira.
+- [x] Saldo aparece como a palavra "dinheiro" em vez do símbolo da moeda do país.
+- [x] O diário não apresenta o personagem nem os pais ao nascer.
+- [x] Status ficam parados em 50: não há valores iniciais sorteados, crescimento pelas aptidões nem efeitos de eventos sobre eles.
+- [x] Poucos eventos: em um ano houve só um (separação dos pais). A regra de pelo menos uma decisão por avanço não está sendo cumprida.
+- [x] Dinheiro entra sem explicação: em 18 anos acumulou cerca de 4.212 sem que o diário mostrasse de onde veio, e não há em que gastar.
 
 ## Arquitetura técnica e marcos
 
