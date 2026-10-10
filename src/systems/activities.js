@@ -2,19 +2,21 @@
 // activitiesLoader.js for the Node-only reader.
 //
 // Activities are things the player does alone (design doc: "Atividades"):
-// odd jobs that earn money and leisure that spends it. Each one can be done
-// once per period, and may trigger a small event by chance.
+// odd jobs that earn money, leisure that spends it, and petty crimes that
+// can go wrong. Each one can be done once per period, and may trigger a
+// small event by chance.
 
 import { evaluateConditions } from '../engine/conditions.js';
 import { applyEffects } from '../engine/effects.js';
 import { addMoney, resolveAmount } from './money.js';
+import { resolveChance } from './interactions.js';
 
 export function indexActivities(activities) {
   return Object.fromEntries(activities.map((activity) => [activity.id, activity]));
 }
 
 // Display order of the Activities screen.
-export const ACTIVITY_CATEGORIES = ['odd_jobs', 'leisure'];
+export const ACTIVITY_CATEGORIES = ['odd_jobs', 'leisure', 'crime'];
 
 export const ACTIVITY_USES_PER_PERIOD = 1;
 
@@ -59,18 +61,29 @@ export function attemptActivity(
   const blocker = activityBlocker(activity, { player: peopleById[player.id], country, currentMonthIndex, usesThisPeriod });
   if (blocker) return { attempted: false, reason: blocker, peopleById, relationshipsById, triggeredEvents: [] };
 
-  let people = addMoney(peopleById, player.id, -cost(activity, country));
-  if (activity.earnings) people = addMoney(people, player.id, resolveAmount(activity.earnings, country));
+  // Risky activities (crimes) roll a check: earnings and success effects
+  // only when it works; randomEvents can follow "success" or "failure".
+  const succeeded = activity.check ? rng.chance(resolveChance(activity.check, { player: peopleById[player.id] })) : true;
 
-  const result = applyEffects(activity.effects ?? [], {
+  let people = addMoney(peopleById, player.id, -cost(activity, country));
+  if (activity.earnings && succeeded) people = addMoney(people, player.id, resolveAmount(activity.earnings, country));
+
+  const effects = activity.check ? (succeeded ? activity.success : activity.failure) ?? [] : activity.effects ?? [];
+  const result = applyEffects(effects, {
     relationship: null,
     relationshipsById,
     peopleById: people,
     playerId: player.id,
     country,
+    rng,
+    currentMonthIndex,
   });
 
-  const triggeredEvents = (activity.randomEvents ?? []).filter((r) => rng.chance(r.chance)).map((r) => r.event);
+  const outcome = succeeded ? 'success' : 'failure';
+  const triggeredEvents = (activity.randomEvents ?? [])
+    .filter((r) => (r.on ?? 'any') === 'any' || r.on === outcome)
+    .filter((r) => rng.chance(r.chance))
+    .map((r) => r.event);
 
-  return { attempted: true, peopleById: result.peopleById, relationshipsById: result.relationshipsById, triggeredEvents };
+  return { attempted: true, succeeded, peopleById: result.peopleById, relationshipsById: result.relationshipsById, triggeredEvents };
 }

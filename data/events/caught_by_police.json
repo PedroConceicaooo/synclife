@@ -1,0 +1,42 @@
+{
+  "id": "caught_by_police",
+  "subject": "player",
+  "conditions": {
+    "minAge": 10,
+    "minLegalAge": "criminalResponsibility"
+  },
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -6
+    },
+    {
+      "op": "emotion",
+      "target": "player",
+      "value": "ashamed",
+      "months": 6
+    },
+    {
+      "op": "stress",
+      "targetRole": [
+        "mother",
+        "father"
+      ],
+      "delta": 8
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -10,
+      "targetRole": "mother"
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -10,
+      "targetRole": "father"
+    }
+  ]
+}

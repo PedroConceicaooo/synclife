@@ -1,0 +1,39 @@
+{
+  "id": "pickpocket",
+  "category": "crime",
+  "conditions": {
+    "minAge": 12
+  },
+  "earnings": "medium",
+  "check": {
+    "base": 0.45,
+    "modifiers": [
+      {
+        "factor": "playerStat",
+        "stat": "intelligence",
+        "weight": 0.3
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ],
+  "failure": [],
+  "randomEvents": [
+    {
+      "event": "caught_by_parents",
+      "chance": 1,
+      "on": "failure"
+    },
+    {
+      "event": "caught_by_police",
+      "chance": 1,
+      "on": "failure"
+    }
+  ]
+}

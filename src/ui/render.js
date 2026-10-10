@@ -362,7 +362,8 @@ function activityResultText(result, locale, sexes) {
     .map((eventId) => `event.${eventId}.text`)
     .filter((key) => locale.has(key))
     .map((key) => locale.format(key, {}, sexes));
-  return [locale.format(`activity.${result.activityId}.done`, {}, sexes), ...eventTexts].join(' ');
+  const outcome = result.succeeded === false ? 'failed' : 'done';
+  return [locale.format(`activity.${result.activityId}.${outcome}`, {}, sexes), ...eventTexts].join(' ');
 }
 
 // Design doc: lists with title and a one-line description. Activities the

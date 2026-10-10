@@ -27,7 +27,8 @@
     "majority": 18,
     "drinking": 18,
     "smoking": 18,
-    "driving": 18
+    "driving": 18,
+    "criminalResponsibility": 12
   },
   "education": {
     "schoolYearStartMonth": 9,

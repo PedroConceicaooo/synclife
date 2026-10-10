@@ -121,7 +121,7 @@ function entryLine(entry, state, locale, block) {
     case 'worldEvent':
       return entry.eventId === 'new_baby' ? babyBornLine(state, locale, block.month) : text(`event.${entry.eventId}.text`);
     case 'activity':
-      return text(`activity.${entry.activityId}.done`);
+      return text(`activity.${entry.activityId}.${entry.succeeded === false ? 'failed' : 'done'}`);
     case 'interaction':
       return locale.format('diary.interaction', {
         label: text(`interaction.${entry.interactionId}.label`),

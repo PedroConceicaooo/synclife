@@ -64,6 +64,14 @@
       "source": "Lei Federal 273-FZ 'Sobre a educação': ano letivo em 1º de setembro, níveis de 4, 5 e 2 anos",
       "verifiedAt": null,
       "reviewStatus": "ai_draft"
+    },
+    "ages.criminalResponsibility": {
+      "source": "Código Penal da Federação Russa, art. 20: 16 anos em geral, 14 para crimes listados, entre eles o furto",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
     }
+  },
+  "ages": {
+    "criminalResponsibility": 14
   }
 }

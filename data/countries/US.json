@@ -23,7 +23,8 @@
   "ages": {
     "drinking": 21,
     "smoking": 21,
-    "driving": 16
+    "driving": 16,
+    "criminalResponsibility": 10
   },
   "education": {
     "schoolYearStartMonth": 9,
@@ -68,6 +69,11 @@
     },
     "education": {
       "source": "Varia por estado e distrito; estrutura comum K-5, 6-8 e 9-12 com início em agosto ou setembro",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "ages.criminalResponsibility": {
+      "source": "Leis estaduais; muitos estados não têm idade mínima e outros usam entre 10 e 13 anos para a justiça juvenil",
       "verifiedAt": null,
       "reviewStatus": "ai_draft"
     }

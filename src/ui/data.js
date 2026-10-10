@@ -35,6 +35,8 @@ const MANIFEST = {
     'school_warning.json',
     'recess_friend.json',
     'secret_dating_discovered.json',
+    'caught_by_parents.json',
+    'caught_by_police.json',
     'babysitter.json',
     'neighbor_extra_tip.json',
     'teacher_confiscates.json',
@@ -108,6 +110,9 @@ const MANIFEST = {
     'video_social.json',
   ],
   activities: [
+    'shoplift.json',
+    'steal_package.json',
+    'pickpocket.json',
     'carry_groceries.json',
     'wash_cars.json',
     'walk_dogs.json',

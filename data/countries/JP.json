@@ -25,7 +25,8 @@
   },
   "ages": {
     "drinking": 20,
-    "smoking": 20
+    "smoking": 20,
+    "criminalResponsibility": 14
   },
   "education": {
     "schoolYearStartMonth": 4,
@@ -71,6 +72,11 @@
     },
     "education": {
       "source": "Lei de Educação Escolar (学校教育法): ano letivo em abril; ensino médio com exame de admissão",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "ages.criminalResponsibility": {
+      "source": "Código Penal, art. 41 (14 anos); abaixo disso, a Lei de Menores encaminha ao conselho tutelar e à família",
       "verifiedAt": null,
       "reviewStatus": "ai_draft"
     }

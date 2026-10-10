@@ -29,7 +29,7 @@ test('activity random events exist and are never rolled on their own', () => {
     for (const { event, chance } of activity.randomEvents ?? []) {
       assert.ok(EVENTS_BY_ID[event], `${activity.id} -> ${event}`);
       assert.equal(EVENTS_BY_ID[event].yearlyChance, undefined, event);
-      assert.ok(chance > 0 && chance < 1, `${activity.id} -> ${event}`);
+      assert.ok(chance > 0 && chance <= 1, `${activity.id} -> ${event}`);
     }
   }
 });

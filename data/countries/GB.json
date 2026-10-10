@@ -19,7 +19,8 @@
     "bristol"
   ],
   "ages": {
-    "driving": 17
+    "driving": 17,
+    "criminalResponsibility": 10
   },
   "education": {
     "schoolYearStartMonth": 9,
@@ -64,6 +65,11 @@
     },
     "education": {
       "source": "Education Act 1996 e Education and Skills Act 2008 (Inglaterra: reception aos 4, secundário aos 11, estudo ou formação até os 18)",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "ages.criminalResponsibility": {
+      "source": "Children and Young Persons Act 1933, s. 50 (Inglaterra e País de Gales: 10 anos)",
       "verifiedAt": null,
       "reviewStatus": "ai_draft"
     }

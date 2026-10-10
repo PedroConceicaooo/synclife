@@ -1,0 +1,42 @@
+{
+  "id": "caught_by_parents",
+  "subject": "player",
+  "conditions": {
+    "minAge": 6,
+    "belowLegalAge": "criminalResponsibility"
+  },
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -4
+    },
+    {
+      "op": "emotion",
+      "target": "player",
+      "value": "ashamed",
+      "months": 6
+    },
+    {
+      "op": "stress",
+      "targetRole": [
+        "mother",
+        "father"
+      ],
+      "delta": 5
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -6,
+      "targetRole": "mother"
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -6,
+      "targetRole": "father"
+    }
+  ]
+}

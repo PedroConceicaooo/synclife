@@ -48,6 +48,8 @@ function evaluateCondition(key, expected, target, context) {
     // minLegalAge: "driving" -> at least the country's legal age for it.
     case 'minLegalAge':
       return ageAt(target.birth, context.currentMonthIndex) >= context.country.ages[expected];
+    case 'belowLegalAge':
+      return ageAt(target.birth, context.currentMonthIndex) < context.country.ages[expected];
     // State of the relationship an interaction is about (e.g. "dating").
     case 'relationshipState':
       return [].concat(expected).includes(context.relationship?.state ?? null);

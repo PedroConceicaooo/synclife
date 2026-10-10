@@ -416,8 +416,12 @@ function fireTriggeredEvents(state, eventIds, { people, relationships }) {
   let relationshipsNow = relationships;
   const entries = [];
   const pendingDecisions = [];
+  const firedIds = [];
   for (const eventId of eventIds) {
     const event = state.eventsById[eventId];
+    const conditionContext = { currentMonthIndex: state.currentMonthIndex, country: state.country, relationshipsById: relationshipsNow };
+    if (!evaluateConditions(event.conditions, peopleNow[state.player.id], conditionContext)) continue;
+    firedIds.push(eventId);
     const result = firePlayerEvent(event, {
       player: peopleNow[state.player.id],
       peopleById: peopleNow,
@@ -431,7 +435,7 @@ function fireTriggeredEvents(state, eventIds, { people, relationships }) {
     if (result.decision) pendingDecisions.push(result.decision);
     else entries.push({ type: 'event', eventId, ...(result.succeeded === null ? {} : { succeeded: result.succeeded }) });
   }
-  const fired = eventIds.map((eventId) => ({ eventId, month: state.currentMonthIndex, playerId: state.player.id }));
+  const fired = firedIds.map((eventId) => ({ eventId, month: state.currentMonthIndex, playerId: state.player.id }));
   return { people: peopleNow, relationships: relationshipsNow, entries, pendingDecisions, fired };
 }
 
@@ -469,7 +473,7 @@ export function attemptPlayerActivity(state, activityId) {
   const triggered = fireTriggeredEvents(state, result.triggeredEvents, { people: result.peopleById, relationships: result.relationshipsById });
   const { people, relationships } = triggered;
   const entries = [
-    { type: 'activity', activityId },
+    { type: 'activity', activityId, ...(activity.check ? { succeeded: result.succeeded } : {}) },
     ...triggered.entries,
     ...moneyEntries(playerBefore, people[playerId], { source: 'activity', activityId }),
     ...statEntries(playerBefore, people[playerId]),
@@ -483,7 +487,7 @@ export function attemptPlayerActivity(state, activityId) {
     pendingDecisions: [...state.pendingDecisions, ...triggered.pendingDecisions],
     firedEvents: [...state.firedEvents, ...triggered.fired],
     history: appendToCurrentBlock(state.history, entries),
-    lastActivityResult: { attempted: true, activityId, triggeredEvents: result.triggeredEvents },
+    lastActivityResult: { attempted: true, activityId, succeeded: result.succeeded, triggeredEvents: triggered.fired.map((f) => f.eventId) },
   };
 }
 

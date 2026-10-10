@@ -513,5 +513,20 @@
   "ui.personality": "Personalidade: {traits}",
   "ui.stress": "Estresse",
   "diary.trait_formed": "Estou cada vez mais {trait}.",
-  "diary.emotion": "Fiquei {emotion}."
+  "diary.emotion": "Fiquei {emotion}.",
+  "activityCategory.crime": "Pequenos delitos",
+  "activity.shoplift.title": "Furtar uma loja",
+  "activity.shoplift.description": "Pegar algo sem pagar. Dá para ser pego.",
+  "activity.shoplift.done": "Você saiu da loja sem pagar e ninguém viu.",
+  "activity.shoplift.failed": "O segurança te viu.",
+  "activity.steal_package.title": "Roubar encomendas",
+  "activity.steal_package.description": "Pacotes deixados na porta dos vizinhos.",
+  "activity.steal_package.done": "Ninguém viu você pegar o pacote.",
+  "activity.steal_package.failed": "Um vizinho te pegou com o pacote na mão.",
+  "activity.pickpocket.title": "Furtar alguém",
+  "activity.pickpocket.description": "Uma carteira descuidada no ônibus.",
+  "activity.pickpocket.done": "Você pegou a carteira sem ninguém perceber.",
+  "activity.pickpocket.failed": "A pessoa percebeu e começou a gritar.",
+  "event.caught_by_parents.text": "Seus pais foram chamados e ficaram furiosos com o que você fez.",
+  "event.caught_by_police.text": "A polícia foi chamada. Pela sua idade, o caso vai para a justiça juvenil, e seus pais ficaram arrasados."
 }
