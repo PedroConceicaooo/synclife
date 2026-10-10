@@ -17,5 +17,6 @@
   ],
   "ifInvolvesPlayer": {
     "trigger": "new_sibling"
-  }
+  },
+  "milestone": true
 }

@@ -142,7 +142,15 @@ function growChildren(people, relationships, { months, monthIndex }) {
   return next;
 }
 
-export function advanceStep(state, months) {
+// The 18th birthday is a decision point (design doc): an advance that would
+// cross it stops right there.
+export function monthsUntilAdulthood(state) {
+  return state.player.birth + ADULT_AGE * 12 - state.currentMonthIndex;
+}
+
+export function advanceStep(state, requestedMonths) {
+  const untilAdult = monthsUntilAdulthood(state);
+  const months = untilAdult > 0 ? Math.min(requestedMonths, untilAdult) : requestedMonths;
   const playerId = state.player.id;
   const playerBefore = state.people[playerId];
   const { nextMonthIndex, birthdays } = advance(state.currentMonthIndex, months, state.player.birth);
@@ -174,7 +182,9 @@ export function advanceStep(state, months) {
     step: months,
     rng: state.rng,
     country: state.country,
-    firedEvents: state.firedEvents,
+    // Cooldowns belong to whoever lived the event, so a sibling who takes
+    // over at 18 doesn't inherit them.
+    firedEvents: state.firedEvents.filter((f) => !f.playerId || f.playerId === playerId),
     hasDecision: world.pendingDecisions.length > 0,
   });
   relationships = playerEvents.relationshipsById;
@@ -211,7 +221,7 @@ export function advanceStep(state, months) {
     firedEvents: [
       ...state.firedEvents,
       ...world.fired.map((f) => ({ eventId: f.eventId, month: nextMonthIndex })),
-      ...playerEvents.fired,
+      ...playerEvents.fired.map((f) => ({ ...f, playerId })),
     ],
     history: [...state.history, { month: nextMonthIndex, entries }],
   };
@@ -356,7 +366,7 @@ export function attemptPlayerActivity(state, activityId) {
     relationships,
     activityUsesThisPeriod: { ...uses, [activityId]: (uses[activityId] ?? 0) + 1 },
     pendingDecisions: [...state.pendingDecisions, ...pendingDecisions],
-    firedEvents: [...state.firedEvents, ...result.triggeredEvents.map((eventId) => ({ eventId, month: state.currentMonthIndex }))],
+    firedEvents: [...state.firedEvents, ...result.triggeredEvents.map((eventId) => ({ eventId, month: state.currentMonthIndex, playerId }))],
     history: appendToCurrentBlock(state.history, entries),
     lastActivityResult: { attempted: true, activityId, triggeredEvents: result.triggeredEvents },
   };

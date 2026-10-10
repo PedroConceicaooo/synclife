@@ -1,8 +1,20 @@
 {
   "id": "divorce",
   "subject": "relationship",
-  "conditions": { "type": "romantic", "state": "married", "maxAffinity": 25 },
+  "conditions": {
+    "type": "romantic",
+    "state": "married",
+    "maxAffinity": 25
+  },
   "yearlyChance": 0.2,
-  "effects": [{ "op": "relationshipState", "value": "divorced" }],
-  "ifInvolvesPlayer": { "trigger": "choose_who_to_live_with" }
+  "effects": [
+    {
+      "op": "relationshipState",
+      "value": "divorced"
+    }
+  ],
+  "ifInvolvesPlayer": {
+    "trigger": "choose_who_to_live_with"
+  },
+  "milestone": true
 }

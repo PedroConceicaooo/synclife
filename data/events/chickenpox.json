@@ -26,5 +26,6 @@
       "stat": "happiness",
       "delta": -2
     }
-  ]
+  ],
+  "milestone": true
 }

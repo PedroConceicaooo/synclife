@@ -26,16 +26,32 @@ function introLines(state, locale) {
       { player: player.sex },
     ),
   ];
-  for (const parent of [state.people[state.mother.id], state.people[state.father.id]]) {
-    lines.push(
-      locale.format(`diary.intro.${relationTo(state, parent.id)}`, {
-        name: fullName(parent, country),
-        occupation: locale.format(`occupation.${parent.occupation.title}`, {}, { self: parent.sex }),
-        age: locale.plural('age.years', ageAt(parent.birth, player.birth)),
-      }),
-    );
-  }
-  return lines;
+  return [...lines, ...parentLines(state, locale, player.birth)];
+}
+
+// Parents with their age at `month`.
+function parentLines(state, locale, month) {
+  return [state.people[state.mother.id], state.people[state.father.id]].map((parent) =>
+    locale.format(`diary.intro.${relationTo(state, parent.id)}`, {
+      name: fullName(parent, state.country),
+      occupation: locale.format(`occupation.${parent.occupation.title}`, {}, { self: parent.sex }),
+      age: locale.plural('age.years', ageAt(parent.birth, month)),
+    }),
+  );
+}
+
+// First block of a life carried on by a sibling at 18.
+function continueLines(state, locale, entry, month) {
+  const player = state.people[state.player.id];
+  const previous = state.people[entry.previousId];
+  return [
+    locale.format('diary.continue.me', {
+      name: fullName(player, state.country),
+      age: locale.plural('age.years', ageAt(player.birth, month)),
+    }),
+    locale.format('diary.continue.previous', { name: previous.firstName }, { previous: previous.sex }),
+    ...parentLines(state, locale, month),
+  ];
 }
 
 function babyBornLine(state, locale, month) {
@@ -104,8 +120,10 @@ function entryKind(entry) {
 export function describeBlock(block, state, locale) {
   const header = locale.format('diary.header', { age: locale.age(block.month - state.player.birth) });
   const isIntro = block.entries.some((e) => e.type === 'birth');
+  const continued = block.entries.find((e) => e.type === 'continue');
+  const opening = isIntro ? introLines(state, locale) : continued ? continueLines(state, locale, continued, block.month) : [];
   const lines = [
-    ...(isIntro ? introLines(state, locale).map((text) => ({ kind: 'text', text })) : []),
+    ...opening.map((text) => ({ kind: 'text', text })),
     ...block.entries.map((e) => ({ kind: entryKind(e), text: entryLine(e, state, locale, block) })),
     { kind: 'money', text: allowanceLine(block.entries, state, locale) },
     { kind: 'stats', text: statsLine(block.entries, locale) },

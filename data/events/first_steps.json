@@ -32,5 +32,6 @@
       "delta": 2,
       "targetRole": "father"
     }
-  ]
+  ],
+  "milestone": true
 }

@@ -291,5 +291,7 @@
   "ui.tab_activities": "Atividades",
   "ui.relations_title": "Relações",
   "ui.flag_alt": "Bandeira: {country}",
-  "ui.person_subtitle": "{role}, {age}"
+  "ui.person_subtitle": "{role}, {age}",
+  "diary.continue.me": "A história continua comigo. Meu nome é {name} e tenho {age}.",
+  "diary.continue.previous": "{previous|Meu irmão|Minha irmã} {name} fez 18 anos e seguiu o próprio caminho."
 }
