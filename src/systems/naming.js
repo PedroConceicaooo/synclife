@@ -35,8 +35,11 @@ export function nameParents(rng, { mother, father, country }) {
   };
 }
 
+// Two family names, without repeating one both sides happen to share.
+const joinFamilyNames = (first, second) => (first === second ? first : `${first} ${second}`);
+
 export function childLastName({ mother, father, sex, country }) {
-  if (country.naming.childLastName === 'motherAndFather') return `${mother.lastName} ${father.lastName}`;
+  if (country.naming.childLastName === 'motherAndFather') return joinFamilyNames(mother.lastName, father.lastName);
   return surnameForm(familyEntryOf(father, country.nameList), sex);
 }
 
@@ -56,5 +59,5 @@ export function fullName(person, country) {
 // teacher), following the country rule for children's surnames.
 export function randomLastName(rng, country, sex) {
   const pick = () => surnameForm(pickFamilyEntry(rng, country.nameList), sex);
-  return country.naming.childLastName === 'motherAndFather' ? `${pick()} ${pick()}` : pick();
+  return country.naming.childLastName === 'motherAndFather' ? joinFamilyNames(pick(), pick()) : pick();
 }

@@ -54,3 +54,13 @@ test('siblings do not repeat first names while the list allows it', () => {
   const taken = us.nameList.first.F.slice(0, -1);
   assert.equal(pickFirstName(createRng(1), us.nameList, 'F', taken), us.nameList.first.F.at(-1));
 });
+
+test('a family name both parents share is not repeated in the child', () => {
+  const br = country('BR');
+  const child = nameChild(createRng(2), { id: 'p_0001', sex: 'F' }, {
+    mother: { ...MOTHER, lastName: 'Martins' },
+    father: { ...FATHER, lastName: 'Martins' },
+    country: br,
+  });
+  assert.equal(child.lastName, 'Martins');
+});

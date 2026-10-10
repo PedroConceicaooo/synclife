@@ -7,6 +7,8 @@ import { fullName } from '../systems/naming.js';
 import { describeHistory } from './diary.js';
 import { isAdult, lifePhase, availableInteractions, availableActivities, closePeople } from './gameState.js';
 import { lifeSummary } from '../systems/lifeEnd.js';
+import { schoolPeople } from '../systems/schoolmates.js';
+import { schoolStageAt } from '../systems/school.js';
 
 const STATS = ['happiness', 'health', 'intelligence', 'looks'];
 
@@ -108,10 +110,11 @@ export function renderControls(dom, state, locale, view, { onAdvance, onTab, onN
 
   // Design doc: tabs for the current phase, relationships and activities.
   clearChildren(dom.tabs);
-  const activeTab = view.screen === 'profile' ? 'relations' : view.screen;
+  const activeTab = view.screen === 'profile' ? view.from : view.screen;
   for (const [tab, label] of [
     ['life', locale.t(`phase.${lifePhase(state)}`)],
     ['relations', locale.t('ui.tab_relations')],
+    ['school', locale.t('ui.tab_school')],
     ['activities', locale.t('ui.tab_activities')],
   ]) {
     const button = el('button', { text: label });
@@ -164,29 +167,55 @@ export function renderSummary(dom, state, locale) {
   }
 }
 
+// One tappable row per person: name, role and age, how much they like you.
+function personRow(state, locale, personId, onOpenProfile) {
+  const person = state.people[personId];
+  const relationship = relationshipWith(state, personId);
+  const item = el('li');
+  const button = el('button', { className: 'row' });
+  button.type = 'button';
+  button.append(
+    el('strong', { text: fullName(person, state.country) }),
+    el('span', {
+      className: 'detail',
+      text: locale.format('ui.person_subtitle', {
+        role: roleLabel(locale, relationship.roles[personId], person),
+        age: locale.plural('age.years', ageAt(person.birth, state.currentMonthIndex)),
+      }),
+    }),
+    meter(locale.t('ui.affinity_they_feel'), relationship.affinity[personId]),
+  );
+  button.addEventListener('click', () => onOpenProfile(personId));
+  item.appendChild(button);
+  return item;
+}
+
 export function renderRelations(dom, state, locale, { onOpenProfile }) {
   dom.relationsTitle.textContent = locale.t('ui.relations_title');
   clearChildren(dom.relationsList);
-  for (const { personId, role } of closePeople(state)) {
-    const person = state.people[personId];
-    const relationship = relationshipWith(state, personId);
-    const item = el('li');
-    const button = el('button', { className: 'row' });
-    button.type = 'button';
-    button.append(
-      el('strong', { text: fullName(person, state.country) }),
-      el('span', {
-        className: 'detail',
-        text: locale.format('ui.person_subtitle', {
-          role: roleLabel(locale, role, person),
-          age: locale.plural('age.years', ageAt(person.birth, state.currentMonthIndex)),
-        }),
-      }),
-      meter(locale.t('ui.affinity_they_feel'), relationship.affinity[personId]),
-    );
-    button.addEventListener('click', () => onOpenProfile(personId));
-    item.appendChild(button);
-    dom.relationsList.appendChild(item);
+  for (const { personId } of closePeople(state)) dom.relationsList.appendChild(personRow(state, locale, personId, onOpenProfile));
+}
+
+// Design doc: acquaintances live on the screen of the place they share
+// with the player — classmates and teachers on the school screen.
+export function renderSchool(dom, state, locale, { onOpenProfile }) {
+  const stage = schoolStageAt(state.player.birth, state.currentMonthIndex, state.country.education);
+  const { classmates, teachers } = schoolPeople(state.relationships, state.player.id);
+  const localKey = stage && `school.${state.country.id}.${stage.stageId}`;
+  // Stage names are written for mid-sentence use; a heading starts upper case.
+  const stageName = stage ? locale.t(locale.has(localKey) ? localKey : `school.${stage.stageId}`) : null;
+  dom.schoolTitle.textContent = stageName ? stageName[0].toLocaleUpperCase(locale.language) + stageName.slice(1) : locale.t('ui.tab_school');
+  dom.schoolEmpty.textContent = stage ? '' : locale.t('ui.school_none');
+  dom.schoolEmpty.hidden = Boolean(stage);
+
+  for (const [titleEl, listEl, ids, titleKey] of [
+    [dom.schoolClassmatesTitle, dom.schoolClassmates, classmates, 'ui.school_classmates'],
+    [dom.schoolTeachersTitle, dom.schoolTeachers, teachers, 'ui.school_teachers'],
+  ]) {
+    titleEl.textContent = locale.t(titleKey);
+    titleEl.hidden = !stage || ids.length === 0;
+    clearChildren(listEl);
+    if (stage) for (const id of ids) listEl.appendChild(personRow(state, locale, id, onOpenProfile));
   }
 }
 

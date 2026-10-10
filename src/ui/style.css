@@ -321,9 +321,20 @@ h1 {
   margin-top: 6px;
 }
 
-#relations-list {
+.people-list {
   list-style: none;
   padding: 0;
+}
+
+#school-screen h2 {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  font-weight: 600;
+  margin-top: 20px;
+}
+
+#school-empty {
+  color: var(--ink-soft);
 }
 
 .activities-group + .activities-group {

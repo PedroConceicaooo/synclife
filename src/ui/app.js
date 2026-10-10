@@ -18,6 +18,7 @@ import {
   renderSummary,
   renderControls,
   renderRelations,
+  renderSchool,
   renderProfile,
   renderActivities,
   renderDecisionModal,
@@ -59,6 +60,13 @@ const dom = {
   summaryMilestones: byId('summary-milestones'),
   summaryRelationsTitle: byId('summary-relations-title'),
   summaryRelations: byId('summary-relations'),
+  schoolScreen: byId('school-screen'),
+  schoolTitle: byId('school-title'),
+  schoolEmpty: byId('school-empty'),
+  schoolClassmatesTitle: byId('school-classmates-title'),
+  schoolClassmates: byId('school-classmates'),
+  schoolTeachersTitle: byId('school-teachers-title'),
+  schoolTeachers: byId('school-teachers'),
   relationsScreen: byId('relations-screen'),
   relationsTitle: byId('relations-title'),
   relationsList: byId('relations-list'),
@@ -81,7 +89,13 @@ const dom = {
   decisionOptions: byId('decision-options'),
 };
 
-const SCREENS = { life: 'lifeScreen', relations: 'relationsScreen', profile: 'profileScreen', activities: 'activitiesScreen' };
+const SCREENS = {
+  life: 'lifeScreen',
+  relations: 'relationsScreen',
+  school: 'schoolScreen',
+  profile: 'profileScreen',
+  activities: 'activitiesScreen',
+};
 
 // One save slot in this browser. Storage can be missing or full (private
 // mode, blocked site data): the game still runs, it just won't remember.
@@ -197,20 +211,22 @@ async function main() {
     if (view.screen === 'life') {
       renderDiary(dom, state, locale);
       renderSummary(dom, state, locale);
-    } else if (view.screen === 'relations') {
-      renderRelations(dom, state, locale, {
-        onOpenProfile: (personId) => {
-          update(state, { screen: 'profile', personId, category: null });
-          dom.screens.scrollTo({ top: 0 });
-        },
-      });
+    } else if (view.screen === 'relations' || view.screen === 'school') {
+      // The profile remembers which list it was opened from, for "Voltar".
+      const from = view.screen;
+      const onOpenProfile = (personId) => {
+        update(state, { screen: 'profile', personId, category: null, from });
+        dom.screens.scrollTo({ top: 0 });
+      };
+      if (from === 'relations') renderRelations(dom, state, locale, { onOpenProfile });
+      else renderSchool(dom, state, locale, { onOpenProfile });
     } else if (view.screen === 'activities') {
       renderActivities(dom, state, locale, {
         onDoActivity: (activityId) => update(attemptPlayerActivity(state, activityId)),
       });
     } else {
       renderProfile(dom, state, locale, view.personId, view.category, {
-        onBack: () => update(state, { screen: 'relations' }),
+        onBack: () => update(state, { screen: view.from }),
         onInteract: (interactionId, targetPersonId) => update(attemptPlayerInteraction(state, interactionId, targetPersonId)),
         onSelectCategory: (category) => update(state, { ...view, category }),
       });
