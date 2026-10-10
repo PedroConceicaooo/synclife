@@ -5,7 +5,8 @@ import { ageAt } from '../engine/time.js';
 import { affinityBand } from './affinityColor.js';
 import { fullName } from '../systems/naming.js';
 import { describeHistory } from './diary.js';
-import { isAdult, availableInteractions, availableActivities, closePeople, playerOccupation } from './gameState.js';
+import { isAdult, availableInteractions, availableActivities, closePeople, playerOccupation, assetShop } from './gameState.js';
+import { assetPrice, resalePrice } from '../systems/assets.js';
 import { avatarElement } from './avatar.js';
 import { lifeSummary } from '../systems/lifeEnd.js';
 import { schoolPeople } from '../systems/schoolmates.js';
@@ -78,7 +79,7 @@ export function renderHeader(dom, state, locale) {
   dom.topFlag.src = `/src/ui/flags/${state.country.id}.svg`;
   dom.topFlag.alt = locale.format('ui.flag_alt', { country: countryName });
   dom.topPhase.textContent = occupationLabel(state, locale);
-  dom.topMoney.textContent = locale.money(player.money, state.country.currency.code);
+  dom.topMoney.textContent = locale.money(player.money, state.country.currency.code, state.country.currency.display);
   dom.topMoneyLabel.textContent = locale.t('ui.balance');
 }
 
@@ -468,11 +469,64 @@ export function renderStart(dom, locale, countries, form, { onRandom, onOpenCust
   };
 }
 
-// Assets: placeholder until the assets system lands.
-export function renderAssets(dom, state, locale) {
+function assetResultText(state, locale) {
+  const result = state.lastAssetResult;
+  if (!result) return '';
+  const title = (id) => locale.t(`asset.${id}.title`);
+  if (!result.done) return locale.format(`ui.asset_blocked.${result.reason}`, { items: '' });
+  if (result.action === 'bought') return locale.format('ui.asset_bought', { item: title(result.assetId) });
+  return locale.format('ui.asset_sold', { items: locale.list(result.dropped.map(title)) });
+}
+
+// Design: everything the player owns, and where to get more.
+export function renderAssets(dom, state, locale, { onBuy, onSell }) {
+  const player = state.people[state.player.id];
+  const money = (amount) => locale.money(amount, state.country.currency.code, state.country.currency.display);
+  const title = (id) => locale.t(`asset.${id}.title`);
   dom.assetsTitle.textContent = locale.t('ui.assets_title');
-  dom.assetsResult.textContent = '';
+  dom.assetsResult.textContent = assetResultText(state, locale);
+
   clearChildren(dom.assetsOwned);
-  dom.assetsOwned.appendChild(el('p', { className: 'empty', text: locale.t('ui.assets_empty') }));
+  dom.assetsOwned.appendChild(el('h2', { text: locale.t('ui.assets_owned') }));
+  const owned = player.assets ?? [];
+  if (owned.length === 0) dom.assetsOwned.appendChild(el('p', { className: 'empty', text: locale.t('ui.assets_empty') }));
+  for (const { assetId } of owned) {
+    const asset = state.assetsById[assetId];
+    const row = el('div', { className: 'row asset-owned' });
+    const text = el('div');
+    text.append(el('strong', { text: title(assetId) }), el('span', { className: 'detail', text: locale.t(`asset.${assetId}.description`) }));
+    const free = assetPrice(asset, state.country) === 0;
+    const sell = el('button', {
+      className: 'small-action',
+      text: free ? locale.t('ui.asset_delete') : locale.format('ui.asset_sell', { price: money(resalePrice(asset, state.country)) }),
+    });
+    sell.type = 'button';
+    sell.addEventListener('click', () => onSell(assetId));
+    row.append(text, sell);
+    dom.assetsOwned.appendChild(row);
+  }
+
   clearChildren(dom.assetsShop);
+  dom.assetsShop.appendChild(el('h2', { text: locale.t('ui.assets_shop') }));
+  for (const group of assetShop(state)) {
+    const section = el('div', { className: 'activities-group' });
+    section.appendChild(el('h3', { text: locale.t(`assetCategory.${group.category}`) }));
+    for (const { id, price, blocker } of group.items) {
+      const button = el('button', { className: 'row activity' });
+      button.type = 'button';
+      button.disabled = blocker !== null;
+      const requires = (state.assetsById[id].requires ?? []).map(title);
+      const detail = blocker
+        ? locale.format(`ui.asset_blocked.${blocker}`, { items: locale.list(requires) })
+        : locale.t(`asset.${id}.description`);
+      button.append(
+        el('strong', { text: title(id) }),
+        el('span', { className: 'price', text: price === 0 ? locale.t('ui.asset_get_free') : locale.format('ui.asset_buy', { price: money(price) }) }),
+        el('span', { className: 'detail', text: detail }),
+      );
+      button.addEventListener('click', () => onBuy(id));
+      section.appendChild(button);
+    }
+    dom.assetsShop.appendChild(section);
+  }
 }

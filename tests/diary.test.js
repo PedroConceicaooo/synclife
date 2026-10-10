@@ -87,7 +87,7 @@ test('a block lists birthdays, choices, allowance and a stat summary', () => {
     ],
   };
   const { header, lines } = describeBlock(block, state, LOCALE);
-  const money = LOCALE.money(50, state.country.currency.code);
+  const money = LOCALE.money(50, state.country.currency.code, state.country.currency.display);
 
   assert.equal(header, 'Idade: 3 anos e 6 meses');
   assert.deepEqual(lines, [

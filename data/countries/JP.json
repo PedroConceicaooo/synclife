@@ -7,7 +7,8 @@
       "small": 700,
       "medium": 3500,
       "large": 14000
-    }
+    },
+    "display": "narrowSymbol"
   },
   "names": "names/jp.json",
   "cities": [

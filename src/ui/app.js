@@ -8,6 +8,8 @@ import {
   attemptPlayerActivity,
   continueAdvance,
   playableCountries,
+  buyPlayerAsset,
+  sellPlayerAsset,
 } from './gameState.js';
 import { toSave, fromSave } from '../systems/save.js';
 import { continueAsSibling } from '../systems/lifeEnd.js';
@@ -200,7 +202,8 @@ async function main() {
         scrollDiaryToEnd();
       },
       onTab: (tab) => {
-        const next = tab === 'activities' ? { ...state, lastActivityResult: null } : state;
+        // A tab opens without the result message of the last visit.
+        const next = { ...state, lastActivityResult: null, lastAssetResult: null };
         update(next, { screen: tab });
         if (tab === 'life') scrollDiaryToEnd();
         else dom.screens.scrollTo({ top: 0 });
@@ -229,7 +232,10 @@ async function main() {
       if (from === 'relations') renderRelations(dom, state, locale, { onOpenProfile });
       else renderSchool(dom, state, locale, { onOpenProfile });
     } else if (view.screen === 'assets') {
-      renderAssets(dom, state, locale);
+      renderAssets(dom, state, locale, {
+        onBuy: (assetId) => update(buyPlayerAsset(state, assetId)),
+        onSell: (assetId) => update(sellPlayerAsset(state, assetId)),
+      });
     } else if (view.screen === 'activities') {
       renderActivities(dom, state, locale, {
         onDoActivity: (activityId) => update(attemptPlayerActivity(state, activityId)),

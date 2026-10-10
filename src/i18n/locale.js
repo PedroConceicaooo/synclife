@@ -34,9 +34,10 @@ export function createLocale(entries, language = FALLBACK_LANGUAGE, fallbackEntr
     return format(formKey, { count, ...params }, sexes);
   }
 
-  // Whole units, like the design doc's "US$ 1.250".
-  function money(amount, currencyCode) {
-    return new Intl.NumberFormat(language, { style: 'currency', currency: currencyCode, maximumFractionDigits: 0 }).format(amount);
+  // Whole units, like the design doc's "US$ 1.250". display comes from the
+  // country data ("symbol" or "narrowSymbol" for "₽ 450" instead of "RUB 450").
+  function money(amount, currencyCode, display = 'symbol') {
+    return new Intl.NumberFormat(language, { style: 'currency', currency: currencyCode, currencyDisplay: display, maximumFractionDigits: 0 }).format(amount);
   }
 
   // Month index (rule 5) -> month name; the game has no day of the month.

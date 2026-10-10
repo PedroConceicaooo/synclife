@@ -124,3 +124,10 @@ test('list joins names the Portuguese way', () => {
   assert.equal(PT.list(['Ana', 'Pedro', 'Bia']), 'Ana, Pedro e Bia');
   assert.equal(PT.list(['Ana']), 'Ana');
 });
+
+test('a country can ask for the short currency symbol', () => {
+  const normalize = (s) => s.replace(/\s/g, ' ');
+  assert.match(normalize(PT.money(450, 'RUB', 'narrowSymbol')), /₽/);
+  assert.match(normalize(PT.money(2000, 'JPY', 'narrowSymbol')), /^¥ 2\.000$/);
+  assert.equal(normalize(PT.money(1250, 'USD')), 'US$ 1.250');
+});

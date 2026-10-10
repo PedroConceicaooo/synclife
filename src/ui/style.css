@@ -709,3 +709,49 @@ h1 {
   font-size: 0.85rem;
   color: var(--ink-soft);
 }
+
+/* Assets: owned things with a sell button; the shop below. */
+#assets-owned h2,
+#assets-shop h2 {
+  font-size: 1rem;
+  margin: 8px 0 4px;
+}
+
+#assets-shop {
+  margin-top: 20px;
+}
+
+.activities-group h3 {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  font-weight: 600;
+  margin: 12px 0 0;
+}
+
+.asset-owned {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.small-action {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--pen);
+  border-radius: var(--radius);
+  background: none;
+  color: var(--pen);
+  font-size: 0.85rem;
+}
+
+.row .price {
+  display: block;
+  color: var(--pen);
+  font-variant-numeric: tabular-nums;
+}
+
+#assets-result {
+  min-height: 1.5em;
+  color: var(--pen);
+}

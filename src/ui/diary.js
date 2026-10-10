@@ -72,7 +72,7 @@ function babyBornLine(state, locale, month) {
 }
 
 function moneyLine(entry, state, locale) {
-  const amount = locale.money(Math.abs(entry.amount), state.country.currency.code);
+  const amount = locale.money(Math.abs(entry.amount), state.country.currency.code, state.country.currency.display);
   if (entry.amount > 0) return locale.format('diary.money.gain', { amount });
   const spent = entry.source === 'activity' || entry.source === 'asset';
   return locale.format(spent ? 'diary.money.spent' : 'diary.money.lost', { amount });
@@ -128,7 +128,7 @@ function entryLine(entry, state, locale, block) {
 
 function allowanceLine(entries, state, locale) {
   const total = entries.filter((e) => e.type === 'money' && e.source === 'allowance').reduce((sum, e) => sum + e.amount, 0);
-  return total > 0 ? locale.format('diary.allowance', { amount: locale.money(total, state.country.currency.code) }) : null;
+  return total > 0 ? locale.format('diary.allowance', { amount: locale.money(total, state.country.currency.code, state.country.currency.display) }) : null;
 }
 
 function statsLine(entries, locale) {
