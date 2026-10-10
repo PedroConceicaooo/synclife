@@ -51,3 +51,10 @@ export function nameChild(rng, child, { mother, father, country, siblingFirstNam
 export function fullName(person, country) {
   return country.naming.familyNameFirst ? `${person.lastName} ${person.firstName}` : `${person.firstName} ${person.lastName}`;
 }
+
+// A family name for someone outside the player's family (a classmate, a
+// teacher), following the country rule for children's surnames.
+export function randomLastName(rng, country, sex) {
+  const pick = () => surnameForm(pickFamilyEntry(rng, country.nameList), sex);
+  return country.naming.childLastName === 'motherAndFather' ? `${pick()} ${pick()}` : pick();
+}

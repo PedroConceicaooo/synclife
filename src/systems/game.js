@@ -20,6 +20,7 @@ import {
 } from './events.js';
 import { evaluateConditions } from '../engine/conditions.js';
 import { calendarPoints, calendarEventsAt, firstDecisionPoint } from './calendar.js';
+import { startClass, promoteFriendships } from './schoolmates.js';
 import { attemptInteraction, listAvailableInteractions } from './interactions.js';
 import { attemptActivity, listActivities } from './activities.js';
 import { applyEffects } from '../engine/effects.js';
@@ -166,7 +167,19 @@ function processCalendar(state, points, { people, relationships }) {
   let relationshipsNow = relationships;
 
   for (const point of points) {
-    if (point.on === 'stageStart') entries.push({ type: 'schoolStage', stageId: point.stageId });
+    if (point.on === 'stageStart') {
+      entries.push({ type: 'schoolStage', stageId: point.stageId });
+      const school = startClass(state.rng, {
+        people: peopleNow,
+        relationships: relationshipsNow,
+        playerId: state.player.id,
+        country: state.country,
+        month: point.month,
+      });
+      peopleNow = school.people;
+      relationshipsNow = school.relationships;
+      entries.push(school.entry);
+    }
     for (const event of calendarEventsAt(state.eventsById, point)) {
       const player = peopleNow[state.player.id];
       if (!evaluateConditions(event.conditions, player, { currentMonthIndex: point.month, country: state.country })) continue;
@@ -260,6 +273,10 @@ export function advanceStep(state, requestedMonths) {
   }
 
   entries.push(...statEntries(playerBefore, people[playerId]));
+
+  const friendships = promoteFriendships(relationships, playerId);
+  relationships = friendships.relationships;
+  entries.push(...friendships.newFriendIds.map((personId) => ({ type: 'newFriend', personId })));
 
   return {
     ...state,
@@ -437,23 +454,22 @@ export function attemptPlayerActivity(state, activityId) {
 }
 
 // People close to the player (design doc: "Relacionamentos" lists only close
-// people). For now that is the family: parents first, then siblings oldest
-// first.
-const CLOSE_ROLE_ORDER = ['mother', 'father', 'brother', 'sister'];
+// people): parents, then siblings oldest first, then friends.
+const CLOSE_ROLE_RANK = { mother: 0, father: 1, brother: 2, sister: 2, friend: 3 };
 
 export function closePeople(state) {
   const playerId = state.player.id;
   return Object.values(state.relationships)
-    .filter((r) => playerId in r.roles && r.type === 'family')
+    .filter((r) => playerId in r.roles)
     .map((r) => {
       const personId = Object.keys(r.roles).find((id) => id !== playerId);
       return { personId, role: r.roles[personId] };
     })
-    .filter(({ role }) => CLOSE_ROLE_ORDER.includes(role))
-    .sort((a, b) => {
-      const rank = (role) => (['mother', 'father'].includes(role) ? CLOSE_ROLE_ORDER.indexOf(role) : 2);
-      return rank(a.role) - rank(b.role) || state.people[a.personId].birth - state.people[b.personId].birth;
-    });
+    .filter(({ role }) => role in CLOSE_ROLE_RANK)
+    .sort(
+      (a, b) =>
+        CLOSE_ROLE_RANK[a.role] - CLOSE_ROLE_RANK[b.role] || state.people[a.personId].birth - state.people[b.personId].birth,
+    );
 }
 
 // Design doc, "Fases da vida": baby 0-2, child 3-11, teen 12-17, adult 18+.

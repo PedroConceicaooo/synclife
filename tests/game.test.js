@@ -330,7 +330,8 @@ test('a new life has a named family with a home city and parents with jobs', () 
 test('babies born mid-life get names that differ from their siblings', () => {
   for (const seed of [1, 2, 3, 4, 5, 6]) {
     const { state } = playFullLife(seed);
-    const children = [state.player.id, ...Object.keys(state.people).filter((id) => id > state.father.id)].map((id) => state.people[id]);
+    const siblingIds = closePeople(state).filter((p) => ['brother', 'sister'].includes(p.role)).map((p) => p.personId);
+    const children = [state.player.id, ...siblingIds].map((id) => state.people[id]);
     for (const child of children) assert.ok(child.firstName && child.lastName, `${seed} ${child.id}`);
     const sameSex = (sex) => children.filter((c) => c.sex === sex).map((c) => c.firstName);
     for (const sex of ['M', 'F']) assert.equal(new Set(sameSex(sex)).size, sameSex(sex).length, `seed ${seed}`);
@@ -351,9 +352,10 @@ test('lifePhase follows the design doc age bands', () => {
 
 test('siblings grow up too, not only the player', () => {
   const lives = [1, 2, 3, 4, 5, 6, 7, 8].map((seed) => playFullLife(seed).state);
-  const state = lives.find((s) => Object.keys(s.people).some((id) => id > s.father.id));
+  const siblingsOf = (s) => closePeople(s).filter((p) => ['brother', 'sister'].includes(p.role)).map((p) => s.people[p.personId]);
+  const state = lives.find((s) => siblingsOf(s).length > 0);
   assert.ok(state, 'some seed should have a sibling');
-  const siblings = Object.values(state.people).filter((p) => p.id > state.father.id);
+  const siblings = siblingsOf(state);
   for (const sibling of siblings) {
     const ageYears = (state.currentMonthIndex - sibling.birth) / 12;
     if (ageYears >= 3) assert.ok(sibling.stats.intelligence > 30, `${sibling.id} at ${ageYears}: ${sibling.stats.intelligence}`);

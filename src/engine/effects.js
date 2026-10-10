@@ -121,6 +121,17 @@ function applyHaveChildEffect(effect, context) {
   return { relationshipsById: result.relationshipsById, peopleById: result.peopleById };
 }
 
+// Sets every role of the firing relationship, e.g. a friendship that ends:
+// { op: "roles", value: "former_friend" }.
+function applyRolesEffect(effect, context) {
+  const relationship = context.relationship;
+  const roles = Object.fromEntries(Object.keys(relationship.roles).map((id) => [id, effect.value]));
+  return {
+    relationshipsById: { ...context.relationshipsById, [relationship.id]: { ...relationship, roles } },
+    peopleById: context.peopleById,
+  };
+}
+
 function applyEffect(effect, context) {
   switch (effect.op) {
     case 'relationshipState':
@@ -141,6 +152,8 @@ function applyEffect(effect, context) {
       return applyMoneyEffect(effect, context);
     case 'haveChild':
       return applyHaveChildEffect(effect, context);
+    case 'roles':
+      return applyRolesEffect(effect, context);
     default:
       throw new Error(`Unknown effect op: ${effect.op}`);
   }
