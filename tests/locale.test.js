@@ -57,3 +57,37 @@ test('locales/pt-BR/ui.json has every key the M5 screens need', () => {
     assert.notEqual(locale.t(key), key, `missing locale entry for ${key}`);
   }
 });
+
+const PT = createLocale(JSON.parse(readFileSync(UI_LOCALE_PATH, 'utf8')));
+
+test('format fills params and picks gendered forms by sex', () => {
+  const locale = createLocale({ born: 'Eu nasci {player|menino|menina} em {city}.' });
+  assert.equal(locale.format('born', { city: 'Recife' }, { player: 'F' }), 'Eu nasci menina em Recife.');
+  assert.equal(locale.format('born', { city: 'Recife' }, { player: 'M' }), 'Eu nasci menino em Recife.');
+  assert.equal(locale.format('born', {}, {}), 'Eu nasci {player|menino|menina} em {city}.');
+});
+
+test('plural picks .one or .other', () => {
+  assert.equal(PT.plural('age.years', 1), '1 ano');
+  assert.equal(PT.plural('age.years', 3), '3 anos');
+});
+
+test('age reads like the diary header', () => {
+  assert.equal(PT.age(36), '3 anos');
+  assert.equal(PT.age(42), '3 anos e 6 meses');
+  assert.equal(PT.age(6), '6 meses');
+  assert.equal(PT.age(0), '0 anos');
+  assert.equal(PT.age(13), '1 ano e 1 mês');
+});
+
+test('money uses the country currency symbol without decimals', () => {
+  const normalize = (s) => s.replace(/\s/g, ' ');
+  assert.equal(normalize(PT.money(1250, 'USD')), 'US$ 1.250');
+  assert.equal(normalize(PT.money(300, 'BRL')), 'R$ 300');
+  assert.match(normalize(PT.money(2000, 'JPY')), /^(JP¥|¥) 2\.000$/);
+});
+
+test('monthName turns a month index into the month name', () => {
+  assert.equal(PT.monthName(2000 * 12 + 2), 'março');
+  assert.equal(PT.monthName(2000 * 12 + 11), 'dezembro');
+});

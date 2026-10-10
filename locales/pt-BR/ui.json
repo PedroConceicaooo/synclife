@@ -267,5 +267,11 @@
   "occupation.programmer": "{self|programador|programadora}",
   "occupation.electrician": "{self|eletricista|eletricista}",
   "occupation.hairdresser": "{self|cabeleireiro|cabeleireira}",
-  "occupation.farmer": "{self|agricultor|agricultora}"
+  "occupation.farmer": "{self|agricultor|agricultora}",
+  "age.years.one": "{count} ano",
+  "age.years.other": "{count} anos",
+  "age.months.one": "{count} mês",
+  "age.months.other": "{count} meses",
+  "age.join": " e ",
+  "age.years.zero": "{count} anos"
 }
