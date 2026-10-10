@@ -22,5 +22,15 @@
     "electrician",
     "hairdresser",
     "farmer"
-  ]
+  ],
+  "ages": {
+    "majority": 18,
+    "drinking": 18,
+    "smoking": 18,
+    "driving": 18
+  },
+  "education": {
+    "schoolYearStartMonth": 9,
+    "stages": []
+  }
 }

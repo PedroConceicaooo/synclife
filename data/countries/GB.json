@@ -17,5 +17,55 @@
     "leeds",
     "liverpool",
     "bristol"
-  ]
+  ],
+  "ages": {
+    "driving": 17
+  },
+  "education": {
+    "schoolYearStartMonth": 9,
+    "stages": [
+      {
+        "id": "elementary",
+        "startAge": 4,
+        "years": 7
+      },
+      {
+        "id": "middle",
+        "startAge": 11,
+        "years": 5
+      },
+      {
+        "id": "high",
+        "startAge": 16,
+        "years": 2
+      }
+    ]
+  },
+  "legalSources": {
+    "ages.majority": {
+      "source": "Family Law Reform Act 1969, s. 1",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "ages.drinking": {
+      "source": "Licensing Act 2003, s. 146-149 (compra de álcool a partir dos 18)",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "ages.smoking": {
+      "source": "Children and Young Persons (Protection from Tobacco) Act 1991, alterado em 2007 para 18",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "ages.driving": {
+      "source": "Road Traffic Act 1988, s. 101 (carro a partir dos 17)",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "education": {
+      "source": "Education Act 1996 e Education and Skills Act 2008 (Inglaterra: reception aos 4, secundário aos 11, estudo ou formação até os 18)",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    }
+  }
 }

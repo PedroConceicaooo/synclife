@@ -17,5 +17,52 @@
     "yekaterinburg",
     "kazan",
     "nizhny_novgorod"
-  ]
+  ],
+  "education": {
+    "schoolYearStartMonth": 9,
+    "stages": [
+      {
+        "id": "elementary",
+        "startAge": 7,
+        "years": 4
+      },
+      {
+        "id": "middle",
+        "startAge": 11,
+        "years": 5
+      },
+      {
+        "id": "high",
+        "startAge": 16,
+        "years": 2
+      }
+    ]
+  },
+  "legalSources": {
+    "ages.majority": {
+      "source": "Código Civil da Federação Russa, art. 21",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "ages.drinking": {
+      "source": "Lei Federal 171-FZ, art. 16 (venda de álcool proibida a menores de 18)",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "ages.smoking": {
+      "source": "Lei Federal 15-FZ, art. 20 (venda de tabaco proibida a menores de 18)",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "ages.driving": {
+      "source": "Lei Federal 196-FZ 'Sobre a segurança viária', art. 26 (categoria B aos 18)",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "education": {
+      "source": "Lei Federal 273-FZ 'Sobre a educação': ano letivo em 1º de setembro, níveis de 4, 5 e 2 anos",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    }
+  }
 }

@@ -19,5 +19,57 @@
     "seattle",
     "boston",
     "atlanta"
-  ]
+  ],
+  "ages": {
+    "drinking": 21,
+    "smoking": 21,
+    "driving": 16
+  },
+  "education": {
+    "schoolYearStartMonth": 9,
+    "stages": [
+      {
+        "id": "elementary",
+        "startAge": 5,
+        "years": 6
+      },
+      {
+        "id": "middle",
+        "startAge": 11,
+        "years": 3
+      },
+      {
+        "id": "high",
+        "startAge": 14,
+        "years": 4
+      }
+    ]
+  },
+  "legalSources": {
+    "ages.majority": {
+      "source": "Leis estaduais; 18 na maioria dos estados (19 no Alabama e Nebraska, 21 no Mississippi)",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "ages.drinking": {
+      "source": "National Minimum Drinking Age Act de 1984 (23 U.S.C. § 158)",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "ages.smoking": {
+      "source": "Lei federal 'Tobacco 21' (Further Consolidated Appropriations Act, 2020)",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "ages.driving": {
+      "source": "Leis estaduais de habilitação graduada; 16 é a idade mais comum para a licença provisória",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "education": {
+      "source": "Varia por estado e distrito; estrutura comum K-5, 6-8 e 9-12 com início em agosto ou setembro",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    }
+  }
 }

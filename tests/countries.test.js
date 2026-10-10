@@ -85,3 +85,36 @@ test('every country, city and occupation has its text in pt-BR', async () => {
     for (const occupation of country.occupations) assert.ok(locale[`occupation.${occupation}`], occupation);
   }
 });
+
+test('every country has legal ages and a school system covering childhood, with a source for each', () => {
+  const countriesById = loadCountries(COUNTRIES_DIR);
+  for (const id of ['BR', 'US', 'JP', 'RU', 'GB']) {
+    const country = resolveCountry(id, countriesById);
+    for (const age of ['majority', 'drinking', 'smoking', 'driving']) {
+      assert.equal(typeof country.ages[age], 'number', `${id} ${age}`);
+      assert.ok(country.legalSources[`ages.${age}`]?.source, `${id} source for ${age}`);
+    }
+    const { schoolYearStartMonth, stages } = country.education;
+    assert.ok(schoolYearStartMonth >= 1 && schoolYearStartMonth <= 12, id);
+    assert.ok(country.legalSources.education?.source, `${id} education source`);
+    // Stages are back to back and school ends by 18.
+    for (let i = 1; i < stages.length; i++) {
+      assert.equal(stages[i].startAge, stages[i - 1].startAge + stages[i - 1].years, `${id} ${stages[i].id}`);
+    }
+    const last = stages.at(-1);
+    assert.equal(last.startAge + last.years, 18, id);
+    // Nothing is marked verified without a date (design doc: source and date).
+    for (const entry of Object.values(country.legalSources)) {
+      assert.ok(entry.verifiedAt === null ? entry.reviewStatus === 'ai_draft' : typeof entry.verifiedAt === 'string', id);
+    }
+  }
+});
+
+test('countries only declare the ages that differ from the default', () => {
+  const countriesById = loadCountries(COUNTRIES_DIR);
+  for (const id of ['BR', 'US', 'JP', 'RU', 'GB']) {
+    for (const [key, value] of Object.entries(countriesById[id].ages ?? {})) {
+      assert.notEqual(value, countriesById.default.ages[key], `${id} repeats default ${key}`);
+    }
+  }
+});

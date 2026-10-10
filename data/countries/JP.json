@@ -21,5 +21,57 @@
   ],
   "naming": {
     "familyNameFirst": true
+  },
+  "ages": {
+    "drinking": 20,
+    "smoking": 20
+  },
+  "education": {
+    "schoolYearStartMonth": 4,
+    "stages": [
+      {
+        "id": "elementary",
+        "startAge": 6,
+        "years": 6
+      },
+      {
+        "id": "middle",
+        "startAge": 12,
+        "years": 3
+      },
+      {
+        "id": "high",
+        "startAge": 15,
+        "years": 3,
+        "entranceExam": true
+      }
+    ]
+  },
+  "legalSources": {
+    "ages.majority": {
+      "source": "Código Civil, art. 4 (maioridade aos 18 desde 1º de abril de 2022)",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "ages.drinking": {
+      "source": "Lei de proibição do consumo de álcool por menores de 20 anos (二十歳未満ノ者ノ飲酒ノ禁止ニ関スル法律)",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "ages.smoking": {
+      "source": "Lei de proibição do fumo por menores de 20 anos (二十歳未満ノ者ノ喫煙ノ禁止ニ関スル法律)",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "ages.driving": {
+      "source": "Lei de Trânsito Rodoviário (道路交通法), art. 88: carteira comum aos 18",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    },
+    "education": {
+      "source": "Lei de Educação Escolar (学校教育法): ano letivo em abril; ensino médio com exame de admissão",
+      "verifiedAt": null,
+      "reviewStatus": "ai_draft"
+    }
   }
 }
