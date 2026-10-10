@@ -14,6 +14,8 @@
   --ruler: #f2c14e;
   --pen: #2f6db5;
   --on-pen: #ffffff;
+  --male: #2e6fb7;
+  --female: #c2477a;
   --band-very_high: #2e7d32;
   --band-high: #7cb342;
   --band-neutral: #f2b632;
@@ -36,6 +38,8 @@
     --ruler: #d9ae3f;
     --pen: #7fb0ea;
     --on-pen: #0f1520;
+    --male: #8dbbf0;
+    --female: #f08db5;
   }
 }
 
@@ -116,7 +120,9 @@ button:disabled {
 
 #identity {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  /* minmax(0, 1fr): the name column may shrink and wrap instead of
+     pushing the balance off a narrow screen. */
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
 }
@@ -132,7 +138,7 @@ button:disabled {
   line-height: 1.2;
 }
 
-#top-flag {
+.flag {
   display: inline-block;
   vertical-align: middle;
   margin-left: 6px;
@@ -151,6 +157,7 @@ button:disabled {
 
 #top-balance {
   text-align: right;
+  white-space: nowrap;
 }
 
 #top-money {
@@ -412,7 +419,7 @@ h1 {
 
 .row.with-avatar {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 12px;
 }
@@ -769,4 +776,30 @@ h1 {
 #assets-result {
   min-height: 1.5em;
   color: var(--pen);
+}
+
+/* Names wrap on narrow screens (even inside a very long word) and are
+   never cut. The sex icon and the flag stay glued to the nearest word. */
+.name {
+  overflow-wrap: anywhere;
+}
+
+.row .name {
+  display: block;
+  font-weight: 700;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.sex-icon {
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 0.3em;
+  vertical-align: -0.08em;
+}
+
+#profile-title .name {
+  min-width: 0;
 }

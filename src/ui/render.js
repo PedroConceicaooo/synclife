@@ -7,7 +7,7 @@ import { fullName } from '../systems/naming.js';
 import { describeHistory } from './diary.js';
 import { isAdult, availableInteractions, availableActivities, closePeople, playerOccupation, assetShop } from './gameState.js';
 import { assetPrice, resalePrice } from '../systems/assets.js';
-import { avatarElement } from './avatarElement.js';
+import { avatarElement, sexIconElement, nameElement } from './avatarElement.js';
 import { lifeSummary } from '../systems/lifeEnd.js';
 import { schoolPeople } from '../systems/schoolmates.js';
 import { schoolStageAt } from '../systems/school.js';
@@ -83,9 +83,14 @@ export function renderHeader(dom, state, locale) {
   const countryName = locale.t(`country.${state.country.id}`);
   clearChildren(dom.topAvatar);
   dom.topAvatar.appendChild(avatarElement(player, ageOf(state, player), 52));
-  dom.topNameText.textContent = fullName(player, state.country);
-  dom.topFlag.src = `src/ui/flags/${state.country.id}.svg`;
-  dom.topFlag.alt = locale.format('ui.flag_alt', { country: countryName });
+  // ♂/♀ before the name, the country flag after it.
+  const flag = el('img', { className: 'flag' });
+  flag.src = `src/ui/flags/${state.country.id}.svg`;
+  flag.alt = locale.format('ui.flag_alt', { country: countryName });
+  flag.width = 21;
+  flag.height = 14;
+  clearChildren(dom.topName);
+  dom.topName.appendChild(nameElement(fullName(player, state.country), { before: sexIconElement(player.sex), after: flag }));
   dom.topPhase.textContent = occupationLabel(state, locale);
   dom.topMoney.textContent = locale.money(player.money, state.country.currency.code, state.country.currency.display);
   dom.topMoneyLabel.textContent = locale.t('ui.balance');
@@ -258,7 +263,7 @@ function personRow(state, locale, personId, onOpenProfile) {
   const text = el('div');
   button.append(avatarElement(person, ageOf(state, person), 44), text);
   text.append(
-    el('strong', { text: fullName(person, state.country) }),
+    nameElement(fullName(person, state.country), { before: sexIconElement(person.sex) }),
     el('span', {
       className: 'detail',
       text: locale.format('ui.person_subtitle', {
@@ -324,7 +329,7 @@ export function renderProfile(dom, state, locale, personId, openCategory, { onBa
   dom.profileBack.textContent = locale.t('ui.back');
   dom.profileBack.onclick = onBack;
   clearChildren(dom.profileTitle);
-  dom.profileTitle.append(avatarElement(person, ageOf(state, person), 56), el('span', { text: fullName(person, state.country) }));
+  dom.profileTitle.append(avatarElement(person, ageOf(state, person), 56), nameElement(fullName(person, state.country)));
   dom.profileSubtitle.textContent = locale.format('ui.person_subtitle', {
     role: roleLabel(locale, role, person),
     age: ageText(state, locale, person),

@@ -32,8 +32,7 @@ const byId = (id) => document.getElementById(id);
 
 const dom = {
   topAvatar: byId('top-avatar'),
-  topFlag: byId('top-flag'),
-  topNameText: byId('top-name-text'),
+  topName: byId('top-name'),
   topPhase: byId('top-phase'),
   topMoney: byId('top-money'),
   topMoneyLabel: byId('top-money-label'),

@@ -3,7 +3,7 @@
 // markup into an element; the markup is built only from game data, never
 // from text the player typed.
 
-import { renderAvatar } from './avatar.js';
+import { renderAvatar, renderSexIcon } from './avatar.js';
 import { avatarPhase } from '../systems/appearance.js';
 import { normalizeAppearance } from '../systems/appearanceCompat.js';
 
@@ -43,4 +43,52 @@ export function avatarElement(person, ageYears, size = 48) {
   svg.setAttribute('height', String(size));
   svg.classList.add('avatar');
   return svg;
+}
+
+function fromMarkup(markup) {
+  const template = document.createElement('template');
+  template.innerHTML = markup.trim();
+  return template.content.firstElementChild;
+}
+
+export function sexIconElement(sex) {
+  return fromMarkup(renderSexIcon(sex === 'F' ? 'F' : 'M'));
+}
+
+// A word longer than this can't be kept whole on a 320px line: only its
+// first and last letters stay glued to the icon or flag, the rest may break.
+const MAX_GLUED_WORD = 14;
+const GLUED_LETTERS = 3;
+
+function nowrap(nodes) {
+  const span = document.createElement('span');
+  span.className = 'nowrap';
+  span.append(...nodes.filter(Boolean));
+  return span;
+}
+
+// One word with what goes before and after it, never split from them.
+function gluedWord(word, before, after) {
+  if (word.length <= MAX_GLUED_WORD) return [nowrap([before, word, after])];
+  return [
+    nowrap([before, word.slice(0, GLUED_LETTERS)]),
+    word.slice(GLUED_LETTERS, -GLUED_LETTERS),
+    nowrap([word.slice(-GLUED_LETTERS), after]),
+  ];
+}
+
+// A name that may wrap on narrow screens but is never cut. The icon before
+// it sticks to the first word and anything after it (a flag) to the last,
+// so neither is ever left alone on a line.
+export function nameElement(name, { before = null, after = null } = {}) {
+  const words = name.split(' ');
+  const root = document.createElement('span');
+  root.className = 'name';
+  if (words.length === 1) {
+    root.append(...gluedWord(words[0], before, after));
+    return root;
+  }
+  const middle = words.slice(1, -1).join(' ');
+  root.append(...gluedWord(words[0], before, null), ` ${middle}${middle ? ' ' : ''}`, ...gluedWord(words.at(-1), null, after));
+  return root;
 }

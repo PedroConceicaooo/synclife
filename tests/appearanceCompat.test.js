@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createRng } from '../src/engine/random.js';
 import { SKIN_TONES, HAIR_STYLE_IDS, NATURAL_HAIR } from '../src/systems/appearance.js';
 import { normalizeAppearance, rollAppearance, inheritFrom } from '../src/systems/appearanceCompat.js';
-import { renderAvatar } from '../src/ui/avatar.js';
+import { renderAvatar, renderSexIcon } from '../src/ui/avatar.js';
 
 test('the old { skin, hair, hairStyle } shape becomes the current one', () => {
   const old = { id: 'p_0002', sex: 'F', appearance: { skin: 3, hair: 1, hairStyle: 2 } };
@@ -38,4 +38,11 @@ test('a baby of parents saved with the old shape is born with a valid appearance
 
 test('the same seed gives the same appearance through the game rng', () => {
   assert.deepEqual(rollAppearance(createRng(9), 'F'), rollAppearance(createRng(9), 'F'));
+});
+
+test('renderSexIcon draws a labelled icon for each sex, coloured by the CSS variables', () => {
+  assert.match(renderSexIcon('M'), /aria-label="Masculino"/);
+  assert.match(renderSexIcon('M'), /var\(--male/);
+  assert.match(renderSexIcon('F'), /aria-label="Feminino"/);
+  assert.match(renderSexIcon('F'), /var\(--female/);
 });
