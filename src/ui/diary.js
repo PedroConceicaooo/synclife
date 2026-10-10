@@ -94,15 +94,22 @@ function statsLine(entries, locale) {
   return parts.length > 0 ? parts.join(' · ') : null;
 }
 
+// kind lets the screen style a line: choice, money, stats or plain text.
+function entryKind(entry) {
+  if (entry.type === 'event' && entry.optionId) return 'choice';
+  if (entry.type === 'money') return 'money';
+  return 'text';
+}
+
 export function describeBlock(block, state, locale) {
   const header = locale.format('diary.header', { age: locale.age(block.month - state.player.birth) });
   const isIntro = block.entries.some((e) => e.type === 'birth');
   const lines = [
-    ...(isIntro ? introLines(state, locale) : []),
-    ...block.entries.map((e) => entryLine(e, state, locale, block)),
-    allowanceLine(block.entries, state, locale),
-    statsLine(block.entries, locale),
-  ].filter(Boolean);
+    ...(isIntro ? introLines(state, locale).map((text) => ({ kind: 'text', text })) : []),
+    ...block.entries.map((e) => ({ kind: entryKind(e), text: entryLine(e, state, locale, block) })),
+    { kind: 'money', text: allowanceLine(block.entries, state, locale) },
+    { kind: 'stats', text: statsLine(block.entries, locale) },
+  ].filter((line) => line.text);
   return { header, lines };
 }
 

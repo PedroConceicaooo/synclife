@@ -17,6 +17,7 @@ import {
   availableActivities,
   availableInteractions,
   closePeople,
+  lifePhase,
   isAdult,
 } from '../src/systems/game.js';
 
@@ -333,4 +334,16 @@ test('babies born mid-life get names that differ from their siblings', () => {
     const sameSex = (sex) => children.filter((c) => c.sex === sex).map((c) => c.firstName);
     for (const sex of ['M', 'F']) assert.equal(new Set(sameSex(sex)).size, sameSex(sex).length, `seed ${seed}`);
   }
+});
+
+test('lifePhase follows the design doc age bands', () => {
+  const state = createGameState(baseArgs(1));
+  const at = (years, months = 0) => lifePhase({ ...state, currentMonthIndex: state.player.birth + years * 12 + months });
+  assert.equal(at(0), 'baby');
+  assert.equal(at(2, 11), 'baby');
+  assert.equal(at(3), 'child');
+  assert.equal(at(11, 11), 'child');
+  assert.equal(at(12), 'teen');
+  assert.equal(at(17, 11), 'teen');
+  assert.equal(at(18), 'adult');
 });

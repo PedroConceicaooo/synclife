@@ -1,54 +1,283 @@
+/* SyncLife — a life diary that grows from 0 to 18. The one bold element is
+   the growth ruler down the diary: a pencil-yellow strip with an ink tick
+   and the age at every block, like height marks on a door frame. Everything
+   else stays quiet. System fonts on purpose: the app is meant to work
+   offline as a PWA. */
+
 :root {
   color-scheme: light dark;
-  font-family: system-ui, sans-serif;
-  --very_high: #2e7d32;
-  --high: #8bc34a;
-  --neutral: #fbc02d;
-  --low: #fb8c00;
-  --very_low: #e53935;
+  --paper: #f5f7fa;
+  --surface: #ffffff;
+  --ink: #1e2940;
+  --ink-soft: #5a6a84;
+  --rule: #d8e0ec;
+  --ruler: #f2c14e;
+  --pen: #2f6db5;
+  --on-pen: #ffffff;
+  --band-very_high: #2e7d32;
+  --band-high: #7cb342;
+  --band-neutral: #f2b632;
+  --band-low: #ef7d22;
+  --band-very_low: #d64541;
+  --radius: 14px;
+  --gutter: 16px;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #121722;
+    --surface: #1a2130;
+    --ink: #e4eaf4;
+    --ink-soft: #9aa8be;
+    --rule: #2a3448;
+    --ruler: #d9ae3f;
+    --pen: #7fb0ea;
+    --on-pen: #0f1520;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
 body {
   margin: 0;
-  padding: 16px;
-  max-width: 480px;
-  margin-inline: auto;
+  height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+p,
+h1,
+h2,
+ol,
+ul {
+  margin: 0;
 }
 
 button {
-  display: block;
-  width: 100%;
-  padding: 14px;
-  margin: 8px 0;
-  font-size: 1rem;
-  border-radius: 8px;
-  border: 1px solid #888;
-  background: #f5f5f5;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
 }
 
 button:disabled {
-  opacity: 0.5;
+  cursor: default;
+  opacity: 0.45;
 }
 
-dl {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 12px;
+:focus-visible {
+  outline: 3px solid var(--pen);
+  outline-offset: 2px;
 }
 
-.stat-bar,
-.affinity-bar {
+/* App frame: header, scrolling screen, controls, fixed stats. */
+#app {
   display: grid;
-  grid-template-columns: 100px 1fr 3em;
+  grid-template-rows: auto 1fr auto auto;
+  height: 100dvh;
+  max-width: 520px;
+  margin-inline: auto;
+}
+
+#top {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 8px;
-  margin: 6px 0;
+  gap: 12px;
+  padding: 12px var(--gutter);
+  padding-top: max(12px, env(safe-area-inset-top));
+  border-bottom: 1px solid var(--rule);
+}
+
+#top-flag {
+  width: 36px;
+  height: 24px;
+  object-fit: cover;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px var(--rule);
+}
+
+#top-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+#top-phase,
+#top-money-label {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+#top-balance {
+  text-align: right;
+}
+
+#top-money {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+#screens {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+#screens > section {
+  padding: var(--gutter);
+}
+
+#screens > section[hidden] {
+  display: none;
+}
+
+h1 {
+  font-size: 1.25rem;
+  margin-bottom: 12px;
+}
+
+/* The diary and its growth ruler. */
+#diary {
+  list-style: none;
+  padding: 0 0 0 44px;
+  position: relative;
+}
+
+#diary::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+  border-radius: 6px;
+  background: var(--ruler);
+}
+
+.diary-block {
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.diary-block h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  position: relative;
+}
+
+/* The tick across the ruler, level with the age. */
+.diary-block h2::before {
+  content: '';
+  position: absolute;
+  left: -34px;
+  top: 0.7em;
+  width: 22px;
+  height: 2px;
+  background: var(--ink);
+}
+
+.diary-block p + p {
+  margin-top: 4px;
+}
+
+/* A decision the player made: same ink, marked by a pen stroke. */
+.diary-block .choice {
+  border-left: 3px solid var(--pen);
+  padding-left: 10px;
+}
+
+.diary-block .money {
+  font-variant-numeric: tabular-nums;
+}
+
+.diary-block .stats {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Controls: advance, then tabs. */
+#controls {
+  padding: 8px var(--gutter) 0;
+  border-top: 1px solid var(--rule);
+  background: var(--paper);
+}
+
+#advance {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+#advance p {
+  grid-column: 1 / -1;
+  color: var(--ink-soft);
+}
+
+#advance button {
+  min-height: 52px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--pen);
+  color: var(--on-pen);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+#tabs {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 4px;
+}
+
+#tabs button {
+  flex: 1;
+  min-height: 44px;
+  border: none;
+  background: none;
+  color: var(--ink-soft);
+  border-bottom: 3px solid transparent;
+}
+
+#tabs button[aria-selected='true'] {
+  color: var(--ink);
+  font-weight: 700;
+  border-bottom-color: var(--ruler);
+}
+
+/* Fixed stats footer, 2 x 2. */
+#stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+  padding: 10px var(--gutter);
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--rule);
+  background: var(--surface);
+}
+
+.meter-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.meter-head span:last-child {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
 }
 
 .bar-track {
-  background: #ddd;
-  border-radius: 6px;
-  height: 12px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--rule);
   overflow: hidden;
 }
 
@@ -56,47 +285,142 @@ dl {
   height: 100%;
 }
 
-.bar-fill.very_high { background: var(--very_high); }
-.bar-fill.high { background: var(--high); }
-.bar-fill.neutral { background: var(--neutral); }
-.bar-fill.low { background: var(--low); }
-.bar-fill.very_low { background: var(--very_low); }
+.bar-fill.very_high { background: var(--band-very_high); }
+.bar-fill.high { background: var(--band-high); }
+.bar-fill.neutral { background: var(--band-neutral); }
+.bar-fill.low { background: var(--band-low); }
+.bar-fill.very_low { background: var(--band-very_low); }
 
-/* :not([hidden]) so the [hidden] UA rule's display:none isn't overridden by
-   this higher-specificity id selector while the modal should stay hidden. */
-#decision-modal:not([hidden]) {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Lists of people and activities: full-width rows, not cards. */
+.row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 0;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  background: none;
 }
 
-.modal-box {
-  background: white;
-  color: black;
-  padding: 16px;
-  border-radius: 8px;
-  max-width: 90%;
+.row strong {
+  display: block;
 }
 
-.category.open {
-  font-weight: bold;
+.row .detail {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
 }
 
-.submenu {
-  padding-left: 16px;
-  border-left: 3px solid #888;
+.row .meter {
+  margin-top: 6px;
+}
+
+#relations-list {
+  list-style: none;
+  padding: 0;
+}
+
+.activities-group + .activities-group {
+  margin-top: 20px;
+}
+
+.activities-group h2 {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+/* Profile. */
+.back {
+  border: none;
+  background: none;
+  color: var(--pen);
+  padding: 4px 0;
   margin-bottom: 8px;
 }
 
-.activity {
-  text-align: left;
+#profile-subtitle {
+  color: var(--ink-soft);
+  margin: -8px 0 12px;
 }
 
-.activity span {
+#profile-affinity {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.category {
   display: block;
-  font-size: 0.85rem;
-  opacity: 0.8;
+  width: 100%;
+  text-align: left;
+  min-height: 48px;
+  padding: 0 4px;
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  background: none;
+}
+
+.category.open {
+  font-weight: 700;
+}
+
+.submenu {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 10px 0 14px;
+}
+
+.submenu button {
+  min-height: 44px;
+  border: 1px solid var(--pen);
+  border-radius: var(--radius);
+  background: none;
+  color: var(--pen);
+}
+
+#profile-result,
+#activities-result {
+  min-height: 1.5em;
+  margin: 12px 0;
+  color: var(--pen);
+}
+
+/* Decision pop-up, rising from the bottom within thumb reach. */
+#decision-modal:not([hidden]) {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: var(--gutter);
+  background: rgb(18 23 34 / 0.55);
+}
+
+.modal-box {
+  width: 100%;
+  max-width: 488px;
+  padding: 20px var(--gutter);
+  border-radius: var(--radius);
+  background: var(--surface);
+  border-top: 6px solid var(--ruler);
+}
+
+#decision-prompt {
+  font-size: 1.05rem;
+  margin-bottom: 12px;
+}
+
+#decision-options button {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 8px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--pen);
+  color: var(--on-pen);
+  font-weight: 600;
 }

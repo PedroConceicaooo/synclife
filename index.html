@@ -2,43 +2,66 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#F5F7FA" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#121722" media="(prefers-color-scheme: dark)" />
   <title>SyncLife</title>
   <link rel="stylesheet" href="/src/ui/style.css" />
 </head>
 <body>
-  <main id="app">
-    <section id="status-screen">
-      <h1 id="status-title"></h1>
-      <dl id="status-fields"></dl>
-      <div id="status-stats"></div>
-      <div id="status-people"></div>
-      <div id="status-nav"></div>
-      <div id="status-advance"></div>
-    </section>
-
-    <section id="profile-screen" hidden>
-      <button id="profile-back" type="button"></button>
-      <h1 id="profile-title"></h1>
-      <div id="profile-affinity"></div>
-      <div id="profile-interactions"></div>
-      <p id="profile-result"></p>
-    </section>
-
-    <section id="activities-screen" hidden>
-      <button id="activities-back" type="button"></button>
-      <h1 id="activities-title"></h1>
-      <p id="activities-result"></p>
-      <div id="activities-list"></div>
-    </section>
-
-    <section id="decision-modal" hidden>
-      <div class="modal-box">
-        <p id="decision-prompt"></p>
-        <div id="decision-options"></div>
+  <div id="app">
+    <header id="top">
+      <img id="top-flag" alt="" width="36" height="24" />
+      <div id="top-identity">
+        <p id="top-name"></p>
+        <p id="top-phase"></p>
       </div>
-    </section>
-  </main>
+      <div id="top-balance">
+        <p id="top-money"></p>
+        <p id="top-money-label"></p>
+      </div>
+    </header>
+
+    <main id="screens">
+      <section id="life-screen" aria-live="polite">
+        <ol id="diary"></ol>
+      </section>
+
+      <section id="relations-screen" hidden>
+        <h1 id="relations-title"></h1>
+        <ul id="relations-list"></ul>
+      </section>
+
+      <section id="profile-screen" hidden>
+        <button id="profile-back" class="back" type="button"></button>
+        <h1 id="profile-title"></h1>
+        <p id="profile-subtitle"></p>
+        <div id="profile-affinity"></div>
+        <p id="profile-result" role="status"></p>
+        <div id="profile-interactions"></div>
+      </section>
+
+      <section id="activities-screen" hidden>
+        <h1 id="activities-title"></h1>
+        <p id="activities-result" role="status"></p>
+        <div id="activities-list"></div>
+      </section>
+    </main>
+
+    <nav id="controls">
+      <div id="advance"></div>
+      <div id="tabs" role="tablist"></div>
+    </nav>
+
+    <footer id="stats"></footer>
+  </div>
+
+  <section id="decision-modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="decision-prompt">
+      <p id="decision-prompt"></p>
+      <div id="decision-options"></div>
+    </div>
+  </section>
 
   <script type="module" src="/src/ui/app.js"></script>
 </body>

@@ -43,14 +43,15 @@ const UNRESOLVED = /\{|\}|(^|\s)(event|diary|activity|interaction|occupation|cit
 test('no diary line of a full life is left with a raw key or token', () => {
   for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
     for (const { header, lines } of describeHistory(playLife(seed), LOCALE)) {
-      for (const text of [header, ...lines]) assert.doesNotMatch(text, UNRESOLVED, `seed ${seed}: ${text}`);
+      for (const text of [header, ...lines.map((l) => l.text)]) assert.doesNotMatch(text, UNRESOLVED, `seed ${seed}: ${text}`);
     }
   }
 });
 
 test('the first block introduces the player and both parents', () => {
   const state = createGameState({ seed: 11, ...ARGS });
-  const { header, lines } = describeBlock(state.history[0], state, LOCALE);
+  const { header, lines: described } = describeBlock(state.history[0], state, LOCALE);
+  const lines = described.map((l) => l.text);
 
   assert.equal(header, 'Idade: 0 anos');
   assert.ok(lines[0].startsWith(`Eu nasci ${state.player.sex === 'F' ? 'menina' : 'menino'} em ${LOCALE.t(`city.${state.player.cityId}`)}`));
@@ -81,11 +82,11 @@ test('a block lists birthdays, choices, allowance and a stat summary', () => {
 
   assert.equal(header, 'Idade: 3 anos e 6 meses');
   assert.deepEqual(lines, [
-    'Fiz 3 anos.',
-    `${LOCALE.t('event.toy_tantrum.prompt')} Escolha: Pedir com educação.`,
-    LOCALE.t('event.acne.text'),
-    `Recebi ${money} de mesada.`,
-    'Felicidade +3 · Saúde −1',
+    { kind: 'text', text: 'Fiz 3 anos.' },
+    { kind: 'choice', text: `${LOCALE.t('event.toy_tantrum.prompt')} Escolha: Pedir com educação.` },
+    { kind: 'text', text: LOCALE.t('event.acne.text') },
+    { kind: 'money', text: `Recebi ${money} de mesada.` },
+    { kind: 'stats', text: 'Felicidade +3 · Saúde −1' },
   ]);
 });
 
@@ -93,6 +94,6 @@ test('event options follow the player sex', () => {
   const base = createGameState({ seed: 11, ...ARGS });
   const block = { month: base.player.birth + 48, entries: [{ type: 'event', eventId: 'vaccine', optionId: 'be_brave' }] };
   const asSex = (sex) => ({ ...base, player: { ...base.player, sex } });
-  assert.ok(describeBlock(block, asSex('F'), LOCALE).lines[0].endsWith('Escolha: Ser corajosa.'));
-  assert.ok(describeBlock(block, asSex('M'), LOCALE).lines[0].endsWith('Escolha: Ser corajoso.'));
+  assert.ok(describeBlock(block, asSex('F'), LOCALE).lines[0].text.endsWith('Escolha: Ser corajosa.'));
+  assert.ok(describeBlock(block, asSex('M'), LOCALE).lines[0].text.endsWith('Escolha: Ser corajoso.'));
 });

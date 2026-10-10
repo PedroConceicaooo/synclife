@@ -341,3 +341,16 @@ export function closePeople(state) {
       return rank(a.role) - rank(b.role) || state.people[a.personId].birth - state.people[b.personId].birth;
     });
 }
+
+// Design doc, "Fases da vida": baby 0-2, child 3-11, teen 12-17, adult 18+.
+const PHASES = [
+  ['baby', 0],
+  ['child', 3],
+  ['teen', 12],
+  ['adult', ADULT_AGE],
+];
+
+export function lifePhase(state) {
+  const age = ageAt(state.player.birth, state.currentMonthIndex);
+  return PHASES.filter(([, minAge]) => age >= minAge).at(-1)[0];
+}

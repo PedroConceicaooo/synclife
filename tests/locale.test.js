@@ -16,27 +16,29 @@ test('createLocale falls back to returning the key itself when missing', () => {
   assert.equal(locale.t('missing_key'), 'missing_key');
 });
 
-test('locales/pt-BR/ui.json has every key the M5 screens need', () => {
+test('locales/pt-BR/ui.json has every key the screens need', () => {
   const entries = JSON.parse(readFileSync(UI_LOCALE_PATH, 'utf8'));
   const locale = createLocale(entries);
 
   const expectedKeys = [
-    'ui.status_title',
-    'ui.age_label',
-    'ui.date_label',
-    'ui.country_label',
-    'ui.money_label',
     'ui.stat_happiness',
     'ui.stat_health',
     'ui.stat_intelligence',
     'ui.stat_looks',
     'ui.advance_6_months',
     'ui.advance_1_year',
-    'ui.profile_title',
     'ui.affinity_you_feel',
     'ui.affinity_they_feel',
     'ui.interaction_limit',
     'ui.back',
+    'ui.balance',
+    'ui.tab_relations',
+    'ui.tab_activities',
+    'ui.flag_alt',
+    'ui.person_subtitle',
+    'phase.baby',
+    'phase.child',
+    'phase.teen',
     'ui.adulthood_placeholder',
     'role.mother',
     'role.father',
