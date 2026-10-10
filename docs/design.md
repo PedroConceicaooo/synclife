@@ -430,4 +430,5 @@ Cada marco termina com algo jogável ou testável:
 - [ ] Quando e em quais lojas lançar (Google Play, App Store).
 - [ ] Quantas interações por pessoa a cada avanço de tempo.
 - [ ] Lista final de traços de personalidade e de estados emocionais temporários.
-- [ ] Revisão humana das leis dos 5 países (rascunho de IA com fonte já preenchido; checklist em `docs/legal-review.md`) e pesquisa da aceitação social de temas sensíveis.
+- [ ] Conferir as leis dos 5 países na fonte primária (pesquisa em `docs/fontes-paises.md`; checklist em `docs/legal-review.md`).
+- [ ] Definir a escala de `risk` dos temas sensíveis quando houver mecânica que use (a Rússia tem risco alto).

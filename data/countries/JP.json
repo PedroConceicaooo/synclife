@@ -47,38 +47,49 @@
         "years": 3,
         "entranceExam": true
       }
-    ]
+    ],
+    "schoolYearEndMonth": 3
   },
   "legalSources": {
     "ages.majority": {
-      "source": "Código Civil, art. 4 (maioridade aos 18 desde 1º de abril de 2022)",
+      "source": "e-Gov Japan: Código Civil, maioridade aos 18 desde abril de 2022 (pesquisado em 2026-10-10; conferir na fonte primária)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "researched"
     },
     "ages.drinking": {
-      "source": "Lei de proibição do consumo de álcool por menores de 20 anos (二十歳未満ノ者ノ飲酒ノ禁止ニ関スル法律)",
+      "source": "e-Gov Japan: lei de proibição do consumo de álcool por menores de 20 anos (pesquisado em 2026-10-10; conferir na fonte primária)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "researched"
     },
     "ages.smoking": {
-      "source": "Lei de proibição do fumo por menores de 20 anos (二十歳未満ノ者ノ喫煙ノ禁止ニ関スル法律)",
+      "source": "e-Gov Japan: lei de proibição do fumo por menores de 20 anos (pesquisado em 2026-10-10; conferir na fonte primária)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "researched"
     },
     "ages.driving": {
-      "source": "Lei de Trânsito Rodoviário (道路交通法), art. 88: carteira comum aos 18",
+      "source": "e-Gov Japan: Lei de Trânsito Rodoviário, carteira comum aos 18 (pesquisado em 2026-10-10; conferir na fonte primária)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
-    },
-    "education": {
-      "source": "Lei de Educação Escolar (学校教育法): ano letivo em abril; ensino médio com exame de admissão",
-      "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "researched"
     },
     "ages.criminalResponsibility": {
-      "source": "Código Penal, art. 41 (14 anos); abaixo disso, a Lei de Menores encaminha ao conselho tutelar e à família",
+      "source": "e-Gov Japan: responsabilidade a partir de 14; casos de menores vão à Vara de Família (Lei de Menores) (pesquisado em 2026-10-10; conferir na fonte primária)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "researched"
+    },
+    "education": {
+      "source": "e-Gov Japan: Lei de Educação Escolar; ano letivo de abril a março, ensino médio com exame de admissão (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "verifiedAt": null,
+      "reviewStatus": "researched"
+    }
+  },
+  "topics": {
+    "same_sex_relationship": {
+      "legal": "not_recognized",
+      "acceptance": 68,
+      "risk": null,
+      "source": "⚠️ Não verificado na fonte primária: Legal: não reconhecida nacionalmente; muitas prefeituras e cidades emitem certificados de parceria sem efeito de casamento; a Suprema Corte deve decidir a constitucionalidade em 2027, courts.go.jp. Aceitação: Pew Research Center 2023, apoio ao casamento entre pessoas do mesmo sexo: 68%, https://www.pewresearch.org/short-reads/2023/11/27/how-people-around-the-world-view-same-sex-marriage/ (pesquisado em 2026-10-10)",
+      "verifiedAt": null,
+      "reviewStatus": "needs_primary_check"
     }
   }
 }

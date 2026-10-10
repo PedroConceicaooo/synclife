@@ -23,7 +23,7 @@ function valueOf(country, field) {
   if (field === 'education') {
     const { schoolYearStartMonth, stages } = country.education;
     const list = stages.map((s) => `${s.id} ${s.startAge}+ (${s.years} anos${s.entranceExam ? ', exame' : ''})`).join('; ');
-    return `início no mês ${schoolYearStartMonth}; ${list}`;
+    return `mês ${schoolYearStartMonth} a ${country.education.schoolYearEndMonth ?? '(mês anterior ao início)'}; ${list}`;
   }
   return String(field.split('.').reduce((value, key) => value[key], country));
 }
@@ -33,9 +33,9 @@ const lines = [
   '',
   'Gerado por `node scripts/legal-review.js` a partir de `data/countries/`. Não edite à mão: corrija os dados e gere de novo.',
   '',
-  'Cada valor foi rascunhado por IA (`reviewStatus: "ai_draft"`) e precisa ser conferido numa fonte primária. Ao conferir, preencha `verifiedAt` (data) e troque `reviewStatus` para `"verified"` em `legalSources` do país; se o valor estiver errado, corrija o campo e a fonte.',
+  'Situação de cada item: `researched` (pesquisado, com fonte primária indicada, falta conferir), `needs_primary_check` (⚠️ detalhe que muda ou varia por região; conferir com atenção) ou `verified`. Ao conferir, preencha `verifiedAt` (data) e troque `reviewStatus` para `"verified"` no JSON do país; se o valor estiver errado, corrija o campo e a fonte. Pesquisa de base: `docs/fontes-paises.md`.',
   '',
-  'Ainda sem dados: `topics.same_sex_relationship` (legalidade, aceitação social de 0 a 100 e risco). Até ser pesquisado, o jogo usa aceitação neutra (50).',
+  '`risk` dos temas sensíveis continua sem valor: nenhuma mecânica usa ainda e as fontes não dão um número.',
 ];
 
 for (const id of Object.keys(NAMES)) {
@@ -45,6 +45,12 @@ for (const id of Object.keys(NAMES)) {
     const source = country.legalSources?.[field] ?? {};
     const status = source.verifiedAt ? `verificado em ${source.verifiedAt}` : source.reviewStatus ?? 'sem fonte';
     lines.push(`| [${source.verifiedAt ? 'x' : ' '}] | ${label} | ${valueOf(country, field)} | ${source.source ?? '—'} | ${status} |`);
+  }
+  const topic = country.topics?.same_sex_relationship;
+  if (topic) {
+    const status = topic.verifiedAt ? `verificado em ${topic.verifiedAt}` : topic.reviewStatus ?? 'sem fonte';
+    const value = `legal: ${topic.legal ?? '—'}; aceitação: ${topic.acceptance ?? '—'}; risco: ${topic.risk ?? '—'}`;
+    lines.push(`| [${topic.verifiedAt ? 'x' : ' '}] | Casal do mesmo sexo | ${value} | ${topic.source ?? '—'} | ${status} |`);
   }
 }
 

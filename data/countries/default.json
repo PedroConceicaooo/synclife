@@ -70,7 +70,8 @@
       "acceptance": null,
       "risk": null,
       "source": null,
-      "verifiedAt": null
+      "verifiedAt": null,
+      "reviewStatus": null
     }
   }
 }

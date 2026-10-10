@@ -44,38 +44,49 @@
         "startAge": 14,
         "years": 4
       }
-    ]
+    ],
+    "schoolYearEndMonth": 6
   },
   "legalSources": {
     "ages.majority": {
-      "source": "Leis estaduais; 18 na maioria dos estados (19 no Alabama e Nebraska, 21 no Mississippi)",
+      "source": "⚠️ Não verificado na fonte primária: 18 na maioria dos estados; 19 no Alabama e Nebraska, 21 no Mississippi (legislação estadual) (pesquisado em 2026-10-10)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "needs_primary_check"
     },
     "ages.drinking": {
-      "source": "National Minimum Drinking Age Act de 1984 (23 U.S.C. § 158)",
+      "source": "congress.gov: National Minimum Drinking Age Act de 1984 (23 U.S.C. § 158) (pesquisado em 2026-10-10; conferir na fonte primária)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "researched"
     },
     "ages.smoking": {
-      "source": "Lei federal 'Tobacco 21' (Further Consolidated Appropriations Act, 2020)",
+      "source": "FDA: lei federal Tobacco 21, em vigor desde dezembro de 2019 (pesquisado em 2026-10-10; conferir na fonte primária)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "researched"
     },
     "ages.driving": {
-      "source": "Leis estaduais de habilitação graduada; 16 é a idade mais comum para a licença provisória",
+      "source": "⚠️ Não verificado na fonte primária: varia por estado, em geral 16 com restrições (DMV de cada estado) (pesquisado em 2026-10-10)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
-    },
-    "education": {
-      "source": "Varia por estado e distrito; estrutura comum K-5, 6-8 e 9-12 com início em agosto ou setembro",
-      "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "needs_primary_check"
     },
     "ages.criminalResponsibility": {
-      "source": "Leis estaduais; muitos estados não têm idade mínima e outros usam entre 10 e 13 anos para a justiça juvenil",
+      "source": "⚠️ Não verificado na fonte primária: varia por estado; 10 é uma simplificação do jogo (legislação estadual) (pesquisado em 2026-10-10)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "needs_primary_check"
+    },
+    "education": {
+      "source": "⚠️ Não verificado na fonte primária: ano letivo em geral de agosto/setembro a maio/junho, varia por estado e distrito; o jogo usa setembro a junho (pesquisado em 2026-10-10)",
+      "verifiedAt": null,
+      "reviewStatus": "needs_primary_check"
+    }
+  },
+  "topics": {
+    "same_sex_relationship": {
+      "legal": "permitted",
+      "acceptance": 63,
+      "risk": null,
+      "source": "Legal: casamento permitido em todo o país desde 2015 (Obergefell v. Hodges), supremecourt.gov. Aceitação: Pew Research Center 2023, apoio ao casamento entre pessoas do mesmo sexo: 63%, https://www.pewresearch.org/short-reads/2023/11/27/how-people-around-the-world-view-same-sex-marriage/ (pesquisado em 2026-10-10)",
+      "verifiedAt": null,
+      "reviewStatus": "researched"
     }
   }
 }

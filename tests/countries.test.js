@@ -103,9 +103,15 @@ test('every country has legal ages and a school system covering childhood, with 
     }
     const last = stages.at(-1);
     assert.equal(last.startAge + last.years, 18, id);
-    // Nothing is marked verified without a date (design doc: source and date).
-    for (const entry of Object.values(country.legalSources)) {
-      assert.ok(entry.verifiedAt === null ? entry.reviewStatus === 'ai_draft' : typeof entry.verifiedAt === 'string', id);
+    // Nothing is marked verified without a date (design doc: source and
+    // date), and unverified items say so.
+    for (const entry of [...Object.values(country.legalSources), country.topics.same_sex_relationship]) {
+      if (entry.verifiedAt === null) {
+        assert.ok(['ai_draft', 'researched', 'needs_primary_check'].includes(entry.reviewStatus), id);
+        if (entry.reviewStatus === 'needs_primary_check') assert.match(entry.source, /^⚠️ Não verificado na fonte primária/, id);
+      } else {
+        assert.equal(entry.reviewStatus, 'verified', id);
+      }
     }
   }
 });
@@ -117,4 +123,17 @@ test('countries only declare the ages that differ from the default', () => {
       assert.notEqual(value, countriesById.default.ages[key], `${id} repeats default ${key}`);
     }
   }
+});
+
+test('every country has the legal status and Pew acceptance of same-sex couples, with a source', () => {
+  const countriesById = loadCountries(COUNTRIES_DIR);
+  const expected = { BR: ['permitted', 52], US: ['permitted', 63], JP: ['not_recognized', 68], RU: ['restricted', 14], GB: ['permitted', 74] };
+  for (const [id, [legal, acceptance]] of Object.entries(expected)) {
+    const topic = resolveCountry(id, countriesById).topics.same_sex_relationship;
+    assert.equal(topic.legal, legal, id);
+    assert.equal(topic.acceptance, acceptance, id);
+    assert.equal(topic.risk, null, id);
+    assert.match(topic.source, /Pew Research Center/, id);
+  }
+  assert.match(resolveCountry('RU', countriesById).topics.same_sex_relationship.source, /2019/);
 });

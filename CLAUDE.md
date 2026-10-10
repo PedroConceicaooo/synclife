@@ -38,7 +38,8 @@ M1 a M7 do design estão feitos, e o M8 (conteúdo) está em andamento. O jogo c
 
 Pendências conhecidas:
 
-- Leis dos 5 países são rascunho de IA (`reviewStatus: "ai_draft"`); precisam de revisão humana pelo checklist `docs/legal-review.md`.
-- `topics.same_sex_relationship` sem dados: aceitação lida como neutra (50) até ser pesquisada.
+- Leis dos 5 países pesquisadas (`docs/fontes-paises.md`), mas nenhuma conferida na fonte primária: `reviewStatus` é `researched` ou `needs_primary_check` (⚠️) e `verifiedAt` está vazio. Checklist em `docs/legal-review.md` (`npm run legal-review`).
+- `topics.same_sex_relationship`: legalidade e aceitação (Pew) preenchidas; `risk` vazio até existir mecânica que use.
+- Serviço militar (BR alistamento aos 18, RU obrigatório) fica para a vida adulta, fora da v1.
 - Ao publicar mudanças, aumentar `CACHE` em `sw.js` para os jogadores receberem a versão nova.
 - Vida adulta (18+) fora da versão 1.

@@ -44,8 +44,8 @@ test('stageStartsBetween finds a stage start inside an advance, with entrance ex
 
 test('schoolYearEndsBetween returns the last month of each school year in range', () => {
   const birth = m(2000, 1);
-  const br = education('BR'); // entry Feb 2006, years end in January
-  assert.deepEqual(schoolYearEndsBetween(birth, m(2006, 6), m(2007, 6), br), [{ month: m(2007, 1), stageId: 'elementary' }]);
+  const br = education('BR'); // entry Feb 2006, years end in December
+  assert.deepEqual(schoolYearEndsBetween(birth, m(2006, 6), m(2007, 6), br), [{ month: m(2006, 12), stageId: 'elementary' }]);
   assert.deepEqual(schoolYearEndsBetween(birth, m(2005, 1), m(2006, 1), br), []);
 });
 
@@ -60,4 +60,19 @@ test('every playable country keeps a child in school from entry until about 18',
     const endAge = (entry + years * 12 - birth) / 12;
     assert.ok(endAge >= 18 && endAge < 19.5, `${id} ends at ${endAge}`);
   }
+});
+
+test('each country ends its school year in its own month', () => {
+  const endMonth = { BR: 12, US: 6, JP: 3, RU: 5, GB: 7 };
+  for (const [id, month] of Object.entries(endMonth)) {
+    const ends = schoolYearEndsBetween(m(2000, 7), m(2000, 1), m(2020, 1), education(id));
+    assert.ok(ends.length > 0, id);
+    assert.ok(ends.every((e) => (e.month % 12) + 1 === month), id);
+  }
+});
+
+test('without schoolYearEndMonth, the year ends the month before the next start', () => {
+  const edu = { schoolYearStartMonth: 4, stages: [{ id: 'elementary', startAge: 6, years: 2 }] };
+  const ends = schoolYearEndsBetween(m(2000, 3), m(2000, 1), m(2010, 1), edu);
+  assert.deepEqual(ends.map((e) => e.month), [m(2007, 3), m(2008, 3)]);
 });

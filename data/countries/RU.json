@@ -37,41 +37,52 @@
         "startAge": 16,
         "years": 2
       }
-    ]
+    ],
+    "schoolYearEndMonth": 5
   },
   "legalSources": {
     "ages.majority": {
-      "source": "Código Civil da Federação Russa, art. 21",
+      "source": "pravo.gov.ru: Código Civil da Federação Russa, art. 21 (pesquisado em 2026-10-10; conferir na fonte primária)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "researched"
     },
     "ages.drinking": {
-      "source": "Lei Federal 171-FZ, art. 16 (venda de álcool proibida a menores de 18)",
+      "source": "pravo.gov.ru / consultant.ru: Lei Federal 171-FZ, venda de álcool proibida a menores de 18 (pesquisado em 2026-10-10; conferir na fonte primária)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "researched"
     },
     "ages.smoking": {
-      "source": "Lei Federal 15-FZ, art. 20 (venda de tabaco proibida a menores de 18)",
+      "source": "pravo.gov.ru / consultant.ru: Lei Federal 15-FZ, venda de tabaco proibida a menores de 18 (pesquisado em 2026-10-10; conferir na fonte primária)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "researched"
     },
     "ages.driving": {
-      "source": "Lei Federal 196-FZ 'Sobre a segurança viária', art. 26 (categoria B aos 18)",
+      "source": "pravo.gov.ru: lei de trânsito, categoria B aos 18 (pesquisado em 2026-10-10; conferir na fonte primária)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
-    },
-    "education": {
-      "source": "Lei Federal 273-FZ 'Sobre a educação': ano letivo em 1º de setembro, níveis de 4, 5 e 2 anos",
-      "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "researched"
     },
     "ages.criminalResponsibility": {
-      "source": "Código Penal da Federação Russa, art. 20: 16 anos em geral, 14 para crimes listados, entre eles o furto",
+      "source": "pravo.gov.ru: Código Penal, art. 20; em geral 16 anos, 14 para os crimes listados no próprio artigo, entre eles o furto (art. 158). O jogo usa 14 porque seus delitos são furtos (pesquisado em 2026-10-10; conferir na fonte primária)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "researched"
+    },
+    "education": {
+      "source": "pravo.gov.ru: Lei Federal 273-FZ 'Sobre a educação'; ano letivo de setembro a maio (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "verifiedAt": null,
+      "reviewStatus": "researched"
     }
   },
   "ages": {
     "criminalResponsibility": 14
+  },
+  "topics": {
+    "same_sex_relationship": {
+      "legal": "restricted",
+      "acceptance": 14,
+      "risk": null,
+      "source": "Legal: casamento proibido pela Constituição (2020); lei de 'propaganda' estendida a adultos em 2022; 'movimento LGBT internacional' declarado extremista em 2023; risco alto, pravo.gov.ru e Suprema Corte da Rússia. Aceitação: Pew Research Center 2019, 'a homossexualidade deve ser aceita pela sociedade': 14% (outra pergunta e outro ano; a Rússia não entrou na pesquisa de 2023), https://www.pewresearch.org/global/2020/06/25/global-divide-on-homosexuality/ (pesquisado em 2026-10-10)",
+      "verifiedAt": null,
+      "reviewStatus": "researched"
+    }
   }
 }

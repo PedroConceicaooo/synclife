@@ -40,38 +40,49 @@
         "startAge": 16,
         "years": 2
       }
-    ]
+    ],
+    "schoolYearEndMonth": 7
   },
   "legalSources": {
     "ages.majority": {
-      "source": "Family Law Reform Act 1969, s. 1",
+      "source": "legislation.gov.uk: Family Law Reform Act 1969, s. 1 (pesquisado em 2026-10-10; conferir na fonte primária)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "researched"
     },
     "ages.drinking": {
-      "source": "Licensing Act 2003, s. 146-149 (compra de álcool a partir dos 18)",
+      "source": "⚠️ Não verificado na fonte primária: gov.uk: compra de álcool aos 18; de 16 a 17 podem beber cerveja, vinho ou sidra numa refeição com um adulto (o jogo usa a idade de compra) (pesquisado em 2026-10-10)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "needs_primary_check"
     },
     "ages.smoking": {
-      "source": "Children and Young Persons (Protection from Tobacco) Act 1991, alterado em 2007 para 18",
+      "source": "⚠️ Não verificado na fonte primária: gov.uk / legislation.gov.uk: compra de tabaco aos 18; verificar a proibição geracional para nascidos a partir de 2009 (as vidas do jogo começam em 2000) (pesquisado em 2026-10-10)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "needs_primary_check"
     },
     "ages.driving": {
-      "source": "Road Traffic Act 1988, s. 101 (carro a partir dos 17)",
+      "source": "gov.uk: carro a partir dos 17 (Road Traffic Act 1988) (pesquisado em 2026-10-10; conferir na fonte primária)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
-    },
-    "education": {
-      "source": "Education Act 1996 e Education and Skills Act 2008 (Inglaterra: reception aos 4, secundário aos 11, estudo ou formação até os 18)",
-      "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "researched"
     },
     "ages.criminalResponsibility": {
-      "source": "Children and Young Persons Act 1933, s. 50 (Inglaterra e País de Gales: 10 anos)",
+      "source": "legislation.gov.uk: Children and Young Persons Act 1933, s. 50; responsabilidade a partir de 10 (pesquisado em 2026-10-10; conferir na fonte primária)",
       "verifiedAt": null,
-      "reviewStatus": "ai_draft"
+      "reviewStatus": "researched"
+    },
+    "education": {
+      "source": "gov.uk: Inglaterra, ano letivo de setembro a julho; reception aos 4, secundário aos 11, estudo ou formação até os 18 (pesquisado em 2026-10-10; conferir na fonte primária)",
+      "verifiedAt": null,
+      "reviewStatus": "researched"
+    }
+  },
+  "topics": {
+    "same_sex_relationship": {
+      "legal": "permitted",
+      "acceptance": 74,
+      "risk": null,
+      "source": "Legal: casamento permitido desde 2014 (Marriage (Same Sex Couples) Act 2013), legislation.gov.uk. Aceitação: Pew Research Center 2023, apoio ao casamento entre pessoas do mesmo sexo: 74%, https://www.pewresearch.org/short-reads/2023/11/27/how-people-around-the-world-view-same-sex-marriage/ (pesquisado em 2026-10-10)",
+      "verifiedAt": null,
+      "reviewStatus": "researched"
     }
   }
 }
