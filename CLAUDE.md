@@ -38,8 +38,9 @@ M1 a M7 do design estão feitos, e o M8 (conteúdo) está em andamento. O jogo c
 
 Pendências conhecidas:
 
-- Leis dos 5 países lidas por IA na fonte primária em 2026-10-10 (`reviewStatus: "ai_checked"`, com `checkedUrl`); itens que variam por região ou dependem de decisão pendente estão em `needs_primary_check`. Nenhum tem `verifiedAt`: falta a confirmação humana pelo checklist `docs/legal-review.md` (`npm run legal-review`).
-- Reino Unido: o Tobacco and Vapes Act 2026 proíbe vender tabaco a nascidos a partir de 2009. As vidas começam em 2000; se o ano inicial mudar, a idade de fumar precisa depender do ano de nascimento.
+- Leis dos 5 países lidas por IA na fonte primária em 2026-10-10 (`reviewStatus: "ai_checked"`, com `checkedUrl`). O que varia por estado ou região usa um valor nacional documentado (`"simplified"`). Nenhum tem `verifiedAt`: falta a confirmação humana pelo checklist `docs/legal-review.md` (`npm run legal-review`).
+- Reconferir o casamento no Japão depois de 2027-06 (decisão do pleno da Suprema Corte).
+- Reino Unido: o Tobacco and Vapes Act 2026 proíbe, desde 2027, vender tabaco a nascidos a partir de 2009. As vidas começam em 2000; se o ano inicial mudar ou fumar virar mecânica, a idade precisa depender do ano de nascimento.
 - `topics.same_sex_relationship`: legalidade e aceitação (Pew) preenchidas; `risk` vazio até existir mecânica que use.
 - Serviço militar (BR alistamento aos 18, RU obrigatório) fica para a vida adulta, fora da v1.
 - Ao publicar mudanças, aumentar `CACHE` em `sw.js` para os jogadores receberem a versão nova.

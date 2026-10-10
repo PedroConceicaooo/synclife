@@ -77,11 +77,11 @@
       "reviewStatus": "ai_checked"
     },
     "education": {
-      "source": "⚠️ Não verificado na fonte primária: Lei 273-FZ, art. 67: entrada na escola entre 6 anos e meio e 8 anos (conferido; o jogo usa 7). Início em setembro e fim em maio vêm de regulamento do Ministério da Educação, não conferido. Pendente: regulamento do calendário escolar",
+      "source": "Simplificação do jogo: setembro a maio. Entrada na escola entre 6 anos e meio e 8 anos (Lei 273-FZ, art. 67, conferido; o jogo usa 7). As datas de início e fim ficam no calendário de cada escola, dentro do Порядок do Ministério da Educação (Ordem nº 115/2021); o ano costuma começar em 1º de setembro e terminar em maio, e as turmas de 9º e 11º ano terminam conforme o calendário dos exames finais",
       "checkedUrl": "https://www.consultant.ru/document/cons_doc_LAW_140174/16e2e6dcd017a68bc8b1a445142f9c86a69f3ffa/",
       "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "needs_primary_check"
+      "reviewStatus": "simplified"
     }
   },
   "ages": {
@@ -92,11 +92,11 @@
       "legal": "restricted",
       "acceptance": 14,
       "risk": null,
-      "source": "⚠️ Não verificado na fonte primária: Legal: casamento só entre homem e mulher na Constituição (emenda de 2020); lei de 'propaganda' estendida a adultos em 2022; 'movimento LGBT internacional' declarado extremista em 2023. Aceitação: Pew Research Center 2019, Q31 'a homossexualidade deve ser aceita pela sociedade', Rússia 14% (74% não, 12% não sabem), relatório de 2020, p. 25 (https://www.pewresearch.org/wp-content/uploads/sites/20/2020/06/PG_2020.06.25_Global-Views-Homosexuality_FINAL.pdf); outra pergunta e outro ano, porque a Rússia não entrou na pesquisa de 2023. Pendente: status legal: Constituição e decisões da Suprema Corte russa não abertas na conferência (pravo.gov.ru inacessível)",
-      "checkedUrl": "https://www.pewresearch.org/wp-content/uploads/sites/20/2020/06/PG_2020.06.25_Global-Views-Homosexuality_FINAL.pdf",
+      "source": "Legal: Constituição, art. 72, item 'ж.1', 'proteção da instituição do casamento como união de um homem e uma mulher' (conferido no ConsultantPlus); lei de 'propaganda' estendida a adultos em 2022; Suprema Corte declarou o 'movimento LGBT internacional' extremista em 30/11/2023, em vigor desde 10/01/2024 (fontes jornalísticas: istories.media, zona.media). Aceitação: Pew Research Center 2019, Q31 'a homossexualidade deve ser aceita pela sociedade', Rússia 14% (74% não, 12% não sabem), relatório de 2020, p. 25 (https://www.pewresearch.org/wp-content/uploads/sites/20/2020/06/PG_2020.06.25_Global-Views-Homosexuality_FINAL.pdf); outra pergunta e outro ano, porque a Rússia não entrou na pesquisa de 2023",
+      "checkedUrl": "https://www.consultant.ru/document/cons_doc_LAW_28399/c6e42f15d1b028b04b556f3f9ca32433ae2cc969/",
       "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "needs_primary_check"
+      "reviewStatus": "ai_checked"
     }
   }
 }

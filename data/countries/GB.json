@@ -59,11 +59,11 @@
       "reviewStatus": "ai_checked"
     },
     "ages.smoking": {
-      "source": "⚠️ Não verificado na fonte primária: SI 2007/767 elevou a idade de venda de tabaco de 16 para 18. O Tobacco and Vapes Act 2026 (sanção em 29/04/2026, gov.uk) proíbe vender tabaco a quem nasceu a partir de 1º/01/2009; as vidas do jogo nascem em 2000, então 18 continua valendo para elas. Pendente: data de entrada em vigor da proibição geracional (fontes secundárias citam 1º/01/2027)",
-      "checkedUrl": "https://www.gov.uk/government/news/tobacco-and-vapes-bill-becomes-law",
+      "source": "SI 2007/767 elevou a idade de venda de tabaco de 16 para 18. O Tobacco and Vapes Act 2026, s. 1, torna crime vender tabaco a quem nasceu a partir de 1º/01/2009, em vigor desde 1º/01/2027 pela s. 175(3). As vidas do jogo nascem em 2000, então 18 vale para elas",
+      "checkedUrl": "https://www.legislation.gov.uk/ukpga/2026/18/section/1",
       "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "needs_primary_check"
+      "reviewStatus": "ai_checked"
     },
     "ages.driving": {
       "source": "gov.uk: \"Most people can start learning to drive when they're 17\" (carro, categoria B)",
@@ -80,11 +80,11 @@
       "reviewStatus": "ai_checked"
     },
     "education": {
-      "source": "⚠️ Não verificado na fonte primária: Inglaterra: reception aos 4, secundário aos 11, estudo ou formação até os 18; ano letivo de setembro a julho, mas as datas são definidas por cada conselho local (gov.uk). Pendente: calendário de cada conselho local",
+      "source": "Simplificação do jogo: setembro a julho, com reception aos 4, secundário aos 11 e estudo ou formação até os 18. Cada conselho local define as datas exatas",
       "checkedUrl": "https://www.gov.uk/school-term-holiday-dates",
       "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "needs_primary_check"
+      "reviewStatus": "simplified"
     }
   },
   "topics": {

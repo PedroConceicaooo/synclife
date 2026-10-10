@@ -36,7 +36,9 @@ const lines = [
   'Situação de cada item:',
   '',
   '- `ai_checked`: o texto da lei foi lido por IA na fonte indicada (link e data abaixo). Falta só a sua confirmação.',
-  '- `needs_primary_check`: ⚠️ varia por estado ou região, depende de decisão pendente, ou a fonte primária não pôde ser aberta. O motivo está no texto da fonte.',
+  '- `simplified`: a regra real varia por estado ou região; o jogo usa um valor nacional representativo, explicado na fonte (regiões estão previstas no design para o futuro).',
+  '- `needs_primary_check`: ⚠️ a fonte primária ainda não foi conferida; o motivo está no texto da fonte.',
+  '- `Reconferir após`: o valor depende de uma decisão pendente; confira de novo depois dessa data.',
   '- `verified`: conferido por uma pessoa.',
   '',
   'Para confirmar um item, abra o link, confira e, no JSON do país, preencha `verifiedAt` (data) e troque `reviewStatus` para `"verified"`. Se o valor estiver errado, corrija o campo e a fonte. Pesquisa de base: `docs/fontes-paises.md`.',
@@ -50,14 +52,14 @@ for (const id of Object.keys(NAMES)) {
   for (const [field, label] of Object.entries(FIELDS)) {
     const source = country.legalSources?.[field] ?? {};
     const status = source.verifiedAt ? `verificado em ${source.verifiedAt}` : source.reviewStatus ?? 'sem fonte';
-    const where = source.checkedUrl ? ` ([link](${source.checkedUrl}), ${source.checkedAt})` : '';
+    const where = (source.checkedUrl ? ` ([link](${source.checkedUrl}), ${source.checkedAt})` : '') + (source.recheckAfter ? ` Reconferir após ${source.recheckAfter}.` : '');
     lines.push(`| [${source.verifiedAt ? 'x' : ' '}] | ${label} | ${valueOf(country, field)} | ${source.source ?? '—'}${where} | ${status} |`);
   }
   const topic = country.topics?.same_sex_relationship;
   if (topic) {
     const status = topic.verifiedAt ? `verificado em ${topic.verifiedAt}` : topic.reviewStatus ?? 'sem fonte';
     const value = `legal: ${topic.legal ?? '—'}; aceitação: ${topic.acceptance ?? '—'}; risco: ${topic.risk ?? '—'}`;
-    const where = topic.checkedUrl ? ` ([link](${topic.checkedUrl}), ${topic.checkedAt})` : '';
+    const where = (topic.checkedUrl ? ` ([link](${topic.checkedUrl}), ${topic.checkedAt})` : '') + (topic.recheckAfter ? ` Reconferir após ${topic.recheckAfter}.` : '');
     lines.push(`| [${topic.verifiedAt ? 'x' : ' '}] | Casal do mesmo sexo | ${value} | ${topic.source ?? '—'}${where} | ${status} |`);
   }
 }

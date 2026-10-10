@@ -49,11 +49,11 @@
   },
   "legalSources": {
     "ages.majority": {
-      "source": "⚠️ Não verificado na fonte primária: 18 na maioria dos estados; 19 no Alabama (Ala. Code § 26-1-1) e Nebraska; 21 no Mississippi (Miss. Code § 1-3-27), que usa 18 em outras leis. Pendente: lei de cada estado; conferido só em fonte secundária",
+      "source": "Simplificação do jogo: 18, a maioridade da maioria dos estados. Exceções: 19 no Alabama (Ala. Code § 26-1-1) e Nebraska; 21 no Mississippi (Miss. Code § 1-3-27), que usa 18 em outras leis",
       "checkedUrl": "https://www.law.cornell.edu/wex/age_of_majority",
       "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "needs_primary_check"
+      "reviewStatus": "simplified"
     },
     "ages.drinking": {
       "source": "23 U.S.C. § 158: retenção de verbas federais de estados que permitam compra ou porte público de álcool por menores de 21 anos",
@@ -70,25 +70,25 @@
       "reviewStatus": "ai_checked"
     },
     "ages.driving": {
-      "source": "⚠️ Não verificado na fonte primária: habilitação graduada estadual: permissão de aprendiz entre 14 e 17 anos, licença restrita em geral aos 16 (de 15 a 17 conforme o estado). Pendente: lei de cada estado; o jogo usa 16",
+      "source": "Simplificação do jogo: 16, a idade mais comum da licença restrita; a habilitação graduada estadual vai de 14 a 17 anos na permissão de aprendiz e de 15 a 17 na licença restrita",
       "checkedUrl": "https://www.iihs.org/research-areas/teenagers/graduated-licensing-laws-table",
       "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "needs_primary_check"
+      "reviewStatus": "simplified"
     },
     "ages.criminalResponsibility": {
-      "source": "⚠️ Não verificado na fonte primária: a maioria dos estados não fixa idade mínima para a justiça juvenil; onde há, vai de 10 a 12 anos. Pendente: lei de cada estado; o jogo usa 10",
+      "source": "Simplificação do jogo: 10. A maioria dos estados não fixa idade mínima para a justiça juvenil; onde há, vai de 10 a 12 anos",
       "checkedUrl": "https://ojjdp.ojp.gov/model-programs-guide/literature-reviews/age-boundaries-of-the-juvenile-justice-system",
       "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "needs_primary_check"
+      "reviewStatus": "simplified"
     },
     "education": {
-      "source": "⚠️ Não verificado na fonte primária: ano letivo em geral de agosto/setembro a maio/junho, definido por estado e distrito; o jogo usa setembro a junho. Pendente: calendário de cada estado e distrito",
+      "source": "Simplificação do jogo: setembro a junho, com etapas K-5, 6-8 e 9-12. Estados e distritos definem o calendário, em geral de agosto/setembro a maio/junho",
       "checkedUrl": "https://nces.ed.gov/programs/statereform/",
       "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "needs_primary_check"
+      "reviewStatus": "simplified"
     }
   },
   "topics": {

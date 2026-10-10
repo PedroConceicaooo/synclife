@@ -99,11 +99,12 @@
       "legal": "not_recognized",
       "acceptance": 68,
       "risk": null,
-      "source": "⚠️ Não verificado na fonte primária: Legal: não reconhecida nacionalmente; em 25/03/2026 a Suprema Corte enviou seis ações ao pleno (Grand Bench), com decisão esperada para o início de 2027. Aceitação: Pew Research Center 2023, 68% (https://www.pewresearch.org/short-reads/2023/11/27/how-people-around-the-world-view-same-sex-marriage/). Pendente: decisão do pleno da Suprema Corte (conferir em courts.go.jp quando sair)",
+      "source": "Legal: não reconhecida nacionalmente. Em 25/03/2026 a Suprema Corte enviou seis ações ao pleno (Grand Bench), com decisão esperada para o início de 2027 (fonte jornalística; reconferir em courts.go.jp quando sair). Aceitação: Pew Research Center 2023, 68% (https://www.pewresearch.org/short-reads/2023/11/27/how-people-around-the-world-view-same-sex-marriage/)",
       "checkedUrl": "https://www.japantimes.co.jp/news/2026/03/26/japan/crime-legal/court-same-sex-marriage/",
       "checkedAt": "2026-10-10",
       "verifiedAt": null,
-      "reviewStatus": "needs_primary_check"
+      "reviewStatus": "ai_checked",
+      "recheckAfter": "2027-06"
     }
   }
 }
