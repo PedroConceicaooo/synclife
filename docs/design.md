@@ -350,11 +350,14 @@ A tela gira em torno do **diário da vida**: cada avanço de tempo acrescenta um
 
 | Área | Conteúdo |
 | --- | --- |
-| Cabeçalho, à esquerda | Bandeira do país, nome completo do personagem e, embaixo, a fase da vida (Bebê, Criança, Adolescente) |
-| Cabeçalho, à direita | Saldo com o símbolo da moeda do país (US$ 1.250, R$ 300, ¥ 2.000), formatado com `Intl.NumberFormat`; embaixo, o rótulo "Saldo" |
-| Centro | Diário da vida, com rolagem; o bloco mais recente fica embaixo e a tela rola até ele após cada avanço |
-| Navegação | Botão grande central para avançar, com as duas opções lado a lado: 6 meses e 1 ano. Não existe voltar no tempo; abas ao redor: fase atual, relacionamentos, atividades e bens |
+| Topo | Faixa fina com o nome do jogo, SyncLife |
+| Cabeçalho, à esquerda | Rosto do personagem (avatar gerado pelo jogo), nome completo com a bandeira do país e, embaixo, a ocupação: Bebê, Pré-escola, a etapa escolar com o ano ("Fundamental I, 2º ano"), Faculdade de Direito, Desempregado, Herdeiro etc. |
+| Cabeçalho, à direita | Saldo com o símbolo da moeda do país (US$ 1.250, R$ 300, ¥ 2.000), formatado com `Intl.NumberFormat`; embaixo, o rótulo "Saldo". O país escolhe nos dados se usa o símbolo curto (₽, ¥) |
+| Centro | Diário da vida, com rolagem; o bloco mais recente fica embaixo e a tela rola até ele após cada avanço. É a tela base: as abas abrem por cima e tocar de novo na aba volta ao diário |
+| Navegação | Botão redondo grande no centro, dividido em dois: +1 ano em cima e +6 meses embaixo. Não existe voltar no tempo. Ao redor, quatro abas: Escola (Creche antes da escola, Faculdade quando houver, Profissão depois dos 18), Bens, Relacionamentos e Atividades |
 | Rodapé fixo | As quatro barras de status (felicidade, saúde, inteligência, aparência) com porcentagem, sempre visíveis |
+
+A estrutura segue a do BitLife, para ficar familiar; a identidade visual (cores, régua de crescimento, avatares, ícones) é própria.
 
 Países aparecem sempre pelo nome completo no idioma do jogo ("Estados Unidos", nunca "US") e com bandeira. Emojis de bandeira não aparecem no Windows (viram as letras "US"), então as bandeiras usam imagens SVG embutidas, não emojis.
 
@@ -373,8 +376,10 @@ Eventos com escolha e pontos de decisão aparecem num pop-up por cima da tela pr
 ### Telas secundárias
 
 - **Início:** nova vida aleatória ou vida personalizada (nome, sexo, país, cidade).
-- **Relacionamentos:** só pessoas próximas: família (pais, irmãos, padrastos), namorado(a) e amigos. Cada uma com nome, papel e barra de relação dupla; tocar abre o perfil com as categorias de interação. Conhecidos (colegas de classe, professores, colegas de trabalho no futuro) ficam dentro da tela do lugar onde convivem, como a escola, para a lista não ficar poluída. Um colega que vira amigo passa para Relacionamentos.
-- **Atividades e bens:** listas com ícone, título e uma linha de descrição.
+- **Relacionamentos:** todo vínculo próximo: família (pais, irmãos, padrastos), namorado(a), ficante, ex, amigos e animais de estimação. Cada uma com nome, papel e barra de relação dupla; tocar abre o perfil com as categorias de interação. Conhecidos (colegas de classe, professores, colegas de trabalho no futuro) ficam dentro da tela do lugar onde convivem, como a escola, para a lista não ficar poluída. Um colega que vira amigo passa para Relacionamentos.
+- **Escola / Profissão:** o lugar onde o personagem convive agora, com a turma e os professores (depois, colegas de trabalho).
+- **Bens:** tudo o que o personagem possui (bicicleta, celular, computador, contas em redes sociais; casa e carro na vida adulta) e a loja para comprar. Cada bem tem preço na moeda do país, idade mínima (o carro segue a idade para dirigir do país) e um efeito por ano enquanto é seu; dá para vender pela metade do preço.
+- **Atividades:** o que se faz sozinho, como bicos e lazer. Listas com título e uma linha de descrição.
 
 ### Para depois
 
