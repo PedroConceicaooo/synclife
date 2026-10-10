@@ -1,0 +1,40 @@
+{
+  "id": "ask_question",
+  "category": "talk",
+  "conditions": {
+    "targetRole": [
+      "teacher"
+    ],
+    "minAge": 6,
+    "inSchool": true
+  },
+  "chance": {
+    "base": 0.8,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.3
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "intelligence",
+      "delta": 1
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": 2
+    }
+  ],
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -1
+    }
+  ]
+}

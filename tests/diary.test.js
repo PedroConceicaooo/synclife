@@ -10,6 +10,7 @@ import { loadActivities } from '../src/systems/activitiesLoader.js';
 import { createGameState, advanceStep, resolveDecision, attemptPlayerInteraction, attemptPlayerActivity, isAdult } from '../src/systems/game.js';
 import { describeBlock, describeHistory } from '../src/ui/diary.js';
 import { fullName } from '../src/systems/naming.js';
+import { schoolPeople } from '../src/systems/schoolmates.js';
 
 const dir = (d) => fileURLToPath(new URL(`../data/${d}/`, import.meta.url));
 const LOCALE = createLocale(JSON.parse(readFileSync(new URL('../locales/pt-BR/ui.json', import.meta.url), 'utf8')));
@@ -29,6 +30,14 @@ function playLife(seed) {
     state = advanceStep(state, step);
     while (state.pendingDecisions.length > 0) state = resolveDecision(state);
     state = attemptPlayerInteraction(state, 'chat', state.mother.id);
+    const { classmates, teachers } = schoolPeople(state.relationships, state.player.id);
+    // A player who keeps seeking out one classmate, up to the period limit.
+    for (const interactionId of ['invite_home', 'study_together', 'chat']) {
+      if (classmates[0]) state = attemptPlayerInteraction(state, interactionId, classmates[0]);
+    }
+    if (teachers[0]) state = attemptPlayerInteraction(state, 'joke_in_class', teachers[0]);
+    const friend = Object.values(state.relationships).find((r) => r.roles[state.player.id] === 'friend');
+    if (friend && step === 12) state = attemptPlayerInteraction(state, 'drift_apart', Object.keys(friend.roles).find((id) => id !== state.player.id));
     for (const activityId of ['mow_lawn', 'buy_book', 'sell_at_recess']) {
       state = attemptPlayerActivity(state, activityId);
       while (state.pendingDecisions.length > 0) state = resolveDecision(state);
@@ -96,4 +105,11 @@ test('event options follow the player sex', () => {
   const asSex = (sex) => ({ ...base, player: { ...base.player, sex } });
   assert.ok(describeBlock(block, asSex('F'), LOCALE).lines[0].text.endsWith('Escolha: Ser corajosa.'));
   assert.ok(describeBlock(block, asSex('M'), LOCALE).lines[0].text.endsWith('Escolha: Ser corajoso.'));
+});
+
+test('a whole life with school shows the new class, new friends and teachers in the diary', () => {
+  const lines = describeHistory(playLife(2), LOCALE).flatMap((b) => b.lines.map((l) => l.text));
+  assert.ok(lines.some((l) => l.startsWith('Minha turma nova: ') && l.includes('Quem vai dar aula para mim: ')));
+  assert.ok(lines.some((l) => / virou (meu amigo|minha amiga)\.$/.test(l)));
+  assert.ok(lines.some((l) => /^Piada na aula com (o professor|a professora) /.test(l)));
 });

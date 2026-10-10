@@ -1,0 +1,53 @@
+{
+  "id": "annoy_teacher",
+  "category": "conflict",
+  "conditions": {
+    "targetRole": [
+      "teacher"
+    ],
+    "minAge": 7,
+    "inSchool": true
+  },
+  "chance": {
+    "base": 0.5,
+    "modifiers": [
+      {
+        "factor": "targetTrait",
+        "value": "explosive",
+        "adjust": -0.2
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -5
+    }
+  ],
+  "failure": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -1
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -6
+    }
+  ],
+  "randomEvents": [
+    {
+      "event": "school_warning",
+      "chance": 0.3
+    }
+  ]
+}

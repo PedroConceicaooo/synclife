@@ -10,7 +10,7 @@ const LOCALE = JSON.parse(readFileSync(new URL('../locales/pt-BR/ui.json', impor
 const UI_DATA = readFileSync(new URL('../src/ui/data.js', import.meta.url), 'utf8');
 
 const INTERACTIONS = Object.values(loadInteractions(INTERACTIONS_DIR));
-const KNOWN_OPS = ['stat', 'affinity', 'transferMoney'];
+const KNOWN_OPS = ['stat', 'affinity', 'transferMoney', 'roles'];
 const KNOWN_FACTORS = ['affinity', 'targetTrait'];
 
 test('every interaction declares minAge (CLAUDE.md rule 8) and a known category', () => {

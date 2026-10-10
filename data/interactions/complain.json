@@ -1,0 +1,45 @@
+{
+  "id": "complain",
+  "category": "conflict",
+  "conditions": {
+    "targetRole": [
+      "teacher"
+    ],
+    "minAge": 10,
+    "inSchool": true
+  },
+  "chance": {
+    "base": 0.3,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.4
+      },
+      {
+        "factor": "targetTrait",
+        "value": "rigid",
+        "adjust": -0.2
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -1
+    }
+  ],
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -3
+    }
+  ]
+}

@@ -40,6 +40,11 @@ function relationshipWith(state, personId) {
 
 const sexesOf = (state) => ({ player: state.player.sex });
 
+// "Mãe", "Amiga", "Professor": some roles change with the person's sex.
+function roleLabel(locale, role, person) {
+  return locale.format(`role.${role}`, {}, { self: person.sex });
+}
+
 export function renderHeader(dom, state, locale) {
   const player = state.people[state.player.id];
   const countryName = locale.t(`country.${state.country.id}`);
@@ -152,7 +157,7 @@ export function renderSummary(dom, state, locale) {
     const item = el('li', { className: 'row' });
     item.append(
       el('strong', { text: fullName(state.people[personId], state.country) }),
-      el('span', { className: 'detail', text: locale.t(`role.${role}`) }),
+      el('span', { className: 'detail', text: roleLabel(locale, role, state.people[personId]) }),
       meter(locale.t('ui.relation_strength'), strength),
     );
     dom.summaryRelations.appendChild(item);
@@ -173,7 +178,7 @@ export function renderRelations(dom, state, locale, { onOpenProfile }) {
       el('span', {
         className: 'detail',
         text: locale.format('ui.person_subtitle', {
-          role: locale.t(`role.${role}`),
+          role: roleLabel(locale, role, person),
           age: locale.plural('age.years', ageAt(person.birth, state.currentMonthIndex)),
         }),
       }),
@@ -201,7 +206,7 @@ export function renderProfile(dom, state, locale, personId, openCategory, { onBa
   dom.profileBack.onclick = onBack;
   dom.profileTitle.textContent = fullName(person, state.country);
   dom.profileSubtitle.textContent = locale.format('ui.person_subtitle', {
-    role: locale.t(`role.${role}`),
+    role: roleLabel(locale, role, person),
     age: locale.plural('age.years', ageAt(person.birth, state.currentMonthIndex)),
   });
 

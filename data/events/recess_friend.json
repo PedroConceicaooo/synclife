@@ -1,0 +1,26 @@
+{
+  "id": "recess_friend",
+  "subject": "player",
+  "conditions": {
+    "minAge": 4,
+    "inSchool": true
+  },
+  "yearlyChance": 0.5,
+  "cooldownMonths": 6,
+  "effects": [
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": 10,
+      "targetRole": [
+        "classmate"
+      ]
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ]
+}

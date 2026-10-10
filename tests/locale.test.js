@@ -108,3 +108,8 @@ test('a text missing in the chosen language falls back to Portuguese', () => {
   assert.equal(locale.has('farewell'), true);
   assert.equal(locale.t('nowhere'), 'nowhere');
 });
+
+test('list joins names the Portuguese way', () => {
+  assert.equal(PT.list(['Ana', 'Pedro', 'Bia']), 'Ana, Pedro e Bia');
+  assert.equal(PT.list(['Ana']), 'Ana');
+});

@@ -1,0 +1,46 @@
+{
+  "id": "invite_home",
+  "category": "spend_time",
+  "conditions": {
+    "targetRole": [
+      "classmate",
+      "friend"
+    ],
+    "minAge": 5
+  },
+  "chance": {
+    "base": 0.6,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.6
+      },
+      {
+        "factor": "targetTrait",
+        "value": "shy",
+        "adjust": -0.2
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": 4
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    }
+  ],
+  "failure": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -1
+    }
+  ]
+}

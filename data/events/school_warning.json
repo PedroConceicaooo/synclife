@@ -1,0 +1,24 @@
+{
+  "id": "school_warning",
+  "subject": "player",
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -2
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -3,
+      "targetRole": "mother"
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -3,
+      "targetRole": "father"
+    }
+  ]
+}

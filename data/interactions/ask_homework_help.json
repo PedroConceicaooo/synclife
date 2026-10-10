@@ -1,0 +1,46 @@
+{
+  "id": "ask_homework_help",
+  "category": "ask",
+  "conditions": {
+    "targetRole": [
+      "classmate",
+      "friend"
+    ],
+    "minAge": 7,
+    "inSchool": true
+  },
+  "chance": {
+    "base": 0.5,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.6
+      },
+      {
+        "factor": "targetTrait",
+        "value": "generous",
+        "adjust": 0.2
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "intelligence",
+      "delta": 1
+    },
+    {
+      "op": "affinity",
+      "side": "player",
+      "delta": 2
+    }
+  ],
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "player",
+      "delta": -2
+    }
+  ]
+}

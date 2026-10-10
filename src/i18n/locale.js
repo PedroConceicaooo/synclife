@@ -55,5 +55,10 @@ export function createLocale(entries, language = FALLBACK_LANGUAGE, fallbackEntr
     return parts.join(t('age.join'));
   }
 
-  return { t, has, format, plural, money, monthName, age, language };
+  // "Ana, Pedro e Bia"
+  function list(items) {
+    return new Intl.ListFormat(language, { style: 'long', type: 'conjunction' }).format(items);
+  }
+
+  return { t, has, format, plural, money, monthName, age, list, language };
 }

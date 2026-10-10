@@ -4,7 +4,9 @@
   "conditions": {
     "targetRole": [
       "brother",
-      "sister"
+      "sister",
+      "classmate",
+      "friend"
     ],
     "minAge": 3,
     "targetMinAge": 2

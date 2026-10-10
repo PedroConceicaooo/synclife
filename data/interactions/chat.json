@@ -6,7 +6,10 @@
       "mother",
       "father",
       "brother",
-      "sister"
+      "sister",
+      "classmate",
+      "friend",
+      "teacher"
     ],
     "minAge": 3,
     "targetMinAge": 3

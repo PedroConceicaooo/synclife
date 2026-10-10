@@ -10,7 +10,7 @@ import { schoolEntryMonth } from './school.js';
 
 export const CLASS_SIZE = 6;
 export const TEACHERS_PER_CLASS = 2;
-export const FRIENDSHIP_THRESHOLD = 65;
+export const FRIENDSHIP_THRESHOLD = 60;
 
 // Intelligence grows through childhood (growth.js), so a classmate met in
 // high school starts higher than one met at six.
@@ -18,7 +18,7 @@ function classmateStatRanges(ageYears) {
   const base = Math.min(60, 15 + 3 * ageYears);
   return { happiness: [40, 91], health: [50, 91], intelligence: [base, base + 26], looks: [20, 81] };
 }
-const CLASSMATE_AFFINITY = [35, 61];
+const CLASSMATE_AFFINITY = [40, 66];
 const TEACHER_AFFINITY = [45, 61];
 const TEACHER_AGE_YEARS = [25, 61];
 

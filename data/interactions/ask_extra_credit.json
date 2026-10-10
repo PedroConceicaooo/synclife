@@ -1,0 +1,50 @@
+{
+  "id": "ask_extra_credit",
+  "category": "ask",
+  "conditions": {
+    "targetRole": [
+      "teacher"
+    ],
+    "minAge": 8,
+    "inSchool": true
+  },
+  "chance": {
+    "base": 0.25,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.6
+      },
+      {
+        "factor": "targetTrait",
+        "value": "patient",
+        "adjust": 0.1
+      },
+      {
+        "factor": "targetTrait",
+        "value": "rigid",
+        "adjust": -0.2
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -1
+    }
+  ],
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -2
+    }
+  ]
+}

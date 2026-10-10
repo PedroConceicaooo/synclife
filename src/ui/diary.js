@@ -11,10 +11,21 @@ function relationTo(state, personId) {
   return relationship ? relationship.roles[personId] : null;
 }
 
-// "minha mãe", "meu irmão Theo"
+// "minha mãe", "meu irmão Theo", "a professora Sato"
 function who(state, locale, personId) {
   const person = state.people[personId];
-  return locale.format(`diary.who.${relationTo(state, personId)}`, { name: person.firstName });
+  return locale.format(`diary.who.${relationTo(state, personId)}`, { name: person.firstName, lastName: person.lastName }, { self: person.sex });
+}
+
+function newClassLine(state, locale, entry) {
+  const classmates = locale.list(entry.classmateIds.map((id) => state.people[id].firstName));
+  const teachers = locale.list(
+    entry.teacherIds.map((id) => {
+      const teacher = state.people[id];
+      return locale.format('diary.teacher_name', { lastName: teacher.lastName }, { self: teacher.sex });
+    }),
+  );
+  return [locale.format('diary.new_class', { names: classmates }), locale.format('diary.new_teachers', { names: teachers })].join(' ');
 }
 
 function introLines(state, locale) {
@@ -72,6 +83,12 @@ function entryLine(entry, state, locale, block) {
   switch (entry.type) {
     case 'birthday':
       return locale.format('diary.birthday', { age: locale.plural('age.years', entry.age) });
+    case 'newClass':
+      return newClassLine(state, locale, entry);
+    case 'newFriend': {
+      const friend = state.people[entry.personId];
+      return locale.format('diary.new_friend', { name: friend.firstName }, { self: friend.sex });
+    }
     case 'schoolStage': {
       const localKey = `school.${state.country.id}.${entry.stageId}`;
       const stage = locale.t(locale.has(localKey) ? localKey : `school.${entry.stageId}`);
