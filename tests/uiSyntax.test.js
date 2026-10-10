@@ -14,3 +14,9 @@ test('every UI module parses', () => {
     assert.equal(result.status, 0, `${file}: ${result.stderr}`);
   }
 });
+
+test('the service worker parses', () => {
+  const sw = fileURLToPath(new URL('../sw.js', import.meta.url));
+  const result = spawnSync(process.execPath, ['--check', sw], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+});

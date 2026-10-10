@@ -14,6 +14,8 @@ const CONTENT_TYPES = {
   '.css': 'text/css',
   '.json': 'application/json',
   '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.webmanifest': 'application/manifest+json',
 };
 
 function readPortFromArgs() {

@@ -266,3 +266,8 @@ async function main() {
 }
 
 main();
+
+// Installable and offline (design doc: the game starts as a PWA).
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch((error) => console.warn('Service worker not registered:', error));
+}
