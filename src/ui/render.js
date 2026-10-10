@@ -96,9 +96,9 @@ export function renderStatus(dom, state, locale, { onAdvance, onOpenProfile, onO
   }
 }
 
-function interactionResultText(result, locale) {
+function interactionResultText(result, locale, sexes) {
   if (!result.attempted) return result.reason === 'limit' ? locale.t('ui.interaction_limit') : '';
-  return locale.t(`interaction.${result.interactionId}.${result.succeeded ? 'success' : 'failure'}`);
+  return locale.format(`interaction.${result.interactionId}.${result.succeeded ? 'success' : 'failure'}`, {}, sexes);
 }
 
 // Categories first; tapping one opens its submenu (design doc: up to six
@@ -140,19 +140,19 @@ export function renderProfile(dom, state, locale, personId, openCategory, { onIn
   }
 
   const result = state.lastInteractionResult;
-  dom.profileResult.textContent = result && result.targetId === personId ? interactionResultText(result, locale) : '';
+  dom.profileResult.textContent = result && result.targetId === personId ? interactionResultText(result, locale, { player: state.player.sex }) : '';
 }
 
 const ACTIVITY_BLOCKER_KEYS = { limit: 'ui.activity_limit', money: 'ui.activity_no_money' };
 
-function activityResultText(result, locale) {
+function activityResultText(result, locale, sexes) {
   if (!result.attempted) return locale.t(ACTIVITY_BLOCKER_KEYS[result.reason]);
   // Events with options open the decision modal; the rest are told here.
   const eventTexts = result.triggeredEvents
     .map((eventId) => `event.${eventId}.text`)
-    .filter((key) => locale.t(key) !== key)
-    .map((key) => locale.t(key));
-  return [locale.t(`activity.${result.activityId}.done`), ...eventTexts].join(' ');
+    .filter((key) => locale.has(key))
+    .map((key) => locale.format(key, {}, sexes));
+  return [locale.format(`activity.${result.activityId}.done`, {}, sexes), ...eventTexts].join(' ');
 }
 
 // Design doc: lists with title and a one-line description. Activities the
@@ -160,7 +160,7 @@ function activityResultText(result, locale) {
 export function renderActivities(dom, state, locale, { onDoActivity }) {
   dom.activitiesBack.textContent = locale.t('ui.back');
   dom.activitiesTitle.textContent = locale.t('ui.activities_title');
-  dom.activitiesResult.textContent = state.lastActivityResult ? activityResultText(state.lastActivityResult, locale) : '';
+  dom.activitiesResult.textContent = state.lastActivityResult ? activityResultText(state.lastActivityResult, locale, { player: state.player.sex }) : '';
 
   clearChildren(dom.activitiesList);
   for (const group of availableActivities(state)) {
@@ -196,13 +196,14 @@ export function renderDecisionModal(dom, state, locale, { onChoose }) {
   const decisionEvent = state.eventsById[decision.trigger];
 
   dom.decisionModal.hidden = false;
-  dom.decisionPrompt.textContent = locale.t(`event.${decision.trigger}.prompt`);
+  const sexes = { player: state.player.sex };
+  dom.decisionPrompt.textContent = locale.format(`event.${decision.trigger}.prompt`, {}, sexes);
 
   clearChildren(dom.decisionOptions);
   for (const option of decisionEvent.options) {
     const button = document.createElement('button');
     button.type = 'button';
-    button.textContent = locale.t(`event.${decision.trigger}.option.${option.id}`);
+    button.textContent = locale.format(`event.${decision.trigger}.option.${option.id}`, {}, sexes);
     button.addEventListener('click', () => onChoose(option.id));
     dom.decisionOptions.appendChild(button);
   }
