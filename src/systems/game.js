@@ -12,7 +12,14 @@ import { createIdGenerator } from '../engine/id.js';
 import { resolveCountry } from '../engine/countries.js';
 import { createNewLife } from './life.js';
 import { decayAll, resetInteractionsThisPeriod, findRelationshipBetween } from './relationship.js';
-import { processRelationshipEvents, processPlayerEvents, resolveDecision as resolveDecisionEvent } from './events.js';
+import {
+  processRelationshipEvents,
+  processPlayerEvents,
+  firePlayerEvent,
+  resolveDecision as resolveDecisionEvent,
+} from './events.js';
+import { evaluateConditions } from '../engine/conditions.js';
+import { calendarPoints, calendarEventsAt, firstDecisionPoint } from './calendar.js';
 import { attemptInteraction, listAvailableInteractions } from './interactions.js';
 import { attemptActivity, listActivities } from './activities.js';
 import { applyEffects } from '../engine/effects.js';
@@ -60,6 +67,7 @@ export function createGameState({ seed, countriesById, eventsById, interactionsB
     pendingDecisions: [],
     firedEvents: [],
     activityUsesThisPeriod: {},
+    remainingMonths: 0,
     pastLives: [],
     history: [{ month: player.birth, entries: [{ type: 'birth' }] }],
     lastInteractionResult: null,
@@ -148,9 +156,45 @@ export function monthsUntilAdulthood(state) {
   return state.player.birth + ADULT_AGE * 12 - state.currentMonthIndex;
 }
 
+// Fires the calendar events of each point the advance went through.
+function processCalendar(state, points, { people, relationships }) {
+  const entries = [];
+  const fired = [];
+  const pendingDecisions = [];
+  let peopleNow = people;
+  let relationshipsNow = relationships;
+
+  for (const point of points) {
+    if (point.on === 'stageStart') entries.push({ type: 'schoolStage', stageId: point.stageId });
+    for (const event of calendarEventsAt(state.eventsById, point)) {
+      const player = peopleNow[state.player.id];
+      if (!evaluateConditions(event.conditions, player, { currentMonthIndex: point.month })) continue;
+      const result = firePlayerEvent(event, { player, peopleById: peopleNow, relationshipsById: relationshipsNow, country: state.country, rng: state.rng });
+      peopleNow = result.peopleById;
+      relationshipsNow = result.relationshipsById;
+      fired.push({ eventId: event.id, month: point.month, playerId: state.player.id });
+      if (result.decision) pendingDecisions.push(result.decision);
+      else entries.push({ type: 'event', eventId: event.id, ...(result.succeeded === null ? {} : { succeeded: result.succeeded }) });
+    }
+  }
+  return { people: peopleNow, relationships: relationshipsNow, entries, fired, pendingDecisions };
+}
+
+// An advance stops at the 18th birthday and at a dated decision (design
+// doc: "O jogo para ali, pergunta e só depois segue o tempo restante");
+// what is left goes to remainingMonths for continueAdvance.
 export function advanceStep(state, requestedMonths) {
   const untilAdult = monthsUntilAdulthood(state);
-  const months = untilAdult > 0 ? Math.min(requestedMonths, untilAdult) : requestedMonths;
+  let months = untilAdult > 0 ? Math.min(requestedMonths, untilAdult) : requestedMonths;
+  const education = state.country.education;
+  const stop = firstDecisionPoint(
+    state.eventsById,
+    calendarPoints(state.player.birth, state.currentMonthIndex, state.currentMonthIndex + months, education),
+  );
+  if (stop) months = stop.month - state.currentMonthIndex;
+  const reachesAdulthood = untilAdult > 0 && months >= untilAdult;
+  const remainingMonths = reachesAdulthood ? 0 : requestedMonths - months;
+  const points = calendarPoints(state.player.birth, state.currentMonthIndex, state.currentMonthIndex + months, education);
   const playerId = state.player.id;
   const playerBefore = state.people[playerId];
   const { nextMonthIndex, birthdays } = advance(state.currentMonthIndex, months, state.player.birth);
@@ -174,6 +218,11 @@ export function advanceStep(state, requestedMonths) {
 
   people = growChildren(people, relationships, { months, monthIndex: state.currentMonthIndex });
 
+  const calendar = processCalendar(state, points, { people, relationships });
+  people = calendar.people;
+  relationships = calendar.relationships;
+  entries.push(...calendar.entries);
+
   const playerEvents = processPlayerEvents(state.eventsById, {
     player: people[playerId],
     peopleById: people,
@@ -185,13 +234,16 @@ export function advanceStep(state, requestedMonths) {
     // Cooldowns belong to whoever lived the event, so a sibling who takes
     // over at 18 doesn't inherit them.
     firedEvents: state.firedEvents.filter((f) => !f.playerId || f.playerId === playerId),
-    hasDecision: world.pendingDecisions.length > 0,
+    hasDecision: world.pendingDecisions.length + calendar.pendingDecisions.length > 0,
+    alreadyFired: calendar.fired.length,
   });
   relationships = playerEvents.relationshipsById;
   people = playerEvents.peopleById;
   // Events with options are logged when the player chooses (resolveDecision).
   for (const f of playerEvents.fired) {
-    if (!state.eventsById[f.eventId].options) entries.push({ type: 'event', eventId: f.eventId });
+    if (!state.eventsById[f.eventId].options) {
+      entries.push({ type: 'event', eventId: f.eventId, ...(f.succeeded === undefined ? {} : { succeeded: f.succeeded }) });
+    }
   }
 
   if (isAllowanceAge(ageAt(state.player.birth, nextMonthIndex))) {
@@ -215,16 +267,27 @@ export function advanceStep(state, requestedMonths) {
     people,
     birthdays,
     fired: world.fired,
-    pendingDecisions: [...world.pendingDecisions, ...playerEvents.pendingDecisions],
+    pendingDecisions: [...world.pendingDecisions, ...calendar.pendingDecisions, ...playerEvents.pendingDecisions],
+    remainingMonths,
     activityUsesThisPeriod: {},
     lastActivityResult: null,
     firedEvents: [
       ...state.firedEvents,
       ...world.fired.map((f) => ({ eventId: f.eventId, month: nextMonthIndex })),
+      ...calendar.fired,
       ...playerEvents.fired.map((f) => ({ ...f, playerId })),
     ],
     history: [...state.history, { month: nextMonthIndex, entries }],
   };
+}
+
+// After the decisions of an interrupted advance, the rest of the time.
+export function canContinueAdvance(state) {
+  return state.remainingMonths > 0 && state.pendingDecisions.length === 0;
+}
+
+export function continueAdvance(state) {
+  return canContinueAdvance(state) ? advanceStep(state, state.remainingMonths) : state;
 }
 
 // optionId omitted -> the rng picks (console auto-play).

@@ -1,0 +1,62 @@
+{
+  "id": "entrance_exam",
+  "subject": "player",
+  "milestone": true,
+  "conditions": {
+    "minAge": 12
+  },
+  "calendar": {
+    "on": "stageStart",
+    "entranceExam": true
+  },
+  "check": {
+    "base": 0.5,
+    "modifiers": [
+      {
+        "factor": "playerStat",
+        "stat": "intelligence",
+        "weight": 1.0
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 4
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": 3,
+      "targetRole": "mother"
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": 3,
+      "targetRole": "father"
+    }
+  ],
+  "failure": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -5
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -2,
+      "targetRole": "mother"
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -2,
+      "targetRole": "father"
+    }
+  ]
+}

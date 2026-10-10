@@ -1,0 +1,60 @@
+{
+  "id": "school_report",
+  "subject": "player",
+  "conditions": {
+    "minAge": 4
+  },
+  "calendar": {
+    "on": "schoolYearEnd"
+  },
+  "check": {
+    "base": 0.55,
+    "modifiers": [
+      {
+        "factor": "playerStat",
+        "stat": "intelligence",
+        "weight": 1.2
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": 2,
+      "targetRole": "mother"
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": 2,
+      "targetRole": "father"
+    }
+  ],
+  "failure": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -2
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -3,
+      "targetRole": "mother"
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -3,
+      "targetRole": "father"
+    }
+  ]
+}

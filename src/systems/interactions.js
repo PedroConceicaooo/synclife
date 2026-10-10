@@ -8,7 +8,8 @@ export function indexInteractions(interactions) {
   return Object.fromEntries(interactions.map((interaction) => [interaction.id, interaction]));
 }
 
-export function resolveChance(chance, { relationship, targetPersonId, target }) {
+// player is only needed for playerStat modifiers (event checks).
+export function resolveChance(chance, { relationship, targetPersonId, target, player }) {
   let p = chance.base;
 
   for (const modifier of chance.modifiers) {
@@ -18,6 +19,9 @@ export function resolveChance(chance, { relationship, targetPersonId, target }) 
         break;
       case 'targetTrait':
         if (target.traits.includes(modifier.value)) p += modifier.adjust;
+        break;
+      case 'playerStat':
+        p += ((player.stats[modifier.stat] - 50) / 100) * modifier.weight;
         break;
       default:
         throw new Error(`Unknown chance factor: ${modifier.factor}`);

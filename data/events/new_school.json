@@ -1,0 +1,50 @@
+{
+  "id": "new_school",
+  "subject": "player",
+  "conditions": {
+    "minAge": 10
+  },
+  "calendar": {
+    "on": "stageStart",
+    "stage": [
+      "middle",
+      "high"
+    ]
+  },
+  "options": [
+    {
+      "id": "sit_in_front",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "intelligence",
+          "delta": 2
+        },
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": -1
+        }
+      ]
+    },
+    {
+      "id": "sit_in_back",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 2
+        },
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "intelligence",
+          "delta": -1
+        }
+      ]
+    }
+  ]
+}

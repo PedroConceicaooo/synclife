@@ -2,11 +2,8 @@
   "id": "first_school_day",
   "subject": "player",
   "conditions": {
-    "minAge": 5,
-    "maxAge": 6
+    "minAge": 3
   },
-  "yearlyChance": 0.9,
-  "cooldownMonths": 1200,
   "options": [
     {
       "id": "make_a_friend",
@@ -43,5 +40,9 @@
       ]
     }
   ],
-  "milestone": true
+  "milestone": true,
+  "calendar": {
+    "on": "stageStart",
+    "stage": "elementary"
+  }
 }

@@ -329,5 +329,14 @@
   "school.RU.high": "starshaya shkola (ensino médio)",
   "school.GB.elementary": "primary school (ensino fundamental)",
   "school.GB.middle": "secondary school (anos finais e começo do médio)",
-  "school.GB.high": "sixth form (fim do ensino médio)"
+  "school.GB.high": "sixth form (fim do ensino médio)",
+  "event.new_school.prompt": "Primeiro dia na escola nova. A sala está quase cheia.",
+  "event.new_school.option.sit_in_front": "Sentar na frente",
+  "event.new_school.option.sit_in_back": "Sentar no fundo, perto da turma animada",
+  "event.entrance_exam.success": "Você passou no exame de admissão da escola que queria.",
+  "event.entrance_exam.failure": "Você não passou no exame da escola que queria e foi para uma menos concorrida.",
+  "event.school_report.success": "Fim do ano letivo: boletim com notas boas.",
+  "event.school_report.failure": "Fim do ano letivo: notas baixas no boletim.",
+  "diary.school_stage": "Nova etapa na escola: {stage}.",
+  "milestone.entrance_exam": "Exame de admissão"
 }

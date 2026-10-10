@@ -25,7 +25,7 @@ const EVENTS_DIR = fileURLToPath(new URL('../data/events/', import.meta.url));
 const INTERACTIONS_DIR = fileURLToPath(new URL('../data/interactions/', import.meta.url));
 const ACTIVITIES_DIR = fileURLToPath(new URL('../data/activities/', import.meta.url));
 
-const COUNTRY = { id: 'BR', currency: { scale: { small: 25, medium: 125, large: 500 } } };
+const COUNTRY = { id: 'BR', currency: { scale: { small: 25, medium: 125, large: 500 } }, education: { schoolYearStartMonth: 2, stages: [] } };
 const COUNTRIES_BY_ID = loadCountries(fileURLToPath(new URL('../data/countries/', import.meta.url)));
 
 const EVENTS_BY_ID = loadEvents(EVENTS_DIR);

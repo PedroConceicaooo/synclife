@@ -19,15 +19,22 @@ test('every rolled player event declares minAge (CLAUDE.md rule 8)', () => {
 });
 
 test('every player event effect uses a known op', () => {
-  for (const event of ROLLED_PLAYER_EVENTS) {
-    const effects = [...(event.effects ?? []), ...(event.options ?? []).flatMap((o) => o.effects)];
+  for (const event of EVENTS.filter((e) => e.subject === 'player')) {
+    const effects = [
+      ...(event.effects ?? []),
+      ...(event.options ?? []).flatMap((o) => o.effects),
+      ...(event.success ?? []),
+      ...(event.failure ?? []),
+    ];
     for (const effect of effects) assert.ok(KNOWN_OPS.includes(effect.op), `${event.id}: ${effect.op}`);
   }
 });
 
 test('every player event has its texts in pt-BR', () => {
   for (const event of EVENTS.filter((e) => e.subject === 'player')) {
-    if (event.options) {
+    if (event.check) {
+      assert.ok(LOCALE[`event.${event.id}.success`] && LOCALE[`event.${event.id}.failure`], `${event.id} outcomes`);
+    } else if (event.options) {
       assert.ok(LOCALE[`event.${event.id}.prompt`], `${event.id}.prompt`);
       for (const option of event.options) assert.ok(LOCALE[`event.${event.id}.option.${option.id}`], `${event.id}.${option.id}`);
     } else {
@@ -61,4 +68,16 @@ test('every milestone event has a short summary text in pt-BR', () => {
   for (const event of EVENTS.filter((e) => e.milestone)) {
     assert.ok(LOCALE[`milestone.${event.id}`], event.id);
   }
+});
+
+test('calendar events declare minAge and a known calendar point, and are never rolled', () => {
+  for (const event of EVENTS.filter((e) => e.calendar)) {
+    assert.equal(typeof event.conditions?.minAge, 'number', event.id);
+    assert.ok(['stageStart', 'schoolYearEnd'].includes(event.calendar.on), event.id);
+    assert.equal(event.yearlyChance, undefined, event.id);
+  }
+});
+
+test('every school stage of every country has a local name or a generic one', () => {
+  for (const stage of ['elementary', 'middle', 'high']) assert.ok(LOCALE[`school.${stage}`], stage);
 });

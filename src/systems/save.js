@@ -23,6 +23,7 @@ export function toSave(state) {
     history: state.history,
     pendingDecisions: state.pendingDecisions,
     activityUsesThisPeriod: state.activityUsesThisPeriod,
+    remainingMonths: state.remainingMonths,
   };
 }
 
@@ -47,6 +48,7 @@ export function fromSave(rawSave, { countriesById, eventsById, interactionsById,
     pendingDecisions: save.pendingDecisions,
     firedEvents: save.firedEvents,
     activityUsesThisPeriod: save.activityUsesThisPeriod,
+    remainingMonths: save.remainingMonths ?? 0,
     pastLives: save.pastLives,
     history: save.history,
     lastInteractionResult: null,

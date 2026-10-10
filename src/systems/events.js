@@ -5,6 +5,7 @@ import { evaluateConditions } from '../engine/conditions.js';
 import { applyEffects } from '../engine/effects.js';
 import { yearlyChanceToPeriod } from '../engine/random.js';
 import { findRelationshipBetween } from './relationship.js';
+import { resolveChance } from './interactions.js';
 
 export function indexEvents(events) {
   return Object.fromEntries(events.map((event) => [event.id, event]));
@@ -89,6 +90,23 @@ export function resolveDecision(
   return { optionId: option.id, relationshipsById: result.relationshipsById, peopleById: result.peopleById };
 }
 
+// One player event, however it was triggered: with options it becomes a
+// decision; with a check it rolls success or failure (e.g. on intelligence);
+// otherwise its effects apply.
+export function firePlayerEvent(event, { player, peopleById, relationshipsById, country, rng }) {
+  if (event.options) {
+    return { peopleById, relationshipsById, decision: { trigger: event.id, firingRelationship: null }, succeeded: null };
+  }
+  let effects = event.effects ?? [];
+  let succeeded = null;
+  if (event.check) {
+    succeeded = rng.chance(resolveChance(event.check, { player }));
+    effects = succeeded ? event.success : event.failure;
+  }
+  const result = applyEffects(effects, { relationship: null, relationshipsById, peopleById, playerId: player.id, country });
+  return { peopleById: result.peopleById, relationshipsById: result.relationshipsById, decision: null, succeeded };
+}
+
 // Player events: subject "player" with a yearlyChance. Decision events that
 // are only triggered by world events (no yearlyChance) are never rolled here.
 export const MAX_PLAYER_EVENTS_PER_PERIOD = 3;
@@ -124,7 +142,7 @@ function pickWeighted(events, rng) {
 // player something (design doc: "todo avanço tem pelo menos uma decisão").
 export function processPlayerEvents(
   eventsById,
-  { player, peopleById, relationshipsById, currentMonthIndex, step, rng, country, firedEvents = [], hasDecision = false },
+  { player, peopleById, relationshipsById, currentMonthIndex, step, rng, country, firedEvents = [], hasDecision = false, alreadyFired = 0 },
 ) {
   const ageEligible = Object.values(eventsById)
     .filter((event) => event.subject === 'player' && event.yearlyChance !== undefined)
@@ -138,24 +156,16 @@ export function processPlayerEvents(
   const pendingDecisions = [];
 
   function fire(event) {
-    fired.push({ eventId: event.id, month: currentMonthIndex });
-    if (event.options) {
-      pendingDecisions.push({ trigger: event.id, firingRelationship: null });
-      return;
-    }
-    const result = applyEffects(event.effects ?? [], {
-      relationship: null,
-      relationshipsById: relationships,
-      peopleById: people,
-      playerId: player.id,
-      country,
-    });
+    const result = firePlayerEvent(event, { player: people[player.id], peopleById: people, relationshipsById: relationships, country, rng });
     people = result.peopleById;
     relationships = result.relationshipsById;
+    if (result.decision) pendingDecisions.push(result.decision);
+    fired.push({ eventId: event.id, month: currentMonthIndex, ...(result.succeeded === null ? {} : { succeeded: result.succeeded }) });
   }
 
   for (const event of shuffle(available, rng)) {
-    if (fired.length >= MAX_PLAYER_EVENTS_PER_PERIOD) break;
+    // alreadyFired: dated events of this period count toward the same cap.
+    if (fired.length + alreadyFired >= MAX_PLAYER_EVENTS_PER_PERIOD) break;
     if (rng.chance(yearlyChanceToPeriod(event.yearlyChance, step))) fire(event);
   }
 

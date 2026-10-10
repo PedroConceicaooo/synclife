@@ -72,7 +72,13 @@ function entryLine(entry, state, locale, block) {
   switch (entry.type) {
     case 'birthday':
       return locale.format('diary.birthday', { age: locale.plural('age.years', entry.age) });
+    case 'schoolStage': {
+      const localKey = `school.${state.country.id}.${entry.stageId}`;
+      const stage = locale.t(locale.has(localKey) ? localKey : `school.${entry.stageId}`);
+      return locale.format('diary.school_stage', { stage });
+    }
     case 'event':
+      if (entry.succeeded !== undefined) return text(`event.${entry.eventId}.${entry.succeeded ? 'success' : 'failure'}`);
       if (!entry.optionId) return text(`event.${entry.eventId}.text`);
       return locale.format('diary.choice', {
         prompt: text(`event.${entry.eventId}.prompt`),
