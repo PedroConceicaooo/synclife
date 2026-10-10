@@ -1,5 +1,21 @@
 {
   "id": "RU",
   "inherits": "default",
-  "currency": { "code": "RUB", "scale": { "small": 450, "medium": 2250, "large": 9000 } }
+  "currency": {
+    "code": "RUB",
+    "scale": {
+      "small": 450,
+      "medium": 2250,
+      "large": 9000
+    }
+  },
+  "names": "names/ru.json",
+  "cities": [
+    "moscow",
+    "saint_petersburg",
+    "novosibirsk",
+    "yekaterinburg",
+    "kazan",
+    "nizhny_novgorod"
+  ]
 }

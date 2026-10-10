@@ -95,8 +95,14 @@ export async function loadGameData() {
     fetchAll('activities', MANIFEST.activities),
   ]);
 
+  const countriesWithNames = await Promise.all(
+    countries.map(async (country) =>
+      country.names ? { ...country, nameList: await (await fetch(`/data/${country.names}`)).json() } : country,
+    ),
+  );
+
   return {
-    countriesById: indexCountries(countries),
+    countriesById: indexCountries(countriesWithNames),
     eventsById: indexEvents(events),
     interactionsById: indexInteractions(interactions),
     activitiesById: indexActivities(activities),

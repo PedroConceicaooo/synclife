@@ -1,0 +1,106 @@
+{
+  "first": {
+    "M": [
+      "Aleksandr",
+      "Dmitri",
+      "Maksim",
+      "Ivan",
+      "Artyom",
+      "Mikhail",
+      "Nikita",
+      "Sergei",
+      "Andrei",
+      "Alexei",
+      "Yegor",
+      "Kirill",
+      "Pavel",
+      "Roman",
+      "Vladimir",
+      "Nikolai"
+    ],
+    "F": [
+      "Anastasia",
+      "Maria",
+      "Sofia",
+      "Anna",
+      "Darya",
+      "Polina",
+      "Viktoria",
+      "Yelizaveta",
+      "Ksenia",
+      "Alina",
+      "Yekaterina",
+      "Olga",
+      "Natalia",
+      "Tatiana",
+      "Irina",
+      "Svetlana"
+    ]
+  },
+  "last": [
+    {
+      "M": "Ivanov",
+      "F": "Ivanova"
+    },
+    {
+      "M": "Smirnov",
+      "F": "Smirnova"
+    },
+    {
+      "M": "Kuznetsov",
+      "F": "Kuznetsova"
+    },
+    {
+      "M": "Popov",
+      "F": "Popova"
+    },
+    {
+      "M": "Vasilyev",
+      "F": "Vasilyeva"
+    },
+    {
+      "M": "Petrov",
+      "F": "Petrova"
+    },
+    {
+      "M": "Sokolov",
+      "F": "Sokolova"
+    },
+    {
+      "M": "Mikhailov",
+      "F": "Mikhailova"
+    },
+    {
+      "M": "Novikov",
+      "F": "Novikova"
+    },
+    {
+      "M": "Fyodorov",
+      "F": "Fyodorova"
+    },
+    {
+      "M": "Morozov",
+      "F": "Morozova"
+    },
+    {
+      "M": "Volkov",
+      "F": "Volkova"
+    },
+    {
+      "M": "Alekseyev",
+      "F": "Alekseyeva"
+    },
+    {
+      "M": "Lebedev",
+      "F": "Lebedeva"
+    },
+    {
+      "M": "Semyonov",
+      "F": "Semyonova"
+    },
+    {
+      "M": "Yegorov",
+      "F": "Yegorova"
+    }
+  ]
+}

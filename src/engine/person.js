@@ -13,8 +13,12 @@ export function createPerson({
   traits = [],
   stats = { happiness: 50, health: 50, intelligence: 50, looks: 50 },
   aptitudes = null,
+  firstName = null,
+  lastName = null,
+  cityId = null,
+  occupation = null,
 }) {
-  return { id, sex, birth, countryId, money, traits, stats, aptitudes };
+  return { id, firstName, lastName, sex, birth, countryId, cityId, money, traits, stats, aptitudes, occupation };
 }
 
 // [min, maxExclusive] per stat, as rng.nextInt takes them. A newborn starts

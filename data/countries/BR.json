@@ -1,5 +1,27 @@
 {
   "id": "BR",
   "inherits": "default",
-  "currency": { "code": "BRL", "scale": { "small": 25, "medium": 125, "large": 500 } }
+  "currency": {
+    "code": "BRL",
+    "scale": {
+      "small": 25,
+      "medium": 125,
+      "large": 500
+    }
+  },
+  "names": "names/br.json",
+  "cities": [
+    "sao_paulo",
+    "rio_de_janeiro",
+    "belo_horizonte",
+    "salvador",
+    "recife",
+    "porto_alegre",
+    "curitiba",
+    "fortaleza"
+  ],
+  "naming": {
+    "childLastName": "motherAndFather",
+    "spouseLastName": "keeps"
+  }
 }

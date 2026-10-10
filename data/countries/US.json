@@ -1,5 +1,23 @@
 {
   "id": "US",
   "inherits": "default",
-  "currency": { "code": "USD", "scale": { "small": 5, "medium": 25, "large": 100 } }
+  "currency": {
+    "code": "USD",
+    "scale": {
+      "small": 5,
+      "medium": 25,
+      "large": 100
+    }
+  },
+  "names": "names/us.json",
+  "cities": [
+    "chicago",
+    "new_york",
+    "los_angeles",
+    "houston",
+    "phoenix",
+    "seattle",
+    "boston",
+    "atlanta"
+  ]
 }

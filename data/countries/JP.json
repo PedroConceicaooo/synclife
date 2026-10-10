@@ -1,5 +1,25 @@
 {
   "id": "JP",
   "inherits": "default",
-  "currency": { "code": "JPY", "scale": { "small": 700, "medium": 3500, "large": 14000 } }
+  "currency": {
+    "code": "JPY",
+    "scale": {
+      "small": 700,
+      "medium": 3500,
+      "large": 14000
+    }
+  },
+  "names": "names/jp.json",
+  "cities": [
+    "tokyo",
+    "osaka",
+    "yokohama",
+    "nagoya",
+    "sapporo",
+    "fukuoka",
+    "kyoto"
+  ],
+  "naming": {
+    "familyNameFirst": true
+  }
 }

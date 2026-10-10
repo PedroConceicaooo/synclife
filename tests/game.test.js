@@ -5,6 +5,7 @@ import { createRng } from '../src/engine/random.js';
 import { createPerson } from '../src/engine/person.js';
 import { createRelationship } from '../src/systems/relationship.js';
 import { loadEvents } from '../src/systems/eventsLoader.js';
+import { loadCountries } from '../src/engine/countriesLoader.js';
 import { loadInteractions } from '../src/systems/interactionsLoader.js';
 import { loadActivities } from '../src/systems/activitiesLoader.js';
 import {
@@ -24,7 +25,7 @@ const INTERACTIONS_DIR = fileURLToPath(new URL('../data/interactions/', import.m
 const ACTIVITIES_DIR = fileURLToPath(new URL('../data/activities/', import.meta.url));
 
 const COUNTRY = { id: 'BR', currency: { scale: { small: 25, medium: 125, large: 500 } } };
-const COUNTRIES_BY_ID = { default: { id: 'default' }, BR: { id: 'BR', inherits: 'default', currency: COUNTRY.currency } };
+const COUNTRIES_BY_ID = loadCountries(fileURLToPath(new URL('../data/countries/', import.meta.url)));
 
 const EVENTS_BY_ID = loadEvents(EVENTS_DIR);
 const INTERACTIONS_BY_ID = loadInteractions(INTERACTIONS_DIR);
@@ -310,4 +311,26 @@ test('a new baby joins the family and the player reaction sets the sibling affin
   const ids = idsFor(fourYearsLater);
   for (const id of ['chat', 'play_together', 'tease', 'fight_sibling', 'tattle']) assert.ok(ids.includes(id), id);
   for (const id of ['ask_money', 'help_at_home', 'ask_sibling_help']) assert.ok(!ids.includes(id), id);
+});
+
+test('a new life has a named family with a home city and parents with jobs', () => {
+  const state = createGameState(baseArgs(77));
+  for (const person of [state.player, state.mother, state.father]) {
+    assert.ok(person.firstName && person.lastName, person.id);
+    assert.ok(state.country.cities.includes(person.cityId), person.id);
+  }
+  for (const parent of [state.mother, state.father]) {
+    assert.ok(state.country.occupations.includes(parent.occupation.title), parent.id);
+  }
+  assert.equal(state.player.occupation, null);
+});
+
+test('babies born mid-life get names that differ from their siblings', () => {
+  for (const seed of [1, 2, 3, 4, 5, 6]) {
+    const { state } = playFullLife(seed);
+    const children = [state.player.id, ...Object.keys(state.people).filter((id) => id > state.father.id)].map((id) => state.people[id]);
+    for (const child of children) assert.ok(child.firstName && child.lastName, `${seed} ${child.id}`);
+    const sameSex = (sex) => children.filter((c) => c.sex === sex).map((c) => c.firstName);
+    for (const sex of ['M', 'F']) assert.equal(new Set(sameSex(sex)).size, sameSex(sex).length, `seed ${seed}`);
+  }
 });

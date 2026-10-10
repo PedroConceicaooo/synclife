@@ -16,9 +16,13 @@ test('createPerson defaults money to 0, traits to an empty array, stats to a fla
   const person = createPerson({ id: 'p_0001', sex: 'F', birth: 123, countryId: 'BR' });
   assert.deepEqual(person, {
     id: 'p_0001',
+    firstName: null,
+    lastName: null,
     sex: 'F',
     birth: 123,
     countryId: 'BR',
+    cityId: null,
+    occupation: null,
     money: 0,
     traits: [],
     stats: { happiness: 50, health: 50, intelligence: 50, looks: 50 },

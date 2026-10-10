@@ -4,6 +4,7 @@
 import { nextIdAfter } from '../engine/id.js';
 import { createPerson, rollStats, rollAptitudes, NEWBORN_STAT_RANGES } from '../engine/person.js';
 import { createRelationship } from './relationship.js';
+import { nameChild } from './naming.js';
 
 const PARENT_TO_NEWBORN_AFFINITY = [60, 91]; // nextInt -> 60..90
 const NEWBORN_TO_PARENT_AFFINITY = [60, 91];
@@ -27,18 +28,28 @@ export function childrenOf(personId, relationshipsById) {
   return children;
 }
 
-export function addChild(rng, { parentIds, peopleById, relationshipsById, monthIndex }) {
+// country is optional: without a name list the child is left unnamed.
+export function addChild(rng, { parentIds, peopleById, relationshipsById, monthIndex, country }) {
   const parents = parentIds.map((id) => peopleById[id]);
-  const child = createPerson({
+  const unnamed = createPerson({
     id: nextIdAfter('p', Object.keys(peopleById)),
     sex: rng.chance(0.5) ? 'F' : 'M',
     birth: monthIndex,
     countryId: parents[0].countryId,
     stats: rollStats(rng, NEWBORN_STAT_RANGES),
     aptitudes: rollAptitudes(rng),
+    cityId: parents[0].cityId ?? null,
   });
 
   const siblingIds = [...new Set(parentIds.flatMap((id) => childrenOf(id, relationshipsById)))].sort();
+  const child = country?.nameList
+    ? nameChild(rng, unnamed, {
+        mother: parents.find((p) => p.sex === 'F'),
+        father: parents.find((p) => p.sex === 'M'),
+        country,
+        siblingFirstNames: siblingIds.map((id) => peopleById[id].firstName),
+      })
+    : unnamed;
 
   const relationships = { ...relationshipsById };
   function add(fields) {

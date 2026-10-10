@@ -1,3 +1,26 @@
 {
-  "id": "default"
+  "id": "default",
+  "naming": {
+    "childLastName": "father",
+    "spouseLastName": "takesHusbands",
+    "familyNameFirst": false
+  },
+  "occupations": [
+    "nurse",
+    "teacher",
+    "bus_driver",
+    "engineer",
+    "salesperson",
+    "cook",
+    "police_officer",
+    "accountant",
+    "mechanic",
+    "doctor",
+    "lawyer",
+    "cashier",
+    "programmer",
+    "electrician",
+    "hairdresser",
+    "farmer"
+  ]
 }

@@ -29,7 +29,7 @@ function formatStats(person) {
 }
 
 function formatPerson(person) {
-  return `${person.id} money=${person.money} traits=[${person.traits.join(', ')}] ${formatStats(person)}`;
+  return `${person.id} "${person.firstName} ${person.lastName}" money=${person.money} traits=[${person.traits.join(', ')}] ${formatStats(person)}`;
 }
 
 // Console output is a developer view of the diary entries (ids, not texts).

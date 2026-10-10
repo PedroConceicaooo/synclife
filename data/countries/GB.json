@@ -1,5 +1,21 @@
 {
   "id": "GB",
   "inherits": "default",
-  "currency": { "code": "GBP", "scale": { "small": 4, "medium": 20, "large": 80 } }
+  "currency": {
+    "code": "GBP",
+    "scale": {
+      "small": 4,
+      "medium": 20,
+      "large": 80
+    }
+  },
+  "names": "names/gb.json",
+  "cities": [
+    "london",
+    "manchester",
+    "birmingham",
+    "leeds",
+    "liverpool",
+    "bristol"
+  ]
 }

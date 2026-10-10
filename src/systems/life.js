@@ -12,6 +12,7 @@ import {
   NEWBORN_STAT_RANGES,
 } from '../engine/person.js';
 import { generateParents, createFamilyRelationships } from './family.js';
+import { nameParents, nameChild } from './naming.js';
 
 export function createNewLife(rng, { countries, nextPersonId, nextRelationshipId, startYear }) {
   const country = pickRandomCountry(rng, countries);
@@ -21,15 +22,25 @@ export function createNewLife(rng, { countries, nextPersonId, nextRelationshipId
   const stats = rollStats(rng, NEWBORN_STAT_RANGES);
   const aptitudes = rollAptitudes(rng);
 
-  const player = createPerson({ id: nextPersonId(), sex, birth: birthMonthIndex, countryId: country.id, stats, aptitudes });
-  const { mother, father } = generateParents(rng, player, nextPersonId, country);
+  const unnamedPlayer = createPerson({ id: nextPersonId(), sex, birth: birthMonthIndex, countryId: country.id, stats, aptitudes });
+  const parents = generateParents(rng, unnamedPlayer, nextPersonId, country);
+
 
   const [motherChild, fatherChild, marriage] = createFamilyRelationships(
     rng,
-    { child: player, mother, father },
+    { child: unnamedPlayer, ...parents },
     nextRelationshipId,
-    player.birth,
+    unnamedPlayer.birth,
   );
+
+  // Names, home city and jobs are rolled after everything else so adding
+  // them did not reshuffle the earlier draws.
+  const cityId = country.cities[rng.nextInt(0, country.cities.length)];
+  const pickOccupation = () => ({ type: 'job', title: country.occupations[rng.nextInt(0, country.occupations.length)] });
+  const named = nameParents(rng, { ...parents, country });
+  const mother = { ...named.mother, cityId, occupation: pickOccupation() };
+  const father = { ...named.father, cityId, occupation: pickOccupation() };
+  const player = { ...nameChild(rng, unnamedPlayer, { mother, father, country }), cityId };
 
   return { player, mother, father, country, relationships: { motherChild, fatherChild, marriage } };
 }

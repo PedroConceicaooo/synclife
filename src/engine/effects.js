@@ -116,6 +116,7 @@ function applyHaveChildEffect(effect, context) {
     peopleById: context.peopleById,
     relationshipsById: context.relationshipsById,
     monthIndex: context.currentMonthIndex,
+    country: context.country,
   });
   return { relationshipsById: result.relationshipsById, peopleById: result.peopleById };
 }
