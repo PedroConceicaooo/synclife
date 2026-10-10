@@ -46,14 +46,17 @@
 
   <div id="app" hidden>
     <header id="top">
-      <img id="top-flag" alt="" width="36" height="24" />
-      <div id="top-identity">
-        <p id="top-name"></p>
-        <p id="top-phase"></p>
-      </div>
-      <div id="top-balance">
-        <p id="top-money"></p>
-        <p id="top-money-label"></p>
+      <p id="brand">SyncLife</p>
+      <div id="identity">
+        <div id="top-avatar"></div>
+        <div id="top-identity">
+          <p id="top-name"><span id="top-name-text"></span><img id="top-flag" alt="" width="21" height="14" /></p>
+          <p id="top-phase"></p>
+        </div>
+        <div id="top-balance">
+          <p id="top-money"></p>
+          <p id="top-money-label"></p>
+        </div>
       </div>
     </header>
 
@@ -94,6 +97,13 @@
         <div id="profile-interactions"></div>
       </section>
 
+      <section id="assets-screen" hidden>
+        <h1 id="assets-title"></h1>
+        <p id="assets-result" role="status"></p>
+        <div id="assets-owned"></div>
+        <div id="assets-shop"></div>
+      </section>
+
       <section id="activities-screen" hidden>
         <h1 id="activities-title"></h1>
         <p id="activities-result" role="status"></p>
@@ -102,8 +112,8 @@
     </main>
 
     <nav id="controls">
-      <div id="advance"></div>
-      <div id="tabs" role="tablist"></div>
+      <div id="advance" hidden></div>
+      <div id="tabbar"></div>
     </nav>
 
     <footer id="stats"></footer>

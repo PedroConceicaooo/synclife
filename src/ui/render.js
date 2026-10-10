@@ -5,7 +5,8 @@ import { ageAt } from '../engine/time.js';
 import { affinityBand } from './affinityColor.js';
 import { fullName } from '../systems/naming.js';
 import { describeHistory } from './diary.js';
-import { isAdult, lifePhase, availableInteractions, availableActivities, closePeople } from './gameState.js';
+import { isAdult, availableInteractions, availableActivities, closePeople, playerOccupation } from './gameState.js';
+import { avatarElement } from './avatar.js';
 import { lifeSummary } from '../systems/lifeEnd.js';
 import { schoolPeople } from '../systems/schoolmates.js';
 import { schoolStageAt } from '../systems/school.js';
@@ -47,13 +48,36 @@ function roleLabel(locale, role, person) {
   return locale.format(`role.${role}`, {}, { self: person.sex });
 }
 
+function schoolStageName(locale, countryId, stageId) {
+  const localKey = `school.${countryId}.${stageId}`;
+  return locale.t(locale.has(localKey) ? localKey : `school.${stageId}`);
+}
+
+const capitalize = (text, language) => text[0].toLocaleUpperCase(language) + text.slice(1);
+
+// Under the name (design: "Bebê", "Ensino fundamental I", later a job).
+function occupationLabel(state, locale) {
+  const occupation = playerOccupation(state);
+  if (occupation.type === 'school') {
+    // Short and in the player's language; the school tab shows the local name.
+    const countryKey = `status.school.${state.country.id}.${occupation.stageId}`;
+    const stage = locale.t(locale.has(countryKey) ? countryKey : `status.school.${occupation.stageId}`);
+    return locale.format('status.school', { stage, grade: occupation.grade });
+  }
+  return locale.t(`status.${occupation.type}`);
+}
+
+const ageOf = (state, person) => ageAt(person.birth, state.currentMonthIndex);
+
 export function renderHeader(dom, state, locale) {
   const player = state.people[state.player.id];
   const countryName = locale.t(`country.${state.country.id}`);
+  clearChildren(dom.topAvatar);
+  dom.topAvatar.appendChild(avatarElement(player, ageOf(state, player), 52));
+  dom.topNameText.textContent = fullName(player, state.country);
   dom.topFlag.src = `/src/ui/flags/${state.country.id}.svg`;
   dom.topFlag.alt = locale.format('ui.flag_alt', { country: countryName });
-  dom.topName.textContent = fullName(player, state.country);
-  dom.topPhase.textContent = locale.t(`phase.${lifePhase(state)}`);
+  dom.topPhase.textContent = occupationLabel(state, locale);
   dom.topMoney.textContent = locale.money(player.money, state.country.currency.code);
   dom.topMoneyLabel.textContent = locale.t('ui.balance');
 }
@@ -78,10 +102,41 @@ function personAge(state, locale, personId) {
   return locale.plural('age.years', ageAt(state.people[personId].birth, state.currentMonthIndex));
 }
 
+// Simple line icons for the tab bar (24 x 24, stroked with currentColor).
+const TAB_ICONS = {
+  school: 'M3 9l9-5 9 5-9 5-9-5z M7 11.5V16c0 1.5 2.5 3 5 3s5-1.5 5-3v-4.5',
+  assets: 'M4 11l8-7 8 7v9h-5v-6H9v6H4z',
+  relations: 'M12 20s-7-4.4-7-9.8A4 4 0 0 1 12 7.6a4 4 0 0 1 7 2.6C19 15.6 12 20 12 20z',
+  activities: 'M12 3l2.5 5.4 5.9.7-4.4 4 1.2 5.9L12 16.1 6.8 19l1.2-5.9-4.4-4 5.9-.7z',
+};
+
+function tabIcon(name) {
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('aria-hidden', 'true');
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', TAB_ICONS[name]);
+  icon.appendChild(path);
+  return icon;
+}
+
+// The school tab follows the stage of life: daycare, school, then a job.
+function schoolTabLabel(state, locale) {
+  const { type } = playerOccupation(state);
+  if (type === 'adult') return locale.t('ui.tab_job');
+  if (type === 'baby' || type === 'preschool') return locale.t('ui.tab_daycare');
+  return locale.t('ui.tab_school');
+}
+
+// Design (from BitLife's structure): four tabs around a big round advance
+// button, split in two — one year on top, six months below.
 export function renderControls(dom, state, locale, view, { onAdvance, onTab, onNewLife, onContinueAs }) {
+  const adult = isAdult(state);
+
   clearChildren(dom.advance);
-  if (isAdult(state)) {
-    // Design doc: at 18, a new life or carrying on as a younger sibling.
+  dom.advance.hidden = !adult;
+  if (adult) {
+    // At 18: a new life or carrying on as a younger sibling.
     dom.advance.appendChild(el('p', { text: locale.t('ui.end_prompt') }));
     for (const siblingId of lifeSummary(state).successors) {
       const button = el('button', {
@@ -95,35 +150,41 @@ export function renderControls(dom, state, locale, view, { onAdvance, onTab, onN
     newLife.type = 'button';
     newLife.addEventListener('click', onNewLife);
     dom.advance.appendChild(newLife);
-  } else {
-    for (const [months, key] of [
-      [6, 'ui.advance_6_months'],
-      [12, 'ui.advance_1_year'],
-    ]) {
-      const button = el('button', { text: locale.t(key) });
-      button.type = 'button';
-      button.disabled = state.pendingDecisions.length > 0;
-      button.addEventListener('click', () => onAdvance(months));
-      dom.advance.appendChild(button);
-    }
   }
 
-  // Design doc: tabs for the current phase, relationships and activities.
-  clearChildren(dom.tabs);
   const activeTab = view.screen === 'profile' ? view.from : view.screen;
-  for (const [tab, label] of [
-    ['life', locale.t(`phase.${lifePhase(state)}`)],
-    ['relations', locale.t('ui.tab_relations')],
-    ['school', locale.t('ui.tab_school')],
-    ['activities', locale.t('ui.tab_activities')],
-  ]) {
-    const button = el('button', { text: label });
+  function tab(name, label) {
+    const button = el('button', { className: 'tab' });
     button.type = 'button';
-    button.setAttribute('role', 'tab');
-    button.setAttribute('aria-selected', String(tab === activeTab));
-    button.addEventListener('click', () => onTab(tab));
-    dom.tabs.appendChild(button);
+    button.setAttribute('aria-current', String(name === activeTab));
+    button.append(tabIcon(name), el('span', { text: label }));
+    // Tapping the open tab again goes back to the diary.
+    button.addEventListener('click', () => onTab(name === activeTab ? 'life' : name));
+    return button;
   }
+
+  const circle = el('div', { className: 'advance-circle' });
+  const blocked = adult || state.pendingDecisions.length > 0;
+  for (const [months, labelKey, ariaKey] of [
+    [12, 'ui.advance_plus_year', 'ui.advance_1_year'],
+    [6, 'ui.advance_plus_half', 'ui.advance_6_months'],
+  ]) {
+    const button = el('button', { text: locale.t(labelKey) });
+    button.type = 'button';
+    button.disabled = blocked;
+    button.setAttribute('aria-label', locale.t(ariaKey));
+    button.addEventListener('click', () => onAdvance(months));
+    circle.appendChild(button);
+  }
+
+  clearChildren(dom.tabbar);
+  dom.tabbar.append(
+    tab('school', schoolTabLabel(state, locale)),
+    tab('assets', locale.t('ui.tab_assets')),
+    circle,
+    tab('relations', locale.t('ui.tab_relations')),
+    tab('activities', locale.t('ui.tab_activities')),
+  );
 }
 
 // Shown under the diary once the player is 18 (design doc: main events,
@@ -172,9 +233,11 @@ function personRow(state, locale, personId, onOpenProfile) {
   const person = state.people[personId];
   const relationship = relationshipWith(state, personId);
   const item = el('li');
-  const button = el('button', { className: 'row' });
+  const button = el('button', { className: 'row with-avatar' });
   button.type = 'button';
-  button.append(
+  const text = el('div');
+  button.append(avatarElement(person, ageOf(state, person), 44), text);
+  text.append(
     el('strong', { text: fullName(person, state.country) }),
     el('span', {
       className: 'detail',
@@ -201,10 +264,10 @@ export function renderRelations(dom, state, locale, { onOpenProfile }) {
 export function renderSchool(dom, state, locale, { onOpenProfile }) {
   const stage = schoolStageAt(state.player.birth, state.currentMonthIndex, state.country.education);
   const { classmates, teachers } = schoolPeople(state.relationships, state.player.id);
-  const localKey = stage && `school.${state.country.id}.${stage.stageId}`;
   // Stage names are written for mid-sentence use; a heading starts upper case.
-  const stageName = stage ? locale.t(locale.has(localKey) ? localKey : `school.${stage.stageId}`) : null;
-  dom.schoolTitle.textContent = stageName ? stageName[0].toLocaleUpperCase(locale.language) + stageName.slice(1) : locale.t('ui.tab_school');
+  dom.schoolTitle.textContent = stage
+    ? capitalize(schoolStageName(locale, state.country.id, stage.stageId), locale.language)
+    : schoolTabLabel(state, locale);
   dom.schoolEmpty.textContent = stage ? '' : locale.t('ui.school_none');
   dom.schoolEmpty.hidden = Boolean(stage);
 
@@ -233,7 +296,8 @@ export function renderProfile(dom, state, locale, personId, openCategory, { onBa
 
   dom.profileBack.textContent = locale.t('ui.back');
   dom.profileBack.onclick = onBack;
-  dom.profileTitle.textContent = fullName(person, state.country);
+  clearChildren(dom.profileTitle);
+  dom.profileTitle.append(avatarElement(person, ageOf(state, person), 56), el('span', { text: fullName(person, state.country) }));
   dom.profileSubtitle.textContent = locale.format('ui.person_subtitle', {
     role: roleLabel(locale, role, person),
     age: locale.plural('age.years', ageAt(person.birth, state.currentMonthIndex)),
@@ -402,4 +466,13 @@ export function renderStart(dom, locale, countries, form, { onRandom, onOpenCust
     event.preventDefault();
     onBegin();
   };
+}
+
+// Assets: placeholder until the assets system lands.
+export function renderAssets(dom, state, locale) {
+  dom.assetsTitle.textContent = locale.t('ui.assets_title');
+  dom.assetsResult.textContent = '';
+  clearChildren(dom.assetsOwned);
+  dom.assetsOwned.appendChild(el('p', { className: 'empty', text: locale.t('ui.assets_empty') }));
+  clearChildren(dom.assetsShop);
 }

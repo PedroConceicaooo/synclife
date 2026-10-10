@@ -21,6 +21,7 @@ import {
   renderSchool,
   renderProfile,
   renderActivities,
+  renderAssets,
   renderDecisionModal,
   renderStart,
 } from './render.js';
@@ -28,8 +29,9 @@ import {
 const byId = (id) => document.getElementById(id);
 
 const dom = {
+  topAvatar: byId('top-avatar'),
   topFlag: byId('top-flag'),
-  topName: byId('top-name'),
+  topNameText: byId('top-name-text'),
   topPhase: byId('top-phase'),
   topMoney: byId('top-money'),
   topMoneyLabel: byId('top-money-label'),
@@ -82,7 +84,12 @@ const dom = {
   activitiesResult: byId('activities-result'),
   activitiesList: byId('activities-list'),
   advance: byId('advance'),
-  tabs: byId('tabs'),
+  tabbar: byId('tabbar'),
+  assetsScreen: byId('assets-screen'),
+  assetsTitle: byId('assets-title'),
+  assetsResult: byId('assets-result'),
+  assetsOwned: byId('assets-owned'),
+  assetsShop: byId('assets-shop'),
   stats: byId('stats'),
   decisionModal: byId('decision-modal'),
   decisionPrompt: byId('decision-prompt'),
@@ -93,6 +100,7 @@ const SCREENS = {
   life: 'lifeScreen',
   relations: 'relationsScreen',
   school: 'schoolScreen',
+  assets: 'assetsScreen',
   profile: 'profileScreen',
   activities: 'activitiesScreen',
 };
@@ -220,6 +228,8 @@ async function main() {
       };
       if (from === 'relations') renderRelations(dom, state, locale, { onOpenProfile });
       else renderSchool(dom, state, locale, { onOpenProfile });
+    } else if (view.screen === 'assets') {
+      renderAssets(dom, state, locale);
     } else if (view.screen === 'activities') {
       renderActivities(dom, state, locale, {
         onDoActivity: (activityId) => update(attemptPlayerActivity(state, activityId)),

@@ -90,27 +90,56 @@ button:disabled {
 }
 
 #top {
+  padding: 0 var(--gutter) 10px;
+  padding-top: max(6px, env(safe-area-inset-top));
+  border-bottom: 1px solid var(--rule);
+}
+
+/* The game's name: small, with a stub of the growth ruler. */
+#brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--ink-soft);
+  padding: 4px 0 8px;
+}
+
+#brand::before {
+  content: '';
+  width: 5px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--ruler);
+}
+
+#identity {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 12px;
-  padding: 12px var(--gutter);
-  padding-top: max(12px, env(safe-area-inset-top));
-  border-bottom: 1px solid var(--rule);
 }
 
-#top-flag {
-  width: 36px;
-  height: 24px;
-  object-fit: cover;
-  border-radius: 3px;
-  box-shadow: 0 0 0 1px var(--rule);
+#top-avatar {
+  display: flex;
 }
 
 #top-name {
-  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.2rem;
   font-weight: 700;
   line-height: 1.2;
+}
+
+#top-flag {
+  width: 21px;
+  height: 14px;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px var(--rule);
+  flex: none;
 }
 
 #top-phase,
@@ -127,6 +156,10 @@ button:disabled {
   font-size: 1.1rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+
+.avatar .avatar-bg {
+  fill: var(--rule);
 }
 
 #screens {
@@ -208,9 +241,10 @@ h1 {
   font-variant-numeric: tabular-nums;
 }
 
-/* Controls: advance, then tabs. */
+/* Controls: four tabs around the round advance button (one year on top,
+   six months below), which sits a little above the bar. At 18 the end
+   choices take the space above it. */
 #controls {
-  padding: 8px var(--gutter) 0;
   border-top: 1px solid var(--rule);
   background: var(--paper);
 }
@@ -219,6 +253,7 @@ h1 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+  padding: 10px var(--gutter) 4px;
 }
 
 #advance p {
@@ -233,28 +268,77 @@ h1 {
   background: var(--pen);
   color: var(--on-pen);
   font-weight: 700;
-  font-size: 1.05rem;
 }
 
-#tabs {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 4px;
+#tabbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 96px 1fr 1fr;
+  align-items: end;
+  padding: 0 4px;
 }
 
-#tabs button {
-  flex: 1;
-  min-height: 44px;
+.tab {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-height: 60px;
+  padding: 8px 0 6px;
   border: none;
   background: none;
   color: var(--ink-soft);
+  font-size: 0.78rem;
   border-bottom: 3px solid transparent;
 }
 
-#tabs button[aria-selected='true'] {
+.tab svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.tab[aria-current='true'] {
   color: var(--ink);
   font-weight: 700;
   border-bottom-color: var(--ruler);
+}
+
+.advance-circle {
+  justify-self: center;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  width: 88px;
+  height: 88px;
+  margin-top: -26px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--rule);
+  background: var(--pen);
+}
+
+.advance-circle button {
+  border: none;
+  background: var(--pen);
+  color: var(--on-pen);
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.advance-circle button + button {
+  border-top: 2px solid var(--paper);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.advance-circle button:disabled {
+  opacity: 1;
+  background: var(--rule);
+  color: var(--ink-soft);
 }
 
 /* Fixed stats footer, 2 x 2. */
@@ -309,6 +393,23 @@ h1 {
 
 .row strong {
   display: block;
+}
+
+.row.with-avatar {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+#profile-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.empty {
+  color: var(--ink-soft);
 }
 
 .row .detail {

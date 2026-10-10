@@ -403,5 +403,22 @@
   "ui.school_classmates": "Turma",
   "ui.school_teachers": "Professores",
   "ui.school_none": "Você ainda não está na escola.",
-  "event.recess_friend.text": "No recreio, você passou o tempo todo brincando com alguém da turma."
+  "event.recess_friend.text": "No recreio, você passou o tempo todo brincando com alguém da turma.",
+  "ui.tab_daycare": "Creche",
+  "ui.tab_job": "Profissão",
+  "ui.tab_assets": "Bens",
+  "ui.advance_plus_year": "+1 ano",
+  "ui.advance_plus_half": "+6 meses",
+  "ui.assets_title": "Bens",
+  "ui.assets_empty": "Você ainda não tem bens.",
+  "status.baby": "Bebê",
+  "status.preschool": "Pré-escola",
+  "status.graduated": "Terminou a escola",
+  "status.adult": "Adulto",
+  "status.school": "{stage}, {grade}º ano",
+  "status.school.elementary": "Ensino fundamental",
+  "status.school.middle": "Fundamental II",
+  "status.school.high": "Ensino médio",
+  "status.school.BR.elementary": "Fundamental I",
+  "status.school.BR.middle": "Fundamental II"
 }
