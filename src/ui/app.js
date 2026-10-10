@@ -87,8 +87,8 @@ function writeSave(state) {
 }
 
 async function main() {
-  const [gameData, localeEntries] = await Promise.all([loadGameData(), loadLocale()]);
-  const locale = createLocale(localeEntries);
+  const [gameData, { language, entries, fallback }] = await Promise.all([loadGameData(), loadLocale()]);
+  const locale = createLocale(entries, language, fallback);
 
   const newLife = () => createGameState({ seed: Date.now(), ...gameData });
   let state = readSave(gameData) ?? newLife();

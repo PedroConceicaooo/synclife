@@ -7,6 +7,7 @@ import { indexCountries } from '../engine/countries.js';
 import { indexEvents } from '../systems/events.js';
 import { indexInteractions } from '../systems/interactions.js';
 import { indexActivities } from '../systems/activities.js';
+import { FALLBACK_LANGUAGE } from '../i18n/locale.js';
 
 const MANIFEST = {
   countries: ['default.json', 'BR.json', 'US.json', 'JP.json', 'RU.json', 'GB.json'],
@@ -109,7 +110,11 @@ export async function loadGameData() {
   };
 }
 
-export async function loadLocale() {
-  const response = await fetch('/locales/pt-BR/ui.json');
-  return response.json();
+// The chosen language plus Portuguese as the fallback (only pt-BR exists so
+// far, so both are the same file today).
+export async function loadLocale(language = FALLBACK_LANGUAGE) {
+  const load = async (lang) => (await fetch(`/locales/${lang}/ui.json`)).json();
+  const fallback = await load(FALLBACK_LANGUAGE);
+  const entries = language === FALLBACK_LANGUAGE ? fallback : await load(language).catch(() => ({}));
+  return { language, entries, fallback };
 }

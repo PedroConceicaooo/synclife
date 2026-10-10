@@ -96,3 +96,11 @@ test('monthName turns a month index into the month name', () => {
   assert.equal(PT.monthName(2000 * 12 + 2), 'março');
   assert.equal(PT.monthName(2000 * 12 + 11), 'dezembro');
 });
+
+test('a text missing in the chosen language falls back to Portuguese', () => {
+  const locale = createLocale({ greeting: 'Hello' }, 'en', { greeting: 'Olá', farewell: 'Tchau' });
+  assert.equal(locale.t('greeting'), 'Hello');
+  assert.equal(locale.t('farewell'), 'Tchau');
+  assert.equal(locale.has('farewell'), true);
+  assert.equal(locale.t('nowhere'), 'nowhere');
+});

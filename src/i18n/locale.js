@@ -4,14 +4,16 @@
 //   {name}            replaced by params.name
 //   {player|o|a}      gendered form chosen by the sex of the person called
 //                     "player" in `sexes` (male form first, female second)
-// Numbers, money and dates go through Intl. No fallback language yet — only
-// pt-BR exists (M7).
+// Numbers, money and dates go through Intl. A text missing in the chosen
+// language falls back to Portuguese (design doc: "Idioma reserva").
 
 const TOKEN = /\{([a-zA-Z_]+)(?:\|([^|}]*)\|([^|}]*))?\}/g;
 
-export function createLocale(entries, language = 'pt-BR') {
-  const has = (key) => key in entries;
-  const t = (key) => entries[key] ?? key;
+export const FALLBACK_LANGUAGE = 'pt-BR';
+
+export function createLocale(entries, language = FALLBACK_LANGUAGE, fallbackEntries = {}) {
+  const has = (key) => key in entries || key in fallbackEntries;
+  const t = (key) => entries[key] ?? fallbackEntries[key] ?? key;
 
   function format(key, params = {}, sexes = {}) {
     return t(key).replace(TOKEN, (token, name, male, female) => {
