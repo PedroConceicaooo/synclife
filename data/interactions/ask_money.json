@@ -1,17 +1,54 @@
 {
   "id": "ask_money",
   "category": "ask",
-  "conditions": { "targetRole": ["mother", "father"], "minAge": 5 },
+  "conditions": {
+    "targetRole": [
+      "mother",
+      "father"
+    ],
+    "minAge": 5
+  },
   "chance": {
     "base": 0.4,
     "modifiers": [
-      { "factor": "affinity", "weight": 0.5 },
-      { "factor": "targetTrait", "value": "generous", "adjust": 0.2 }
+      {
+        "factor": "affinity",
+        "weight": 0.5
+      },
+      {
+        "factor": "targetTrait",
+        "value": "generous",
+        "adjust": 0.2
+      },
+      {
+        "factor": "targetEmotion",
+        "value": "angry",
+        "adjust": -0.3
+      },
+      {
+        "factor": "targetStress",
+        "weight": -0.3
+      }
     ]
   },
   "success": [
-    { "op": "transferMoney", "from": "target", "to": "player", "amount": "small" },
-    { "op": "affinity", "side": "target", "delta": -2 }
+    {
+      "op": "transferMoney",
+      "from": "target",
+      "to": "player",
+      "amount": "small"
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -2
+    }
   ],
-  "failure": [{ "op": "affinity", "side": "both", "delta": -4 }]
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": -4
+    }
+  ]
 }

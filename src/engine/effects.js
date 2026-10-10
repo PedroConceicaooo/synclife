@@ -4,6 +4,7 @@ import { clamp, findRelationshipBetween } from '../systems/relationship.js';
 import { resolveAmount, transferMoney, addMoney } from '../systems/money.js';
 import { addChild } from '../systems/birth.js';
 import { adoptPet } from '../systems/pets.js';
+import { setEmotion, addTendency } from '../systems/personality.js';
 
 // targetRole (a role or a list of roles) names the role a person holds in
 // THEIR OWN relationship with the player (e.g. "mother"), not a role within
@@ -146,6 +147,50 @@ function applyAdoptPetEffect(effect, context) {
   return { relationshipsById: result.relationshipsById, peopleById: result.peopleById };
 }
 
+// Whom a person-level effect is about: the player, the other side of the
+// firing relationship ("target"), or someone by role ("targetRole": "mother").
+function personFor(effect, context) {
+  if (effect.targetRole) {
+    const relationship = resolveTargetRelationship(effect.targetRole, context);
+    return relationship ? otherParticipant(relationship, context.playerId) : null;
+  }
+  return effect.target === 'player' ? context.playerId : otherParticipant(context.relationship, context.playerId);
+}
+
+function updatePerson(context, personId, change) {
+  if (!personId || !context.peopleById[personId]) return { relationshipsById: context.relationshipsById, peopleById: context.peopleById };
+  return {
+    relationshipsById: context.relationshipsById,
+    peopleById: { ...context.peopleById, [personId]: change(context.peopleById[personId]) },
+  };
+}
+
+// { op: "emotion", target: "player", value: "in_love", months: 12 }
+function applyEmotionEffect(effect, context) {
+  return updatePerson(context, personFor(effect, context), (person) =>
+    setEmotion(person, effect.value, { month: context.currentMonthIndex, months: effect.months }),
+  );
+}
+
+// { op: "tendency", trait: "stubborn", delta: 1 }: the player's personality
+// forming from their choices.
+function applyTendencyEffect(effect, context) {
+  return updatePerson(context, context.playerId, (person) => addTendency(person, effect.trait, effect.delta));
+}
+
+// { op: "stress", targetRole: ["mother", "father"], delta: 5 }: parents only.
+function applyStressEffect(effect, context) {
+  let result = { relationshipsById: context.relationshipsById, peopleById: context.peopleById };
+  for (const role of [].concat(effect.targetRole)) {
+    const personId = personFor({ targetRole: role }, { ...context, ...result });
+    result = updatePerson({ ...context, ...result }, personId, (person) => ({
+      ...person,
+      stress: clamp((person.stress ?? 30) + effect.delta, 0, 100),
+    }));
+  }
+  return result;
+}
+
 function applyEffect(effect, context) {
   switch (effect.op) {
     case 'relationshipState':
@@ -170,6 +215,12 @@ function applyEffect(effect, context) {
       return applyRolesEffect(effect, context);
     case 'adoptPet':
       return applyAdoptPetEffect(effect, context);
+    case 'emotion':
+      return applyEmotionEffect(effect, context);
+    case 'tendency':
+      return applyTendencyEffect(effect, context);
+    case 'stress':
+      return applyStressEffect(effect, context);
     default:
       throw new Error(`Unknown effect op: ${effect.op}`);
   }

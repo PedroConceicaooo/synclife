@@ -24,8 +24,11 @@ test('createPerson defaults money to 0, traits to an empty array, stats to a fla
     cityId: null,
     occupation: null,
     appearance: null,
+    emotion: null,
+    stress: null,
     money: 0,
     traits: [],
+    traitTendencies: {},
     stats: { happiness: 50, health: 50, intelligence: 50, looks: 50 },
     aptitudes: null,
   });

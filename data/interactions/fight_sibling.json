@@ -37,6 +37,12 @@
       "op": "affinity",
       "side": "target",
       "delta": -5
+    },
+    {
+      "op": "emotion",
+      "target": "target",
+      "value": "angry",
+      "months": 6
     }
   ],
   "failure": [
@@ -68,6 +74,12 @@
       "side": "target",
       "delta": -2,
       "targetRole": "father"
+    },
+    {
+      "op": "emotion",
+      "target": "target",
+      "value": "angry",
+      "months": 6
     }
   ]
 }

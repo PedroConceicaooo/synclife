@@ -17,6 +17,16 @@
       "op": "affinity",
       "side": "target",
       "delta": 4
+    },
+    {
+      "op": "stress",
+      "targetRole": "mother",
+      "delta": -5
+    },
+    {
+      "op": "stress",
+      "targetRole": "father",
+      "delta": -5
     }
   ],
   "failure": [

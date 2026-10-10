@@ -24,6 +24,15 @@
         "factor": "targetTrait",
         "value": "rigid",
         "adjust": -0.2
+      },
+      {
+        "factor": "targetEmotion",
+        "value": "angry",
+        "adjust": -0.3
+      },
+      {
+        "factor": "targetStress",
+        "weight": -0.3
       }
     ]
   },

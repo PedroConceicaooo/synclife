@@ -52,6 +52,9 @@ export function createNewLife(rng, { countries, nextPersonId, nextRelationshipId
   const father = { ...named.father, cityId, occupation: pickOccupation(), appearance: rollAppearance(rng) };
   const namedPlayer = nameChild(rng, unnamedPlayer, { mother, father, country });
   const chosenName = (choices.firstName ?? '').trim().slice(0, MAX_FIRST_NAME_LENGTH);
+  // Parents start with some everyday stress (design doc: adults only).
+  for (const parent of [mother, father]) parent.stress = rng.nextInt(20, 51);
+
   const player = {
     ...namedPlayer,
     firstName: chosenName || namedPlayer.firstName,

@@ -25,6 +25,16 @@
         "factor": "targetTrait",
         "value": "patient",
         "adjust": 0.1
+      },
+      {
+        "factor": "playerTrait",
+        "value": "stubborn",
+        "adjust": 0.1
+      },
+      {
+        "factor": "playerTrait",
+        "value": "explosive",
+        "adjust": 0.1
       }
     ]
   },
@@ -39,6 +49,12 @@
       "target": "player",
       "stat": "happiness",
       "delta": 2
+    },
+    {
+      "op": "emotion",
+      "target": "target",
+      "value": "angry",
+      "months": 6
     }
   ],
   "failure": [
@@ -52,6 +68,18 @@
       "target": "player",
       "stat": "happiness",
       "delta": -2
+    },
+    {
+      "op": "emotion",
+      "target": "target",
+      "value": "angry",
+      "months": 6
+    },
+    {
+      "op": "emotion",
+      "target": "player",
+      "value": "angry",
+      "months": 6
     }
   ]
 }

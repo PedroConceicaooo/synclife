@@ -341,15 +341,29 @@ h1 {
   color: var(--ink-soft);
 }
 
-/* Fixed stats footer, 2 x 2. */
+/* Fixed stats footer: the mood, then the four bars 2 x 2. */
+#stats-area {
+  padding: 8px var(--gutter);
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--rule);
+  background: var(--surface);
+}
+
+#mood {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+
+#profile-traits {
+  color: var(--ink-soft);
+  margin: -6px 0 12px;
+}
+
 #stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px 16px;
-  padding: 10px var(--gutter);
-  padding-bottom: max(10px, env(safe-area-inset-bottom));
-  border-top: 1px solid var(--rule);
-  background: var(--surface);
 }
 
 .meter-head {

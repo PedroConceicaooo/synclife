@@ -17,6 +17,12 @@
           "target": "player",
           "stat": "happiness",
           "delta": 3
+        },
+        {
+          "op": "emotion",
+          "target": "player",
+          "value": "in_love",
+          "months": 6
         }
       ]
     },
@@ -28,6 +34,17 @@
           "target": "player",
           "stat": "happiness",
           "delta": -1
+        },
+        {
+          "op": "tendency",
+          "trait": "shy",
+          "delta": 1
+        },
+        {
+          "op": "emotion",
+          "target": "player",
+          "value": "anxious",
+          "months": 6
         }
       ]
     }

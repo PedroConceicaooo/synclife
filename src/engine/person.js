@@ -18,8 +18,26 @@ export function createPerson({
   cityId = null,
   occupation = null,
   appearance = null,
+  stress = null,
 }) {
-  return { id, firstName, lastName, sex, birth, countryId, cityId, money, traits, stats, aptitudes, occupation, appearance };
+  return {
+    id,
+    firstName,
+    lastName,
+    sex,
+    birth,
+    countryId,
+    cityId,
+    money,
+    traits,
+    traitTendencies: {},
+    stats,
+    aptitudes,
+    occupation,
+    appearance,
+    emotion: null,
+    stress,
+  };
 }
 
 // Looks for the avatar, as indices into the UI palettes: skin tone, hair

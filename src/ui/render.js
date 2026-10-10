@@ -11,6 +11,7 @@ import { avatarElement } from './avatar.js';
 import { lifeSummary } from '../systems/lifeEnd.js';
 import { schoolPeople } from '../systems/schoolmates.js';
 import { schoolStageAt } from '../systems/school.js';
+import { moodOf } from '../systems/personality.js';
 
 const STATS = ['happiness', 'health', 'intelligence', 'looks'];
 
@@ -84,8 +85,18 @@ export function renderHeader(dom, state, locale) {
   dom.topMoneyLabel.textContent = locale.t('ui.balance');
 }
 
+function moodLabel(locale, person, month) {
+  return locale.format(`mood.${moodOf(person, month)}`, {}, { self: person.sex });
+}
+
+// "paciente, generosa"
+function traitsLabel(locale, person) {
+  return locale.list(person.traits.map((trait) => locale.format(`trait.${trait}`, {}, { self: person.sex })));
+}
+
 export function renderStats(dom, state, locale) {
   const player = state.people[state.player.id];
+  dom.mood.textContent = locale.format('ui.mood', { mood: moodLabel(locale, player, state.currentMonthIndex) });
   clearChildren(dom.stats);
   for (const stat of STATS) dom.stats.appendChild(meter(locale.t(`ui.stat_${stat}`), player.stats[stat]));
 }
@@ -199,6 +210,7 @@ export function renderSummary(dom, state, locale) {
   const player = state.people[state.player.id];
   dom.summaryTitle.textContent = locale.t('ui.summary_title');
   dom.summaryStatsTitle.textContent = locale.t('ui.summary_stats');
+  dom.summaryPersonality.textContent = player.traits.length > 0 ? locale.format('ui.personality', { traits: traitsLabel(locale, player) }) : '';
   dom.summaryMilestonesTitle.textContent = locale.t('ui.summary_milestones');
   dom.summaryRelationsTitle.textContent = locale.t('ui.summary_relations');
 
@@ -305,11 +317,17 @@ export function renderProfile(dom, state, locale, personId, openCategory, { onBa
     age: locale.plural('age.years', ageAt(person.birth, state.currentMonthIndex)),
   });
 
+  // Mood and personality help the player guess how an interaction will go.
+  const details = person.species ? [] : [locale.format('ui.mood', { mood: moodLabel(locale, person, state.currentMonthIndex) })];
+  if (person.traits.length > 0) details.push(locale.format('ui.personality', { traits: traitsLabel(locale, person) }));
+  dom.profileTraits.textContent = details.join('. ');
+
   clearChildren(dom.profileAffinity);
   dom.profileAffinity.append(
     meter(locale.t('ui.affinity_they_feel'), relationship.affinity[personId]),
     meter(locale.t('ui.affinity_you_feel'), relationship.affinity[state.player.id]),
   );
+  if (typeof person.stress === 'number') dom.profileAffinity.append(meter(locale.t('ui.stress'), person.stress));
 
   clearChildren(dom.profileInteractions);
   for (const group of availableInteractions(state, personId)) {

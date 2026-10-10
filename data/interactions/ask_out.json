@@ -26,6 +26,21 @@
         "factor": "targetEmotion",
         "value": "in_love",
         "adjust": 0.3
+      },
+      {
+        "factor": "playerEmotion",
+        "value": "ashamed",
+        "adjust": -0.15
+      },
+      {
+        "factor": "playerTrait",
+        "value": "shy",
+        "adjust": -0.15
+      },
+      {
+        "factor": "playerTrait",
+        "value": "sociable",
+        "adjust": 0.1
       }
     ]
   },
@@ -48,6 +63,18 @@
       "target": "player",
       "stat": "happiness",
       "delta": 6
+    },
+    {
+      "op": "emotion",
+      "target": "player",
+      "value": "in_love",
+      "months": 12
+    },
+    {
+      "op": "emotion",
+      "target": "target",
+      "value": "in_love",
+      "months": 12
     }
   ],
   "failure": [
@@ -61,6 +88,12 @@
       "target": "player",
       "stat": "happiness",
       "delta": -4
+    },
+    {
+      "op": "emotion",
+      "target": "player",
+      "value": "ashamed",
+      "months": 6
     }
   ]
 }

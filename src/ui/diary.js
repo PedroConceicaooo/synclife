@@ -92,6 +92,14 @@ function entryLine(entry, state, locale, block) {
     }
     case 'assetSold':
       return locale.format('diary.asset_sold', { item: text(`asset.${entry.assetId}.title`) });
+    case 'traitFormed': {
+      const trait = locale.format(`trait.${entry.trait}`, {}, { self: state.player.sex });
+      return locale.format('diary.trait_formed', { trait });
+    }
+    case 'emotion': {
+      const emotion = locale.format(`mood.${entry.emotion}`, {}, { self: state.player.sex }).toLocaleLowerCase(locale.language);
+      return locale.format('diary.emotion', { emotion });
+    }
     case 'newClass':
       return newClassLine(state, locale, entry);
     case 'newFriend': {

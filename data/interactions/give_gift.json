@@ -35,6 +35,11 @@
       "op": "affinity",
       "side": "target",
       "delta": 5
+    },
+    {
+      "op": "tendency",
+      "trait": "generous",
+      "delta": 1
     }
   ],
   "failure": [

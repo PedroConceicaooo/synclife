@@ -17,6 +17,11 @@
           "target": "player",
           "stat": "intelligence",
           "delta": 2
+        },
+        {
+          "op": "tendency",
+          "trait": "rigid",
+          "delta": 1
         }
       ]
     },

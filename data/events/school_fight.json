@@ -17,6 +17,11 @@
           "target": "player",
           "stat": "happiness",
           "delta": -2
+        },
+        {
+          "op": "tendency",
+          "trait": "patient",
+          "delta": 1
         }
       ]
     },
@@ -46,6 +51,17 @@
           "side": "target",
           "delta": -3,
           "targetRole": "father"
+        },
+        {
+          "op": "tendency",
+          "trait": "explosive",
+          "delta": 1
+        },
+        {
+          "op": "emotion",
+          "target": "player",
+          "value": "angry",
+          "months": 6
         }
       ]
     }

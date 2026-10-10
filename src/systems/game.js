@@ -22,6 +22,7 @@ import { evaluateConditions } from '../engine/conditions.js';
 import { calendarPoints, calendarEventsAt, firstDecisionPoint } from './calendar.js';
 import { startClass, promoteFriendships } from './schoolmates.js';
 import { schoolStageAt, schoolEntryMonth } from './school.js';
+import { expireEmotions, relaxStress, activeEmotion } from './personality.js';
 import { attemptInteraction, listAvailableInteractions } from './interactions.js';
 import { attemptActivity, listActivities } from './activities.js';
 import { buyAsset, sellAsset, listShop, applyAssetUpkeep } from './assets.js';
@@ -113,11 +114,18 @@ export function isAdult(state) {
   return ageAt(state.player.birth, state.currentMonthIndex) >= ADULT_AGE;
 }
 
+// What changed in the player, for the diary: stats, a new trait, a new
+// emotion.
 function statEntries(before, after) {
   const entries = [];
   for (const stat of Object.keys(after.stats)) {
     const delta = Math.round((after.stats[stat] - before.stats[stat]) * 10) / 10;
     if (Math.abs(delta) >= MIN_LOGGED_STAT_DELTA) entries.push({ type: 'stat', stat, delta });
+  }
+  for (const trait of after.traits.filter((t) => !before.traits.includes(t))) entries.push({ type: 'traitFormed', trait });
+  const emotion = after.emotion?.type;
+  if (emotion && (emotion !== before.emotion?.type || after.emotion.until !== before.emotion?.until)) {
+    entries.push({ type: 'emotion', emotion });
   }
   return entries;
 }
@@ -185,7 +193,14 @@ function processCalendar(state, points, { people, relationships }) {
     for (const event of calendarEventsAt(state.eventsById, point)) {
       const player = peopleNow[state.player.id];
       if (!evaluateConditions(event.conditions, player, { currentMonthIndex: point.month, country: state.country })) continue;
-      const result = firePlayerEvent(event, { player, peopleById: peopleNow, relationshipsById: relationshipsNow, country: state.country, rng: state.rng });
+      const result = firePlayerEvent(event, {
+        player,
+        peopleById: peopleNow,
+        relationshipsById: relationshipsNow,
+        country: state.country,
+        rng: state.rng,
+        currentMonthIndex: point.month,
+      });
       peopleNow = result.peopleById;
       relationshipsNow = result.relationshipsById;
       fired.push({ eventId: event.id, month: point.month, playerId: state.player.id });
@@ -218,7 +233,7 @@ export function advanceStep(state, requestedMonths) {
 
   let relationships = decayAll(state.relationships, months);
   relationships = resetInteractionsThisPeriod(relationships);
-  let people = state.people;
+  let people = relaxStress(expireEmotions(state.people, nextMonthIndex), months);
 
   const world = processRelationshipEvents(state.eventsById, relationships, {
     currentMonthIndex: nextMonthIndex,
@@ -324,6 +339,7 @@ export function resolveDecision(state, optionId) {
     peopleById: state.people,
     country: state.country,
     optionId,
+    currentMonthIndex: state.currentMonthIndex,
   });
   const playerAfter = result.peopleById[state.player.id];
 
@@ -408,6 +424,7 @@ function fireTriggeredEvents(state, eventIds, { people, relationships }) {
       relationshipsById: relationshipsNow,
       country: state.country,
       rng: state.rng,
+      currentMonthIndex: state.currentMonthIndex,
     });
     peopleNow = result.peopleById;
     relationshipsNow = result.relationshipsById;
@@ -574,4 +591,9 @@ export function sellPlayerAsset(state, assetId) {
       ...moneyEntries(playerBefore, result.peopleById[state.player.id], { source: 'asset', assetId }),
     ]),
   };
+}
+
+// The player's temporary emotion right now, if any.
+export function playerEmotion(state) {
+  return activeEmotion(state.people[state.player.id], state.currentMonthIndex);
 }

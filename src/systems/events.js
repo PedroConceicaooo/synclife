@@ -6,6 +6,7 @@ import { applyEffects } from '../engine/effects.js';
 import { yearlyChanceToPeriod } from '../engine/random.js';
 import { findRelationshipBetween } from './relationship.js';
 import { resolveChance } from './interactions.js';
+import { RESTING_STRESS } from './personality.js';
 
 export function indexEvents(events) {
   return Object.fromEntries(events.map((event) => [event.id, event]));
@@ -21,6 +22,22 @@ export function involvesPlayer(relationship, playerId, relationshipsById) {
 
 // peopleById/country are optional so relationship-only callers keep working;
 // they are threaded through so effects on people (stat, money) are not lost.
+// "chanceModifiers": [{ "factor": "participantsStress", "weight": 1 }] makes
+// a world event likelier when the people in it are stressed (design doc:
+// stressed couples fight more). Resting stress is neutral.
+const MAX_YEARLY_CHANCE = 0.95;
+
+function scaledYearlyChance(event, relationship, peopleById) {
+  let yearly = event.yearlyChance;
+  for (const modifier of event.chanceModifiers ?? []) {
+    if (modifier.factor !== 'participantsStress') throw new Error(`Unknown event chance factor: ${modifier.factor}`);
+    const stresses = Object.keys(relationship.roles).map((id) => peopleById[id]?.stress ?? RESTING_STRESS);
+    const average = stresses.reduce((sum, v) => sum + v, 0) / stresses.length;
+    yearly *= 1 + (modifier.weight * (average - RESTING_STRESS)) / 50;
+  }
+  return Math.min(MAX_YEARLY_CHANCE, Math.max(0, yearly));
+}
+
 export function processRelationshipEvents(
   eventsById,
   relationshipsById,
@@ -40,7 +57,7 @@ export function processRelationshipEvents(
       const conditionContext = { currentMonthIndex, peopleById: people, relationshipsById: accumulator };
       if (!evaluateConditions(event.conditions, relationship, conditionContext)) continue;
 
-      const chance = yearlyChanceToPeriod(event.yearlyChance, step);
+      const chance = yearlyChanceToPeriod(scaledYearlyChance(event, relationship, people), step);
       if (!rng.chance(chance)) continue;
 
       const result = applyEffects(event.effects, {
@@ -71,7 +88,7 @@ export function processRelationshipEvents(
 export function resolveDecision(
   decisionEvent,
   firingRelationship,
-  { rng, playerId, relationshipsById, peopleById = {}, country, optionId },
+  { rng, playerId, relationshipsById, peopleById = {}, country, optionId, currentMonthIndex },
 ) {
   const option = optionId
     ? decisionEvent.options.find((o) => o.id === optionId)
@@ -85,6 +102,8 @@ export function resolveDecision(
     peopleById,
     playerId,
     country,
+    rng,
+    currentMonthIndex,
   });
 
   return { optionId: option.id, relationshipsById: result.relationshipsById, peopleById: result.peopleById };
@@ -93,7 +112,7 @@ export function resolveDecision(
 // One player event, however it was triggered: with options it becomes a
 // decision; with a check it rolls success or failure (e.g. on intelligence);
 // otherwise its effects apply.
-export function firePlayerEvent(event, { player, peopleById, relationshipsById, country, rng }) {
+export function firePlayerEvent(event, { player, peopleById, relationshipsById, country, rng, currentMonthIndex }) {
   if (event.options) {
     return { peopleById, relationshipsById, decision: { trigger: event.id, firingRelationship: null }, succeeded: null };
   }
@@ -103,7 +122,7 @@ export function firePlayerEvent(event, { player, peopleById, relationshipsById, 
     succeeded = rng.chance(resolveChance(event.check, { player, relationshipsById, playerId: player.id }));
     effects = succeeded ? event.success : event.failure;
   }
-  const result = applyEffects(effects, { relationship: null, relationshipsById, peopleById, playerId: player.id, country });
+  const result = applyEffects(effects, { relationship: null, relationshipsById, peopleById, playerId: player.id, country, rng, currentMonthIndex });
   return { peopleById: result.peopleById, relationshipsById: result.relationshipsById, decision: null, succeeded };
 }
 
@@ -156,7 +175,7 @@ export function processPlayerEvents(
   const pendingDecisions = [];
 
   function fire(event) {
-    const result = firePlayerEvent(event, { player: people[player.id], peopleById: people, relationshipsById: relationships, country, rng });
+    const result = firePlayerEvent(event, { player: people[player.id], peopleById: people, relationshipsById: relationships, country, rng, currentMonthIndex });
     people = result.peopleById;
     relationships = result.relationshipsById;
     if (result.decision) pendingDecisions.push(result.decision);

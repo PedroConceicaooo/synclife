@@ -10,7 +10,7 @@ const UI_DATA = readFileSync(new URL('../src/ui/data.js', import.meta.url), 'utf
 
 const EVENTS = Object.values(loadEvents(EVENTS_DIR));
 const ROLLED_PLAYER_EVENTS = EVENTS.filter((e) => e.subject === 'player' && e.yearlyChance !== undefined);
-const KNOWN_OPS = ['stat', 'affinity', 'transferMoney', 'relationshipState', 'money'];
+const KNOWN_OPS = ['stat', 'affinity', 'transferMoney', 'relationshipState', 'money', 'roles', 'haveChild', 'emotion', 'tendency', 'stress'];
 
 test('every rolled player event declares minAge (CLAUDE.md rule 8)', () => {
   for (const event of ROLLED_PLAYER_EVENTS) {

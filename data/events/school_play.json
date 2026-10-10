@@ -23,6 +23,11 @@
           "target": "player",
           "stat": "intelligence",
           "delta": 1
+        },
+        {
+          "op": "tendency",
+          "trait": "sociable",
+          "delta": 1
         }
       ]
     },
@@ -34,6 +39,11 @@
           "target": "player",
           "stat": "happiness",
           "delta": -1
+        },
+        {
+          "op": "tendency",
+          "trait": "shy",
+          "delta": 1
         }
       ]
     }

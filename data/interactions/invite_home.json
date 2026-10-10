@@ -19,6 +19,16 @@
         "factor": "targetTrait",
         "value": "shy",
         "adjust": -0.2
+      },
+      {
+        "factor": "playerTrait",
+        "value": "shy",
+        "adjust": -0.1
+      },
+      {
+        "factor": "playerTrait",
+        "value": "sociable",
+        "adjust": 0.15
       }
     ]
   },

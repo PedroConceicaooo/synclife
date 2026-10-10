@@ -45,6 +45,19 @@
           "side": "target",
           "delta": -2,
           "targetRole": "mother"
+        },
+        {
+          "op": "tendency",
+          "trait": "stubborn",
+          "delta": 1
+        },
+        {
+          "op": "stress",
+          "targetRole": [
+            "mother",
+            "father"
+          ],
+          "delta": 2
         }
       ]
     }

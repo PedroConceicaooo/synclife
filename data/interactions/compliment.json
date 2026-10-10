@@ -26,6 +26,11 @@
         "factor": "targetTrait",
         "value": "sociable",
         "adjust": 0.1
+      },
+      {
+        "factor": "targetEmotion",
+        "value": "angry",
+        "adjust": -0.2
       }
     ]
   },

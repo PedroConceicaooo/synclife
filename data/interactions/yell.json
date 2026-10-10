@@ -34,6 +34,12 @@
       "target": "player",
       "stat": "happiness",
       "delta": 1
+    },
+    {
+      "op": "emotion",
+      "target": "target",
+      "value": "angry",
+      "months": 6
     }
   ],
   "failure": [
@@ -52,6 +58,12 @@
       "target": "player",
       "stat": "happiness",
       "delta": -3
+    },
+    {
+      "op": "emotion",
+      "target": "target",
+      "value": "angry",
+      "months": 6
     }
   ]
 }

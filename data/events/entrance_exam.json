@@ -57,6 +57,12 @@
       "side": "target",
       "delta": -2,
       "targetRole": "father"
+    },
+    {
+      "op": "emotion",
+      "target": "player",
+      "value": "ashamed",
+      "months": 6
     }
   ]
 }

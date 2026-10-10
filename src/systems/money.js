@@ -42,5 +42,7 @@ export function payAllowance({ parent, relationship, country, step }) {
   const affinityFactor = Math.min(1.5, Math.max(0.5, relationship.affinity[parent.id] / 50));
   const traitFactor = parent.traits.includes('generous') ? 1.3 : parent.traits.includes('rigid') ? 0.7 : 1;
   const wealthFactor = Math.min(1.5, Math.max(0.5, parent.money / (resolveAmount('large', country) * WEALTH_REFERENCE_IN_LARGE)));
-  return Math.round(base * affinityFactor * traitFactor * wealthFactor) * step;
+  // Stress 50 or less changes nothing; a fully stressed parent gives 25% less.
+  const stressFactor = 1 - Math.max(0, (parent.stress ?? 0) - 50) / 200;
+  return Math.round(base * affinityFactor * traitFactor * wealthFactor * stressFactor) * step;
 }

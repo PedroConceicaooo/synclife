@@ -40,6 +40,12 @@
           "target": "player",
           "stat": "intelligence",
           "delta": -1
+        },
+        {
+          "op": "emotion",
+          "target": "player",
+          "value": "anxious",
+          "months": 6
         }
       ]
     }

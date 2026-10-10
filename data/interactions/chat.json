@@ -22,6 +22,16 @@
       {
         "factor": "affinity",
         "weight": 0.4
+      },
+      {
+        "factor": "targetEmotion",
+        "value": "angry",
+        "adjust": -0.2
+      },
+      {
+        "factor": "playerTrait",
+        "value": "sociable",
+        "adjust": 0.1
       }
     ]
   },

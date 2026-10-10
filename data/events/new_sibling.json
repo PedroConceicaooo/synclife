@@ -25,6 +25,11 @@
           "side": "target",
           "delta": 2,
           "targetRole": "father"
+        },
+        {
+          "op": "tendency",
+          "trait": "generous",
+          "delta": 1
         }
       ]
     },
@@ -53,6 +58,11 @@
           "op": "stat",
           "target": "player",
           "stat": "happiness",
+          "delta": 1
+        },
+        {
+          "op": "tendency",
+          "trait": "explosive",
           "delta": 1
         }
       ]

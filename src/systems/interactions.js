@@ -61,6 +61,10 @@ export function resolveChance(chance, { relationship, targetPersonId, target, pl
       case 'playerEmotion':
         if (player.emotion?.type === modifier.value) p += modifier.adjust;
         break;
+      // A stressed parent says no more often (design doc).
+      case 'targetStress':
+        p += (((target.stress ?? 50) - 50) / 100) * modifier.weight;
+        break;
       case 'playerTrait':
         if (player.traits.includes(modifier.value)) p += modifier.adjust;
         break;

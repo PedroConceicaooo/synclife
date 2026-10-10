@@ -13,6 +13,11 @@
       {
         "factor": "affinity",
         "weight": 0.4
+      },
+      {
+        "factor": "targetEmotion",
+        "value": "in_love",
+        "adjust": 0.15
       }
     ]
   },

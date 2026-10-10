@@ -18,5 +18,11 @@
       "stat": "happiness",
       "delta": -2
     }
+  ],
+  "chanceModifiers": [
+    {
+      "factor": "participantsStress",
+      "weight": 1.0
+    }
   ]
 }

@@ -41,6 +41,12 @@
       "op": "affinity",
       "side": "target",
       "delta": -4
+    },
+    {
+      "op": "emotion",
+      "target": "player",
+      "value": "ashamed",
+      "months": 6
     }
   ],
   "randomEvents": [

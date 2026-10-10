@@ -22,6 +22,11 @@
           "target": "player",
           "stat": "happiness",
           "delta": 1
+        },
+        {
+          "op": "tendency",
+          "trait": "patient",
+          "delta": 1
         }
       ]
     },
@@ -45,6 +50,19 @@
           "side": "target",
           "delta": -2,
           "targetRole": "father"
+        },
+        {
+          "op": "tendency",
+          "trait": "stubborn",
+          "delta": 1
+        },
+        {
+          "op": "stress",
+          "targetRole": [
+            "mother",
+            "father"
+          ],
+          "delta": 5
         }
       ]
     }
