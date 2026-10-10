@@ -1,0 +1,66 @@
+{
+  "id": "ask_out",
+  "category": "relationship",
+  "conditions": {
+    "targetRole": [
+      "classmate",
+      "friend",
+      "ex"
+    ],
+    "minAge": 13,
+    "targetMinAge": 13
+  },
+  "chance": {
+    "base": 0.3,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.8
+      },
+      {
+        "factor": "playerStat",
+        "stat": "looks",
+        "weight": 0.4
+      },
+      {
+        "factor": "targetEmotion",
+        "value": "in_love",
+        "adjust": 0.3
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "roles",
+      "value": "partner"
+    },
+    {
+      "op": "relationshipState",
+      "value": "dating"
+    },
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": 8
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 6
+    }
+  ],
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -2
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -4
+    }
+  ]
+}

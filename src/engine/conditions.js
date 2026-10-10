@@ -48,6 +48,16 @@ function evaluateCondition(key, expected, target, context) {
     // minLegalAge: "driving" -> at least the country's legal age for it.
     case 'minLegalAge':
       return ageAt(target.birth, context.currentMonthIndex) >= context.country.ages[expected];
+    // State of the relationship an interaction is about (e.g. "dating").
+    case 'relationshipState':
+      return [].concat(expected).includes(context.relationship?.state ?? null);
+    // The player has (or lacks) someone in that role: a pet, a sibling.
+    case 'hasRole':
+      return holdsRole(expected, target, context);
+    case 'lacksRole':
+      return !holdsRole(expected, target, context);
+    case 'targetSpecies':
+      return context.target?.species === expected;
     case 'minMoney':
       return target.money >= resolveAmount(expected, context.country);
     case 'targetRole':
@@ -55,4 +65,11 @@ function evaluateCondition(key, expected, target, context) {
     default:
       throw new Error(`Unknown condition: ${key}`);
   }
+}
+
+function holdsRole(roles, player, context) {
+  const wanted = [].concat(roles);
+  return Object.values(context.relationshipsById ?? {}).some(
+    (r) => player.id in r.roles && Object.entries(r.roles).some(([id, role]) => id !== player.id && wanted.includes(role)),
+  );
 }

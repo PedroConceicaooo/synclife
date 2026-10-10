@@ -1,0 +1,39 @@
+{
+  "id": "hold_hands",
+  "category": "spend_time",
+  "conditions": {
+    "targetRole": [
+      "partner"
+    ],
+    "minAge": 13
+  },
+  "chance": {
+    "base": 0.8,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.4
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": 3
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    }
+  ],
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "player",
+      "delta": -1
+    }
+  ]
+}

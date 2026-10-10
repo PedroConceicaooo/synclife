@@ -1,0 +1,39 @@
+{
+  "id": "send_note",
+  "category": "talk",
+  "conditions": {
+    "targetRole": [
+      "partner"
+    ],
+    "minAge": 13
+  },
+  "chance": {
+    "base": 0.85,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.3
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": 3
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ],
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -1
+    }
+  ]
+}

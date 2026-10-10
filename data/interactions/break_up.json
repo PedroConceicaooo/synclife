@@ -1,0 +1,56 @@
+{
+  "id": "break_up",
+  "category": "relationship",
+  "conditions": {
+    "targetRole": [
+      "partner"
+    ],
+    "minAge": 13
+  },
+  "chance": {
+    "base": 1.0,
+    "modifiers": []
+  },
+  "success": [
+    {
+      "op": "roles",
+      "value": "ex"
+    },
+    {
+      "op": "relationshipState",
+      "value": "ended"
+    },
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": -15
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -3
+    }
+  ],
+  "failure": [
+    {
+      "op": "roles",
+      "value": "ex"
+    },
+    {
+      "op": "relationshipState",
+      "value": "ended"
+    },
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": -15
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -3
+    }
+  ]
+}

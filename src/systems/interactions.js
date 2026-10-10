@@ -21,7 +21,15 @@ function roleAffinity(role, relationshipsById, playerId) {
 
 // player is only needed for playerStat modifiers, relationshipsById and
 // playerId for roleAffinity (event checks).
-export function resolveChance(chance, { relationship, targetPersonId, target, player, relationshipsById, playerId }) {
+// The player's parents (for factors about them).
+function parentsOf(playerId, relationshipsById, peopleById) {
+  return Object.values(relationshipsById)
+    .filter((r) => playerId in r.roles && ['son', 'daughter'].includes(r.roles[playerId]))
+    .map((r) => peopleById[Object.keys(r.roles).find((id) => id !== playerId)])
+    .filter(Boolean);
+}
+
+export function resolveChance(chance, { relationship, targetPersonId, target, player, relationshipsById, peopleById, playerId, country }) {
   let p = chance.base;
 
   for (const modifier of chance.modifiers) {
@@ -34,6 +42,27 @@ export function resolveChance(chance, { relationship, targetPersonId, target, pl
         break;
       case 'playerStat':
         p += ((player.stats[modifier.stat] - 50) / 100) * modifier.weight;
+        break;
+      // Any of the player's parents has the trait (e.g. rigid parents).
+      case 'parentsTrait':
+        if (parentsOf(playerId, relationshipsById, peopleById).some((p) => p.traits.includes(modifier.value))) p += modifier.adjust;
+        break;
+      // Same-sex pairs: the country's social acceptance of the topic moves
+      // the chance (design doc: "aceitação social"). Unknown -> neutral 50.
+      case 'sameSexAcceptance':
+        if (player.sex === target.sex) {
+          const acceptance = country.topics?.[modifier.topic]?.acceptance ?? 50;
+          p += ((acceptance - 50) / 100) * modifier.weight;
+        }
+        break;
+      case 'targetEmotion':
+        if (target.emotion?.type === modifier.value) p += modifier.adjust;
+        break;
+      case 'playerEmotion':
+        if (player.emotion?.type === modifier.value) p += modifier.adjust;
+        break;
+      case 'playerTrait':
+        if (player.traits.includes(modifier.value)) p += modifier.adjust;
         break;
       case 'roleAffinity': {
         const value = roleAffinity(modifier.role, relationshipsById, playerId);
@@ -64,12 +93,23 @@ export function attemptInteraction(
     targetPersonId: target.id,
     target,
     country,
+    relationshipsById,
+    playerId: player.id,
   });
   if (!conditionsMet) {
     return { attempted: false, reason: 'conditions', relationshipsById, peopleById };
   }
 
-  const chance = resolveChance(interaction.chance, { relationship, targetPersonId: target.id, target });
+  const chance = resolveChance(interaction.chance, {
+    relationship,
+    targetPersonId: target.id,
+    target,
+    player,
+    relationshipsById,
+    peopleById,
+    playerId: player.id,
+    country,
+  });
   const succeeded = rng.chance(chance);
 
   const touched = {
@@ -87,6 +127,8 @@ export function attemptInteraction(
       peopleById,
       playerId: player.id,
       country,
+      rng,
+      currentMonthIndex,
       diminishingAffinityGains: true,
     },
   );
@@ -108,8 +150,8 @@ export const INTERACTION_CATEGORIES = ['talk', 'spend_time', 'ask', 'give', 'con
 // Interactions whose conditions pass for this target, grouped by category in
 // display order. Categories with no available option are left out, so the UI
 // only shows what the player can actually do.
-export function listAvailableInteractions(interactionsById, { relationship, player, target, country, currentMonthIndex }) {
-  const context = { currentMonthIndex, relationship, targetPersonId: target.id, target, country };
+export function listAvailableInteractions(interactionsById, { relationship, player, target, country, currentMonthIndex, relationshipsById = {} }) {
+  const context = { currentMonthIndex, relationship, targetPersonId: target.id, target, country, relationshipsById, playerId: player.id };
   const available = Object.values(interactionsById)
     .filter((interaction) => evaluateConditions(interaction.conditions, player, context))
     // Simplest first: by minimum age, then id for a stable order.

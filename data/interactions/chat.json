@@ -9,7 +9,9 @@
       "sister",
       "classmate",
       "friend",
-      "teacher"
+      "teacher",
+      "partner",
+      "ex"
     ],
     "minAge": 3,
     "targetMinAge": 3

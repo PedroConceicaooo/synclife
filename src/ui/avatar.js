@@ -33,7 +33,30 @@ function stageOf(ageYears) {
 // Head size and height per life stage, in a 64 x 64 box.
 const HEAD = { baby: { r: 17, cy: 30 }, child: { r: 15, cy: 29 }, teen: { r: 14, cy: 28 }, adult: { r: 13.5, cy: 27 } };
 
+const COATS = ['#8a5a3b', '#d9a066', '#2f2a28', '#e8e2d6', '#9a9a9a'];
+
+// Dogs get floppy ears, cats pointy ones.
+function petAvatar(person, size) {
+  const coat = COATS[(person.appearance?.coat ?? 0) % COATS.length];
+  const root = svg('svg', { viewBox: '0 0 64 64', width: size, height: size, class: 'avatar', 'aria-hidden': 'true' });
+  root.append(svg('circle', { cx: 32, cy: 32, r: 32, class: 'avatar-bg' }));
+  if (person.species === 'cat') {
+    root.append(svg('path', { d: 'M16 30 L18 12 L30 22 Z M48 30 L46 12 L34 22 Z', fill: coat }));
+  } else {
+    for (const x of [15, 49]) root.append(svg('ellipse', { cx: x, cy: 30, rx: 6, ry: 12, fill: coat, opacity: 0.85 }));
+  }
+  root.append(svg('circle', { cx: 32, cy: 34, r: 17, fill: coat }));
+  root.append(svg('ellipse', { cx: 32, cy: 41, rx: 8, ry: 6, fill: '#f3ede4', opacity: 0.9 }));
+  for (const x of [25, 39]) root.append(svg('circle', { cx: x, cy: 31, r: 2, fill: INK }));
+  root.append(svg('ellipse', { cx: 32, cy: 38.5, rx: 3, ry: 2.2, fill: INK }));
+  if (person.species === 'cat') {
+    for (const [x1, x2] of [[24, 12], [40, 52]]) root.append(svg('path', { d: `M${x1} 41 L${x2} 39 M${x1} 43 L${x2} 44`, stroke: INK, 'stroke-width': 0.8 }));
+  }
+  return root;
+}
+
 export function avatarElement(person, ageYears, size = 48) {
+  if (person.species) return petAvatar(person, size);
   const { skin, hair, hairStyle } = appearanceOf(person);
   const stage = stageOf(ageYears);
   const { r, cy } = HEAD[stage];

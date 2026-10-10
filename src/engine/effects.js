@@ -3,6 +3,7 @@
 import { clamp, findRelationshipBetween } from '../systems/relationship.js';
 import { resolveAmount, transferMoney, addMoney } from '../systems/money.js';
 import { addChild } from '../systems/birth.js';
+import { adoptPet } from '../systems/pets.js';
 
 // targetRole (a role or a list of roles) names the role a person holds in
 // THEIR OWN relationship with the player (e.g. "mother"), not a role within
@@ -132,6 +133,19 @@ function applyRolesEffect(effect, context) {
   };
 }
 
+// The player gets a pet: { op: "adoptPet", species: "dog" }.
+function applyAdoptPetEffect(effect, context) {
+  const result = adoptPet(context.rng, {
+    species: effect.species,
+    peopleById: context.peopleById,
+    relationshipsById: context.relationshipsById,
+    playerId: context.playerId,
+    monthIndex: context.currentMonthIndex,
+    country: context.country,
+  });
+  return { relationshipsById: result.relationshipsById, peopleById: result.peopleById };
+}
+
 function applyEffect(effect, context) {
   switch (effect.op) {
     case 'relationshipState':
@@ -154,6 +168,8 @@ function applyEffect(effect, context) {
       return applyHaveChildEffect(effect, context);
     case 'roles':
       return applyRolesEffect(effect, context);
+    case 'adoptPet':
+      return applyAdoptPetEffect(effect, context);
     default:
       throw new Error(`Unknown effect op: ${effect.op}`);
   }

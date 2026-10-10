@@ -4,7 +4,8 @@
   "conditions": {
     "targetRole": [
       "mother",
-      "father"
+      "father",
+      "partner"
     ],
     "minAge": 4
   },

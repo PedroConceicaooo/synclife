@@ -10,8 +10,8 @@ const LOCALE = JSON.parse(readFileSync(new URL('../locales/pt-BR/ui.json', impor
 const UI_DATA = readFileSync(new URL('../src/ui/data.js', import.meta.url), 'utf8');
 
 const INTERACTIONS = Object.values(loadInteractions(INTERACTIONS_DIR));
-const KNOWN_OPS = ['stat', 'affinity', 'transferMoney', 'roles'];
-const KNOWN_FACTORS = ['affinity', 'targetTrait'];
+const KNOWN_OPS = ['stat', 'affinity', 'transferMoney', 'roles', 'relationshipState', 'adoptPet', 'emotion', 'tendency', 'stress'];
+const KNOWN_FACTORS = ['affinity', 'targetTrait', 'playerStat', 'roleAffinity', 'parentsTrait', 'sameSexAcceptance', 'targetEmotion', 'playerEmotion', 'playerTrait', 'targetStress'];
 
 test('every interaction declares minAge (CLAUDE.md rule 8) and a known category', () => {
   for (const interaction of INTERACTIONS) {

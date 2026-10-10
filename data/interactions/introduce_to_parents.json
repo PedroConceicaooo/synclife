@@ -1,0 +1,84 @@
+{
+  "id": "introduce_to_parents",
+  "category": "relationship",
+  "conditions": {
+    "targetRole": [
+      "partner"
+    ],
+    "minAge": 13,
+    "relationshipState": "dating"
+  },
+  "chance": {
+    "base": 0.7,
+    "modifiers": [
+      {
+        "factor": "parentsTrait",
+        "value": "rigid",
+        "adjust": -0.35
+      },
+      {
+        "factor": "parentsTrait",
+        "value": "patient",
+        "adjust": 0.1
+      },
+      {
+        "factor": "sameSexAcceptance",
+        "topic": "same_sex_relationship",
+        "weight": 0.8
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "relationshipState",
+      "value": "approved"
+    },
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": 2
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 3
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": 1,
+      "targetRole": "mother"
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": 1,
+      "targetRole": "father"
+    }
+  ],
+  "failure": [
+    {
+      "op": "relationshipState",
+      "value": "forbidden"
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -4
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -2,
+      "targetRole": "mother"
+    },
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -2,
+      "targetRole": "father"
+    }
+  ]
+}

@@ -14,7 +14,8 @@ function relationTo(state, personId) {
 // "minha mãe", "meu irmão Theo", "a professora Sato"
 function who(state, locale, personId) {
   const person = state.people[personId];
-  return locale.format(`diary.who.${relationTo(state, personId)}`, { name: person.firstName, lastName: person.lastName }, { self: person.sex });
+  const key = person.species ? `diary.who.pet.${person.species}` : `diary.who.${relationTo(state, personId)}`;
+  return locale.format(key, { name: person.firstName, lastName: person.lastName }, { self: person.sex });
 }
 
 function newClassLine(state, locale, entry) {

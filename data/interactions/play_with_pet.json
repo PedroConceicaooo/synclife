@@ -1,0 +1,46 @@
+{
+  "id": "play_with_pet",
+  "category": "spend_time",
+  "conditions": {
+    "targetRole": [
+      "pet"
+    ],
+    "minAge": 2
+  },
+  "chance": {
+    "base": 0.85,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.2
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": 4
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 1
+    }
+  ],
+  "failure": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -1
+    }
+  ]
+}

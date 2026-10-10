@@ -1,0 +1,40 @@
+{
+  "id": "walk_dog",
+  "category": "spend_time",
+  "conditions": {
+    "targetRole": [
+      "pet"
+    ],
+    "minAge": 7,
+    "targetSpecies": "dog"
+  },
+  "chance": {
+    "base": 0.85,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.2
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": 3
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 2
+    }
+  ],
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "target",
+      "delta": -1
+    }
+  ]
+}

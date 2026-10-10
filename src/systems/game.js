@@ -389,6 +389,7 @@ export function availableInteractions(state, targetPersonId) {
     target: state.people[targetPersonId],
     country: state.country,
     currentMonthIndex: state.currentMonthIndex,
+    relationshipsById: state.relationships,
   });
 }
 
@@ -469,9 +470,9 @@ export function attemptPlayerActivity(state, activityId) {
   };
 }
 
-// People close to the player (design doc: "Relacionamentos" lists only close
-// people): parents, then siblings oldest first, then friends.
-const CLOSE_ROLE_RANK = { mother: 0, father: 1, brother: 2, sister: 2, friend: 3 };
+// People close to the player (design: every bond — family, partner,
+// friends, pets, exes), parents first, each group oldest first.
+const CLOSE_ROLE_RANK = { mother: 0, father: 1, brother: 2, sister: 2, partner: 3, friend: 4, pet: 5, ex: 6 };
 
 export function closePeople(state) {
   const playerId = state.player.id;

@@ -1,0 +1,51 @@
+{
+  "id": "ask_for_cat",
+  "category": "ask",
+  "conditions": {
+    "targetRole": [
+      "mother",
+      "father"
+    ],
+    "minAge": 5,
+    "lacksRole": "pet"
+  },
+  "chance": {
+    "base": 0.35,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.5
+      },
+      {
+        "factor": "targetTrait",
+        "value": "generous",
+        "adjust": 0.2
+      },
+      {
+        "factor": "targetTrait",
+        "value": "rigid",
+        "adjust": -0.2
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "adoptPet",
+      "species": "cat"
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 5
+    }
+  ],
+  "failure": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -2
+    }
+  ]
+}

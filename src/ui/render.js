@@ -46,7 +46,8 @@ const sexesOf = (state) => ({ player: state.player.sex });
 
 // "Mãe", "Amiga", "Professor": some roles change with the person's sex.
 function roleLabel(locale, role, person) {
-  return locale.format(`role.${role}`, {}, { self: person.sex });
+  const key = person.species ? `role.pet.${person.species}` : `role.${role}`;
+  return locale.format(key, {}, { self: person.sex });
 }
 
 function schoolStageName(locale, countryId, stageId) {

@@ -1,0 +1,51 @@
+{
+  "id": "ask_for_dog",
+  "category": "ask",
+  "conditions": {
+    "targetRole": [
+      "mother",
+      "father"
+    ],
+    "minAge": 5,
+    "lacksRole": "pet"
+  },
+  "chance": {
+    "base": 0.3,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.5
+      },
+      {
+        "factor": "targetTrait",
+        "value": "generous",
+        "adjust": 0.2
+      },
+      {
+        "factor": "targetTrait",
+        "value": "rigid",
+        "adjust": -0.2
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "adoptPet",
+      "species": "dog"
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 5
+    }
+  ],
+  "failure": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -2
+    }
+  ]
+}

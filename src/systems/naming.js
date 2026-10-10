@@ -51,7 +51,9 @@ export function nameChild(rng, child, { mother, father, country, siblingFirstNam
   };
 }
 
+// Pets (and anyone without a family name) go by their first name.
 export function fullName(person, country) {
+  if (!person.lastName) return person.firstName;
   return country.naming.familyNameFirst ? `${person.lastName} ${person.firstName}` : `${person.firstName} ${person.lastName}`;
 }
 

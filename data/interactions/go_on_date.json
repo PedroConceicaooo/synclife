@@ -1,0 +1,40 @@
+{
+  "id": "go_on_date",
+  "category": "spend_time",
+  "conditions": {
+    "targetRole": [
+      "partner"
+    ],
+    "minAge": 13
+  },
+  "chance": {
+    "base": 0.7,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.4
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": 5
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 3
+    }
+  ],
+  "failure": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -1
+    }
+  ]
+}

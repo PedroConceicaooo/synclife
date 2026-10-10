@@ -32,5 +32,44 @@
   "education": {
     "schoolYearStartMonth": 9,
     "stages": []
+  },
+  "petNames": {
+    "dog": [
+      "Rex",
+      "Luna",
+      "Thor",
+      "Mel",
+      "Bob",
+      "Nina",
+      "Max",
+      "Pipoca",
+      "Toby",
+      "Belinha",
+      "Fred",
+      "Lola"
+    ],
+    "cat": [
+      "Mia",
+      "Frajola",
+      "Simba",
+      "Tom",
+      "Mimi",
+      "Bolinha",
+      "Nala",
+      "Félix",
+      "Pantufa",
+      "Oliver",
+      "Kiki",
+      "Chico"
+    ]
+  },
+  "topics": {
+    "same_sex_relationship": {
+      "legal": null,
+      "acceptance": null,
+      "risk": null,
+      "source": null,
+      "verifiedAt": null
+    }
   }
 }
