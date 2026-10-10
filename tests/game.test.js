@@ -411,3 +411,14 @@ test('everyone in a new life has an appearance, and the player takes after the p
     }
   }
 });
+
+test('taking the blame for a sibling wins the sibling over and costs with the parents', () => {
+  const lives = [1, 2, 3, 4, 5, 6, 7, 8].map((seed) => playFullLife(seed).state);
+  const withSibling = lives.find((s) => closePeople(s).some((p) => ['brother', 'sister'].includes(p.role)));
+  const sibling = closePeople(withSibling).find((p) => ['brother', 'sister'].includes(p.role)).personId;
+  const relationshipWith = (s) => Object.values(s.relationships).find((r) => sibling in r.roles && s.player.id in r.roles);
+  const before = { ...withSibling, pendingDecisions: [{ trigger: 'sibling_mischief', firingRelationship: null }] };
+  const after = resolveDecision(before, 'take_the_blame');
+  assert.ok(relationshipWith(after).affinity[sibling] > relationshipWith(before).affinity[sibling]);
+  assert.ok(after.relationships[before.motherChildId].affinity[before.mother.id] < before.relationships[before.motherChildId].affinity[before.mother.id]);
+});

@@ -49,8 +49,16 @@
   "event.school_fight.option.walk_away": "Ir embora",
   "event.school_fight.option.fight_back": "Revidar",
   "event.acne.text": "Seu rosto amanheceu cheio de espinhas.",
-  "event.parents_fight.text": "Seus pais tiveram uma briga feia.",
-  "event.parents_make_up.text": "Seus pais fizeram as pazes e saíram para jantar.",
+  "event.parents_fight.text": [
+    "Seus pais tiveram uma briga feia.",
+    "Ouvi meus pais discutindo alto na cozinha.",
+    "Meus pais passaram dias sem se falar depois de uma briga."
+  ],
+  "event.parents_make_up.text": [
+    "Seus pais fizeram as pazes e saíram para jantar.",
+    "Meus pais voltaram a rir juntos.",
+    "Meus pais fizeram as pazes com um abraço longo."
+  ],
   "event.divorce.text": "Seus pais se separaram.",
   "event.first_steps.text": "Você deu os primeiros passos, cambaleando até os braços dos seus pais.",
   "event.first_word.prompt": "Você está quase falando a primeira palavra.",
@@ -98,10 +106,22 @@
   "interaction.ask_money.success": "Ganhou um dinheirinho.",
   "interaction.ask_money.failure": "A resposta foi não.",
   "interaction.chat.label": "Conversar",
-  "interaction.chat.success": "Vocês conversaram e riram juntos.",
-  "interaction.chat.failure": "A conversa não engrenou.",
+  "interaction.chat.success": [
+    "Vocês conversaram e riram juntos.",
+    "Foi uma conversa boa, daquelas que fazem o dia.",
+    "Vocês falaram de tudo um pouco e o tempo voou."
+  ],
+  "interaction.chat.failure": [
+    "A conversa não engrenou.",
+    "Responderam com monossílabos.",
+    "Ficou um silêncio meio estranho."
+  ],
   "interaction.compliment.label": "Elogiar",
-  "interaction.compliment.success": "O elogio arrancou um sorriso.",
+  "interaction.compliment.success": [
+    "O elogio arrancou um sorriso.",
+    "Ficaram visivelmente felizes com o elogio.",
+    "Agradeceram, meio sem graça, mas contentes."
+  ],
   "interaction.compliment.failure": "Soou meio forçado.",
   "interaction.vent.label": "Desabafar",
   "interaction.vent.success": "Você se sentiu {player|ouvido|ouvida} e mais leve.",
@@ -110,7 +130,11 @@
   "interaction.ask_advice.success": "O conselho foi bom.",
   "interaction.ask_advice.failure": "O conselho não ajudou muito.",
   "interaction.play_together.label": "Brincar juntos",
-  "interaction.play_together.success": "Vocês brincaram a tarde toda.",
+  "interaction.play_together.success": [
+    "Vocês brincaram a tarde toda.",
+    "Foi uma bagunça divertida.",
+    "Vocês inventaram um jogo novo e riram muito."
+  ],
   "interaction.play_together.failure": "Estavam cansados demais para brincar.",
   "interaction.go_for_walk.label": "Passear",
   "interaction.go_for_walk.success": "Foi um passeio gostoso.",
@@ -146,7 +170,11 @@
   "activityCategory.leisure": "Lazer",
   "activity.carry_groceries.title": "Carregar compras",
   "activity.carry_groceries.description": "Ajudar os vizinhos com as sacolas do mercado.",
-  "activity.carry_groceries.done": "Você carregou sacolas a tarde inteira.",
+  "activity.carry_groceries.done": [
+    "Você carregou sacolas a tarde inteira.",
+    "Os vizinhos agradeceram pela ajuda com as compras.",
+    "Braços cansados, bolso um pouco mais cheio."
+  ],
   "activity.wash_cars.title": "Lavar carros",
   "activity.wash_cars.description": "Balde, esponja e os carros da rua.",
   "activity.wash_cars.done": "Os carros da rua ficaram brilhando.",
@@ -155,7 +183,11 @@
   "activity.walk_dogs.done": "Os cachorros voltaram cansados e felizes.",
   "activity.mow_lawn.title": "Cortar grama",
   "activity.mow_lawn.description": "Cortar a grama dos vizinhos.",
-  "activity.mow_lawn.done": "Você cortou a grama de três quintais.",
+  "activity.mow_lawn.done": [
+    "Você cortou a grama de três quintais.",
+    "A grama da rua ficou impecável.",
+    "Foi cansativo, mas os quintais ficaram lindos."
+  ],
   "activity.sell_at_recess.title": "Vender no recreio",
   "activity.sell_at_recess.description": "Comprar doces e revender na escola. Tem risco.",
   "activity.sell_at_recess.done": "Os doces acabaram antes do sinal.",
@@ -174,7 +206,11 @@
   "activity.gym.title": "Academia",
   "activity.gym.description": "Treinar alguns meses na academia do bairro.",
   "activity.gym.done": "Você já sente a diferença.",
-  "event.neighbor_extra_tip.text": "Um vizinho gostou tanto do serviço que deu uma gorjeta.",
+  "event.neighbor_extra_tip.text": [
+    "Um vizinho gostou tanto do serviço que deu uma gorjeta.",
+    "Ganhei uma gorjeta extra pelo capricho.",
+    "Uma vizinha pagou a mais e disse para eu guardar o troco."
+  ],
   "event.teacher_confiscates.text": "Um professor confiscou sua mercadoria.",
   "event.dog_runs_away.prompt": "Um dos cachorros escapou da coleira e saiu correndo.",
   "event.dog_runs_away.option.chase_the_dog": "Correr atrás dele",
@@ -332,8 +368,16 @@
   "event.new_school.option.sit_in_back": "Sentar no fundo, perto da turma animada",
   "event.entrance_exam.success": "Você passou no exame de admissão da escola que queria.",
   "event.entrance_exam.failure": "Você não passou no exame da escola que queria e foi para uma menos concorrida.",
-  "event.school_report.success": "Fim do ano letivo: boletim com notas boas.",
-  "event.school_report.failure": "Fim do ano letivo: notas baixas no boletim.",
+  "event.school_report.success": [
+    "Fim do ano letivo: boletim com notas boas.",
+    "Fim do ano letivo: os professores elogiaram suas notas.",
+    "Fim do ano letivo: passou de ano com folga."
+  ],
+  "event.school_report.failure": [
+    "Fim do ano letivo: notas baixas no boletim.",
+    "Fim do ano letivo: o boletim veio cheio de vermelho.",
+    "Fim do ano letivo: passou de ano por pouco."
+  ],
   "diary.school_stage": "Nova etapa na escola: {stage}.",
   "milestone.entrance_exam": "Exame de admissão",
   "ui.disclaimer": "Isto é uma simulação. Leis, escolas e costumes de cada país são aproximados e podem ter imprecisões.",
@@ -367,7 +411,11 @@
   "diary.new_friend": "{name} virou {self|meu amigo|minha amiga}.",
   "event.school_warning.text": "Você levou uma advertência da escola, e seus pais foram chamados.",
   "interaction.study_together.label": "Estudar juntos",
-  "interaction.study_together.success": "Vocês estudaram juntos e os dois aprenderam.",
+  "interaction.study_together.success": [
+    "Vocês estudaram juntos e os dois aprenderam.",
+    "Um explicou para o outro e a matéria fez sentido.",
+    "Estudar juntos rendeu mais do que sozinho."
+  ],
   "interaction.study_together.failure": "Era para estudar, mas ninguém se concentrou.",
   "interaction.ask_homework_help.label": "Pedir ajuda com a lição",
   "interaction.ask_homework_help.success": "Te explicaram a lição com paciência.",
@@ -376,7 +424,11 @@
   "interaction.gossip.success": "Vocês riram das fofocas da turma.",
   "interaction.gossip.failure": "Acharam a fofoca maldosa demais.",
   "interaction.invite_home.label": "Convidar para casa",
-  "interaction.invite_home.success": "Foi uma tarde divertida na sua casa.",
+  "interaction.invite_home.success": [
+    "Foi uma tarde divertida na sua casa.",
+    "Vocês jogaram, comeram besteira e conversaram até tarde.",
+    "A visita foi ótima e já combinaram a próxima."
+  ],
   "interaction.invite_home.failure": "Não puderam ir desta vez.",
   "interaction.drift_apart.label": "Se afastar",
   "interaction.drift_apart.success": "Vocês foram se afastando.",
@@ -400,7 +452,11 @@
   "ui.school_classmates": "Turma",
   "ui.school_teachers": "Professores",
   "ui.school_none": "Você ainda não está na escola.",
-  "event.recess_friend.text": "No recreio, você passou o tempo todo brincando com alguém da turma.",
+  "event.recess_friend.text": [
+    "No recreio, você passou o tempo todo brincando com alguém da turma.",
+    "No recreio, alguém da turma dividiu o lanche com você.",
+    "No recreio, você descobriu alguém da turma que gosta das mesmas coisas."
+  ],
   "ui.tab_daycare": "Creche",
   "ui.tab_job": "Profissão",
   "ui.tab_assets": "Bens",
@@ -466,7 +522,11 @@
   "interaction.send_note.success": "O bilhete arrancou um sorriso.",
   "interaction.send_note.failure": "O bilhete ficou sem resposta.",
   "interaction.go_on_date.label": "Chamar para sair",
-  "interaction.go_on_date.success": "Vocês passaram a tarde juntos e foi ótimo.",
+  "interaction.go_on_date.success": [
+    "Vocês passaram a tarde juntos e foi ótimo.",
+    "Sorvete, conversa e risada: um encontro perfeito.",
+    "Vocês foram ao parque e perderam a noção da hora."
+  ],
   "interaction.go_on_date.failure": "Não deu certo desta vez.",
   "interaction.hold_hands.label": "Ficar de mãos dadas",
   "interaction.hold_hands.success": "Vocês andaram de mãos dadas pelo parque.",
@@ -485,7 +545,11 @@
   "interaction.ask_for_cat.success": "Seus pais deixaram! Agora a família tem um gato.",
   "interaction.ask_for_cat.failure": "Nada de gato por enquanto.",
   "interaction.pet_animal.label": "Fazer carinho",
-  "interaction.pet_animal.success": "Ronronou, abanou o rabo, ficou feliz da vida.",
+  "interaction.pet_animal.success": [
+    "Ronronou, abanou o rabo, ficou feliz da vida.",
+    "Deitou de barriga para cima pedindo mais.",
+    "Encostou em você e não quis sair de perto."
+  ],
   "interaction.pet_animal.failure": "Não estava com paciência para carinho.",
   "interaction.play_with_pet.label": "Brincar",
   "interaction.play_with_pet.success": "Vocês brincaram até cansar.",
@@ -528,5 +592,9 @@
   "activity.pickpocket.done": "Você pegou a carteira sem ninguém perceber.",
   "activity.pickpocket.failed": "A pessoa percebeu e começou a gritar.",
   "event.caught_by_parents.text": "Seus pais foram chamados e ficaram furiosos com o que você fez.",
-  "event.caught_by_police.text": "A polícia foi chamada. Pela sua idade, o caso vai para a justiça juvenil, e seus pais ficaram arrasados."
+  "event.caught_by_police.text": "A polícia foi chamada. Pela sua idade, o caso vai para a justiça juvenil, e seus pais ficaram arrasados.",
+  "event.sibling_mischief.prompt": "Seu irmão ou sua irmã quebrou a janela com a bola, e seus pais querem saber quem foi.",
+  "event.sibling_mischief.option.take_the_blame": "Assumir a culpa",
+  "event.sibling_mischief.option.tell_the_truth": "Contar quem foi",
+  "event.sibling_mischief.option.stay_quiet": "Ficar {player|quieto|quieta}"
 }

@@ -79,9 +79,10 @@ function moneyLine(entry, state, locale) {
   return locale.format(spent ? 'diary.money.spent' : 'diary.money.lost', { amount });
 }
 
-function entryLine(entry, state, locale, block) {
-  // Event, activity and interaction texts may use {player|o|a}.
-  const text = (key) => locale.format(key, {}, { player: state.player.sex });
+function entryLine(entry, state, locale, block, index) {
+  // Event, activity and interaction texts may use {player|o|a}, and may
+  // have variants: the block and line pick one, always the same.
+  const text = (key) => locale.format(key, {}, { player: state.player.sex }, `${block.month}:${index}`);
   switch (entry.type) {
     case 'birthday':
       return locale.format('diary.birthday', { age: locale.plural('age.years', entry.age) });
@@ -164,7 +165,7 @@ export function describeBlock(block, state, locale) {
   const opening = isIntro ? introLines(state, locale) : continued ? continueLines(state, locale, continued, block.month) : [];
   const lines = [
     ...opening.map((text) => ({ kind: 'text', text })),
-    ...block.entries.map((e) => ({ kind: entryKind(e), text: entryLine(e, state, locale, block) })),
+    ...block.entries.map((e, index) => ({ kind: entryKind(e), text: entryLine(e, state, locale, block, index) })),
     { kind: 'money', text: allowanceLine(block.entries, state, locale) },
     { kind: 'stats', text: statsLine(block.entries, locale) },
   ].filter((line) => line.text);

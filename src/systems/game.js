@@ -192,7 +192,7 @@ function processCalendar(state, points, { people, relationships }) {
     }
     for (const event of calendarEventsAt(state.eventsById, point)) {
       const player = peopleNow[state.player.id];
-      if (!evaluateConditions(event.conditions, player, { currentMonthIndex: point.month, country: state.country })) continue;
+      if (!evaluateConditions(event.conditions, player, { currentMonthIndex: point.month, country: state.country, relationshipsById: relationshipsNow })) continue;
       const result = firePlayerEvent(event, {
         player,
         peopleById: peopleNow,

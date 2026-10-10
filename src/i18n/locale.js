@@ -11,12 +11,23 @@ const TOKEN = /\{([a-zA-Z_]+)(?:\|([^|}]*)\|([^|}]*))?\}/g;
 
 export const FALLBACK_LANGUAGE = 'pt-BR';
 
+// A text can be a list of variants so results don't always read the same.
+// The pick is stable for a given seed (e.g. the diary block and line), so
+// redrawing the screen never changes what was written — and it never
+// touches the game's rng.
+function pickVariant(value, seed) {
+  if (!Array.isArray(value)) return value;
+  let hash = 0;
+  for (const ch of String(seed ?? '')) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return value[hash % value.length];
+}
+
 export function createLocale(entries, language = FALLBACK_LANGUAGE, fallbackEntries = {}) {
   const has = (key) => key in entries || key in fallbackEntries;
-  const t = (key) => entries[key] ?? fallbackEntries[key] ?? key;
+  const t = (key, seed) => pickVariant(entries[key] ?? fallbackEntries[key] ?? key, seed);
 
-  function format(key, params = {}, sexes = {}) {
-    return t(key).replace(TOKEN, (token, name, male, female) => {
+  function format(key, params = {}, sexes = {}, seed) {
+    return t(key, seed).replace(TOKEN, (token, name, male, female) => {
       if (male !== undefined) {
         const sex = sexes[name];
         return sex === undefined ? token : sex === 'F' ? female : male;

@@ -1,0 +1,84 @@
+{
+  "id": "sibling_mischief",
+  "subject": "player",
+  "conditions": {
+    "minAge": 5,
+    "maxAge": 17,
+    "hasRole": [
+      "brother",
+      "sister"
+    ]
+  },
+  "yearlyChance": 0.35,
+  "cooldownMonths": 12,
+  "options": [
+    {
+      "id": "take_the_blame",
+      "effects": [
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": 12,
+          "targetRole": [
+            "brother",
+            "sister"
+          ]
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -3,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -3,
+          "targetRole": "father"
+        },
+        {
+          "op": "tendency",
+          "trait": "generous",
+          "delta": 1
+        }
+      ]
+    },
+    {
+      "id": "tell_the_truth",
+      "effects": [
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -8,
+          "targetRole": [
+            "brother",
+            "sister"
+          ]
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": 1,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": 1,
+          "targetRole": "father"
+        }
+      ]
+    },
+    {
+      "id": "stay_quiet",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": -1
+        }
+      ]
+    }
+  ]
+}

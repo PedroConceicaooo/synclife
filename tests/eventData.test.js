@@ -81,3 +81,10 @@ test('calendar events declare minAge and a known calendar point, and are never r
 test('every school stage of every country has a local name or a generic one', () => {
   for (const stage of ['elementary', 'middle', 'high']) assert.ok(LOCALE[`school.${stage}`], stage);
 });
+
+test('texts with variants are non-empty lists of strings', () => {
+  for (const [key, value] of Object.entries(LOCALE)) {
+    if (!Array.isArray(value)) continue;
+    assert.ok(value.length > 1 && value.every((v) => typeof v === 'string' && v.length > 0), key);
+  }
+});

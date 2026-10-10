@@ -37,6 +37,7 @@ const MANIFEST = {
     'secret_dating_discovered.json',
     'caught_by_parents.json',
     'caught_by_police.json',
+    'sibling_mischief.json',
     'babysitter.json',
     'neighbor_extra_tip.json',
     'teacher_confiscates.json',

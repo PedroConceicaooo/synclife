@@ -131,3 +131,15 @@ test('a country can ask for the short currency symbol', () => {
   assert.match(normalize(PT.money(2000, 'JPY', 'narrowSymbol')), /^¥ 2\.000$/);
   assert.equal(normalize(PT.money(1250, 'USD')), 'US$ 1.250');
 });
+
+test('a text with variants picks one per seed, always the same for that seed', () => {
+  const locale = createLocale({ hi: ['Oi', 'Olá', 'E aí'] });
+  const picks = new Set();
+  for (let i = 0; i < 30; i++) {
+    const text = locale.t('hi', `seed-${i}`);
+    assert.equal(locale.t('hi', `seed-${i}`), text);
+    picks.add(text);
+  }
+  assert.ok(picks.size > 1);
+  assert.equal(locale.t('hi'), locale.t('hi'));
+});

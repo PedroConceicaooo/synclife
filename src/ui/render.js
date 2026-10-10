@@ -296,9 +296,16 @@ export function renderSchool(dom, state, locale, { onOpenProfile }) {
   }
 }
 
-function interactionResultText(result, locale, sexes) {
+// Same variant as the diary line it matches (see diary.js).
+function lastLineSeed(state, type) {
+  const block = state.history.at(-1);
+  const index = block.entries.map((e) => e.type).lastIndexOf(type);
+  return `${block.month}:${index}`;
+}
+
+function interactionResultText(state, result, locale, sexes) {
   if (!result.attempted) return result.reason === 'limit' ? locale.t('ui.interaction_limit') : '';
-  return locale.format(`interaction.${result.interactionId}.${result.succeeded ? 'success' : 'failure'}`, {}, sexes);
+  return locale.format(`interaction.${result.interactionId}.${result.succeeded ? 'success' : 'failure'}`, {}, sexes, lastLineSeed(state, 'interaction'));
 }
 
 // Categories first; tapping one opens its submenu (design doc: up to six
@@ -350,12 +357,12 @@ export function renderProfile(dom, state, locale, personId, openCategory, { onBa
   }
 
   const result = state.lastInteractionResult;
-  dom.profileResult.textContent = result && result.targetId === personId ? interactionResultText(result, locale, sexesOf(state)) : '';
+  dom.profileResult.textContent = result && result.targetId === personId ? interactionResultText(state, result, locale, sexesOf(state)) : '';
 }
 
 const ACTIVITY_BLOCKER_KEYS = { limit: 'ui.activity_limit', money: 'ui.activity_no_money' };
 
-function activityResultText(result, locale, sexes) {
+function activityResultText(state, result, locale, sexes) {
   if (!result.attempted) return locale.t(ACTIVITY_BLOCKER_KEYS[result.reason]);
   // Events with options open the decision pop-up; the rest are told here.
   const eventTexts = result.triggeredEvents
@@ -363,14 +370,14 @@ function activityResultText(result, locale, sexes) {
     .filter((key) => locale.has(key))
     .map((key) => locale.format(key, {}, sexes));
   const outcome = result.succeeded === false ? 'failed' : 'done';
-  return [locale.format(`activity.${result.activityId}.${outcome}`, {}, sexes), ...eventTexts].join(' ');
+  return [locale.format(`activity.${result.activityId}.${outcome}`, {}, sexes, lastLineSeed(state, 'activity')), ...eventTexts].join(' ');
 }
 
 // Design doc: lists with title and a one-line description. Activities the
 // player can't do right now stay visible, disabled, with the reason.
 export function renderActivities(dom, state, locale, { onDoActivity }) {
   dom.activitiesTitle.textContent = locale.t('ui.activities_title');
-  dom.activitiesResult.textContent = state.lastActivityResult ? activityResultText(state.lastActivityResult, locale, sexesOf(state)) : '';
+  dom.activitiesResult.textContent = state.lastActivityResult ? activityResultText(state, state.lastActivityResult, locale, sexesOf(state)) : '';
 
   clearChildren(dom.activitiesList);
   for (const group of availableActivities(state)) {
