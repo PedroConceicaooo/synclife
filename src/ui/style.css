@@ -43,6 +43,11 @@
   box-sizing: border-box;
 }
 
+/* `hidden` always wins over layout rules like display: grid. */
+[hidden] {
+  display: none !important;
+}
+
 html,
 body {
   margin: 0;
@@ -461,8 +466,134 @@ h1 {
   border: 1px solid var(--pen);
 }
 
+
+/* Start screen: the name of the game beside a short growth ruler, the two
+   ways in within thumb reach, the simulation warning at the foot. */
+#start-screen:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-width: 520px;
+  margin-inline: auto;
+  padding: 48px var(--gutter) max(24px, env(safe-area-inset-bottom));
+}
+
+#start-brand {
+  position: relative;
+  padding-left: 32px;
+  margin-bottom: auto;
+}
+
+#start-brand::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 12px;
+  border-radius: 6px;
+  background: var(--ruler);
+}
+
+#start-title {
+  font-size: 2.6rem;
+  line-height: 1.1;
+  margin: 0;
+}
+
+#start-tagline {
+  margin-top: 8px;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+}
+
+#start-choice,
+#start-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 40px;
+}
+
+#start-screen button {
+  min-height: 52px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--pen);
+  color: var(--on-pen);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+#start-screen button.secondary {
+  background: none;
+  color: var(--pen);
+  border: 1px solid var(--pen);
+}
+
+#start-form label,
+#start-form legend {
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+#start-form fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+#start-sex {
+  grid-template-columns: 1fr 1fr;
+}
+
+#start-sex legend {
+  grid-column: 1 / -1;
+}
+
+#start-form input[type='text'],
+#start-form select {
+  font: inherit;
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.choice-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-weight: 400;
+  margin: 0;
+}
+
+.choice-option:has(input:checked) {
+  border-color: var(--pen);
+  box-shadow: inset 0 0 0 1px var(--pen);
+}
+
+.choice-option img {
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px var(--rule);
+}
+
+#start-form-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
 #disclaimer {
+  margin-top: 24px;
   font-size: 0.85rem;
   color: var(--ink-soft);
-  margin-bottom: 16px;
 }

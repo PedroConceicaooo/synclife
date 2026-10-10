@@ -7,6 +7,7 @@ import {
   attemptPlayerInteraction,
   attemptPlayerActivity,
   continueAdvance,
+  playableCountries,
 } from './gameState.js';
 import { toSave, fromSave } from '../systems/save.js';
 import { continueAsSibling } from '../systems/lifeEnd.js';
@@ -20,6 +21,7 @@ import {
   renderProfile,
   renderActivities,
   renderDecisionModal,
+  renderStart,
 } from './render.js';
 
 const byId = (id) => document.getElementById(id);
@@ -33,6 +35,21 @@ const dom = {
   screens: byId('screens'),
   lifeScreen: byId('life-screen'),
   diary: byId('diary'),
+  app: byId('app'),
+  startScreen: byId('start-screen'),
+  startTagline: byId('start-tagline'),
+  startChoice: byId('start-choice'),
+  startRandom: byId('start-random'),
+  startCustom: byId('start-custom'),
+  startForm: byId('start-form'),
+  startNameLabel: byId('start-name-label'),
+  startName: byId('start-name'),
+  startSex: byId('start-sex'),
+  startCountry: byId('start-country'),
+  startCityLabel: byId('start-city-label'),
+  startCity: byId('start-city'),
+  startBegin: byId('start-begin'),
+  startBack: byId('start-back'),
   disclaimer: byId('disclaimer'),
   summary: byId('summary'),
   summaryTitle: byId('summary-title'),
@@ -92,9 +109,42 @@ async function main() {
   const [gameData, { language, entries, fallback }] = await Promise.all([loadGameData(), loadLocale()]);
   const locale = createLocale(entries, language, fallback);
 
-  const newLife = () => createGameState({ seed: Date.now(), ...gameData });
-  let state = readSave(gameData) ?? newLife();
-  let view = { screen: 'life' };
+  const countries = playableCountries(gameData.countriesById);
+  const newLife = (choices) => createGameState({ seed: Date.now(), ...gameData, choices });
+  let state = readSave(gameData);
+  // No save yet: the game opens on the start screen.
+  let view = state ? { screen: 'life' } : { screen: 'start' };
+  const freshForm = () => ({ open: false, firstName: '', sex: 'F', countryId: countries[0].id, cityId: countries[0].cities[0] });
+  let form = freshForm();
+
+  function renderStartScreen() {
+    renderStart(dom, locale, countries, form, {
+      onRandom: () => {
+        update(newLife(), { screen: 'life' });
+        dom.screens.scrollTo({ top: 0 });
+      },
+      onOpenCustom: () => {
+        form = { ...form, open: true };
+        render();
+      },
+      onBack: () => {
+        form = { ...form, open: false };
+        render();
+      },
+      onFormChange: (changes, { rerender = true } = {}) => {
+        form = { ...form, ...changes };
+        // A new country brings its own cities.
+        if (changes.countryId) form.cityId = countries.find((c) => c.id === changes.countryId).cities[0];
+        if (rerender) render();
+      },
+      onBegin: () => {
+        const { firstName, sex, countryId, cityId } = form;
+        form = freshForm();
+        update(newLife({ firstName, sex, countryId, cityId }), { screen: 'life' });
+        dom.screens.scrollTo({ top: 0 });
+      },
+    });
+  }
 
   // The newest diary block sits at the bottom; show it after each change.
   function scrollDiaryToEnd() {
@@ -110,7 +160,14 @@ async function main() {
     render();
   }
 
+
   function render() {
+    dom.startScreen.hidden = view.screen !== 'start';
+    dom.app.hidden = view.screen === 'start';
+    if (view.screen === 'start') {
+      renderStartScreen();
+      return;
+    }
     for (const [screen, key] of Object.entries(SCREENS)) dom[key].hidden = view.screen !== screen;
 
     renderHeader(dom, state, locale);
@@ -126,9 +183,10 @@ async function main() {
         if (tab === 'life') scrollDiaryToEnd();
         else dom.screens.scrollTo({ top: 0 });
       },
+      // The finished life stays saved until the next one actually starts.
       onNewLife: () => {
-        update(newLife(), { screen: 'life' });
-        dom.screens.scrollTo({ top: 0 });
+        view = { screen: 'start' };
+        render();
       },
       onContinueAs: (siblingId) => {
         update(continueAsSibling(state, siblingId), { screen: 'life' });
@@ -169,7 +227,7 @@ async function main() {
   }
 
   render();
-  scrollDiaryToEnd();
+  if (view.screen === 'life') scrollDiaryToEnd();
 }
 
 main();

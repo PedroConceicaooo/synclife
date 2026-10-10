@@ -9,7 +9,42 @@
   <link rel="stylesheet" href="/src/ui/style.css" />
 </head>
 <body>
-  <div id="app">
+  <main id="start-screen" hidden>
+    <div id="start-brand">
+      <h1 id="start-title">SyncLife</h1>
+      <p id="start-tagline"></p>
+    </div>
+
+    <div id="start-choice">
+      <button id="start-random" type="button"></button>
+      <button id="start-custom" class="secondary" type="button"></button>
+    </div>
+
+    <form id="start-form" hidden>
+      <label for="start-name" id="start-name-label"></label>
+      <input id="start-name" name="firstName" type="text" maxlength="30" autocomplete="off" />
+
+      <fieldset id="start-sex">
+        <legend id="start-sex-label"></legend>
+      </fieldset>
+
+      <fieldset id="start-country">
+        <legend id="start-country-label"></legend>
+      </fieldset>
+
+      <label for="start-city" id="start-city-label"></label>
+      <select id="start-city" name="cityId"></select>
+
+      <div id="start-form-actions">
+        <button id="start-begin" type="submit"></button>
+        <button id="start-back" class="secondary" type="button"></button>
+      </div>
+    </form>
+
+    <p id="disclaimer"></p>
+  </main>
+
+  <div id="app" hidden>
     <header id="top">
       <img id="top-flag" alt="" width="36" height="24" />
       <div id="top-identity">
@@ -24,7 +59,6 @@
 
     <main id="screens">
       <section id="life-screen" aria-live="polite">
-        <p id="disclaimer"></p>
         <ol id="diary"></ol>
         <section id="summary" hidden>
           <h1 id="summary-title"></h1>

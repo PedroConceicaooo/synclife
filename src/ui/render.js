@@ -58,7 +58,6 @@ export function renderStats(dom, state, locale) {
 }
 
 export function renderDiary(dom, state, locale) {
-  dom.disclaimer.textContent = locale.t('ui.disclaimer');
   clearChildren(dom.diary);
   for (const { header, lines } of describeHistory(state, locale)) {
     const block = el('li', { className: 'diary-block' });
@@ -295,4 +294,78 @@ export function renderDecisionModal(dom, state, locale, { onChoose }) {
     dom.decisionOptions.appendChild(button);
   }
   dom.decisionOptions.firstChild?.focus();
+}
+
+// Design doc, "Início": a random life or a custom one (name, sex, country,
+// city), with the warning that the game is a simulation.
+export function renderStart(dom, locale, countries, form, { onRandom, onOpenCustom, onBack, onFormChange, onBegin }) {
+  dom.startTagline.textContent = locale.t('start.tagline');
+  dom.startRandom.textContent = locale.t('start.random');
+  dom.startRandom.onclick = onRandom;
+  dom.startCustom.textContent = locale.t('start.custom');
+  dom.startCustom.onclick = onOpenCustom;
+  dom.disclaimer.textContent = locale.t('ui.disclaimer');
+
+  dom.startChoice.hidden = form.open;
+  dom.startForm.hidden = !form.open;
+  if (!form.open) return;
+
+  dom.startNameLabel.textContent = locale.t('start.name_label');
+  dom.startName.placeholder = locale.t('start.name_hint');
+  dom.startName.value = form.firstName;
+  dom.startName.oninput = () => onFormChange({ firstName: dom.startName.value }, { rerender: false });
+
+  function radioGroup(fieldset, legendKey, name, options) {
+    clearChildren(fieldset);
+    fieldset.appendChild(el('legend', { text: locale.t(legendKey) }));
+    for (const { value, label, image } of options) {
+      const option = el('label', { className: 'choice-option' });
+      const input = el('input');
+      input.type = 'radio';
+      input.name = name;
+      input.value = value;
+      input.checked = form[name] === value;
+      input.addEventListener('change', () => onFormChange({ [name]: value }));
+      option.appendChild(input);
+      if (image) {
+        const flag = el('img');
+        flag.src = image;
+        flag.alt = '';
+        flag.width = 30;
+        flag.height = 20;
+        option.appendChild(flag);
+      }
+      option.appendChild(el('span', { text: label }));
+      fieldset.appendChild(option);
+    }
+  }
+
+  radioGroup(dom.startSex, 'start.sex_label', 'sex', ['F', 'M'].map((value) => ({ value, label: locale.t(`start.sex.${value}`) })));
+  radioGroup(
+    dom.startCountry,
+    'start.country_label',
+    'countryId',
+    countries
+      .map((c) => ({ value: c.id, label: locale.t(`country.${c.id}`), image: `/src/ui/flags/${c.id}.svg` }))
+      .sort((a, b) => a.label.localeCompare(b.label, locale.language)),
+  );
+
+  const country = countries.find((c) => c.id === form.countryId);
+  dom.startCityLabel.textContent = locale.t('start.city_label');
+  clearChildren(dom.startCity);
+  for (const cityId of country.cities) {
+    const option = el('option', { text: locale.t(`city.${cityId}`) });
+    option.value = cityId;
+    option.selected = cityId === form.cityId;
+    dom.startCity.appendChild(option);
+  }
+  dom.startCity.onchange = () => onFormChange({ cityId: dom.startCity.value }, { rerender: false });
+
+  dom.startBegin.textContent = locale.t('start.begin');
+  dom.startBack.textContent = locale.t('start.back');
+  dom.startBack.onclick = onBack;
+  dom.startForm.onsubmit = (event) => {
+    event.preventDefault();
+    onBegin();
+  };
 }

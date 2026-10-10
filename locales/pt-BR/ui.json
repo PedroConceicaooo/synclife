@@ -339,5 +339,17 @@
   "event.school_report.failure": "Fim do ano letivo: notas baixas no boletim.",
   "diary.school_stage": "Nova etapa na escola: {stage}.",
   "milestone.entrance_exam": "Exame de admissão",
-  "ui.disclaimer": "Isto é uma simulação. Leis, escolas e costumes de cada país são aproximados e podem ter imprecisões."
+  "ui.disclaimer": "Isto é uma simulação. Leis, escolas e costumes de cada país são aproximados e podem ter imprecisões.",
+  "start.tagline": "Uma vida inteira, do primeiro passo aos 18.",
+  "start.random": "Vida aleatória",
+  "start.custom": "Vida personalizada",
+  "start.name_label": "Nome",
+  "start.name_hint": "Em branco, o nome é sorteado",
+  "start.sex_label": "Sexo",
+  "start.sex.F": "Menina",
+  "start.sex.M": "Menino",
+  "start.country_label": "País",
+  "start.city_label": "Cidade",
+  "start.begin": "Começar",
+  "start.back": "Voltar"
 }
