@@ -347,3 +347,14 @@ test('lifePhase follows the design doc age bands', () => {
   assert.equal(at(17, 11), 'teen');
   assert.equal(at(18), 'adult');
 });
+
+test('siblings grow up too, not only the player', () => {
+  const lives = [1, 2, 3, 4, 5, 6, 7, 8].map((seed) => playFullLife(seed).state);
+  const state = lives.find((s) => Object.keys(s.people).some((id) => id > s.father.id));
+  assert.ok(state, 'some seed should have a sibling');
+  const siblings = Object.values(state.people).filter((p) => p.id > state.father.id);
+  for (const sibling of siblings) {
+    const ageYears = (state.currentMonthIndex - sibling.birth) / 12;
+    if (ageYears >= 3) assert.ok(sibling.stats.intelligence > 30, `${sibling.id} at ${ageYears}: ${sibling.stats.intelligence}`);
+  }
+});

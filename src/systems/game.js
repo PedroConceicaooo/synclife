@@ -120,13 +120,26 @@ function appendToCurrentBlock(history, entries) {
   return [...history.slice(0, -1), { ...last, entries: [...last.entries, ...entries] }];
 }
 
-// Average of how much each parent likes the player.
-function familyAffinity(state, relationships) {
-  const sides = [
-    relationships[state.motherChildId].affinity[state.mother.id],
-    relationships[state.fatherChildId].affinity[state.father.id],
-  ];
-  return sides.reduce((sum, value) => sum + value, 0) / sides.length;
+const CHILD_ROLES = ['son', 'daughter'];
+
+// Average of how much each parent likes this child, or null without parents.
+function familyAffinity(personId, relationships) {
+  const sides = Object.values(relationships)
+    .filter((r) => CHILD_ROLES.includes(r.roles[personId]))
+    .map((r) => r.affinity[otherSide(r, personId)]);
+  return sides.length > 0 ? sides.reduce((sum, value) => sum + value, 0) / sides.length : null;
+}
+
+// Every child under 18 grows, not only the player: NPCs live their own
+// lives, and a sibling may become the player at 18.
+function growChildren(people, relationships, { months, monthIndex }) {
+  const next = { ...people };
+  for (const person of Object.values(people)) {
+    const ageMonths = monthIndex - person.birth;
+    if (!person.aptitudes || ageMonths < 0 || ageMonths >= ADULT_AGE * 12) continue;
+    next[person.id] = growStats(person, { months, ageMonths, familyAffinity: familyAffinity(person.id, relationships) }).person;
+  }
+  return next;
 }
 
 export function advanceStep(state, months) {
@@ -151,12 +164,7 @@ export function advanceStep(state, months) {
   people = world.peopleById;
   for (const f of world.fired) entries.push({ type: 'worldEvent', eventId: f.eventId, relationshipId: f.relationshipId });
 
-  const grown = growStats(people[playerId], {
-    months,
-    ageMonths: state.currentMonthIndex - state.player.birth,
-    familyAffinity: familyAffinity(state, relationships),
-  });
-  people = { ...people, [playerId]: grown.person };
+  people = growChildren(people, relationships, { months, monthIndex: state.currentMonthIndex });
 
   const playerEvents = processPlayerEvents(state.eventsById, {
     player: people[playerId],
