@@ -5,7 +5,7 @@
 // Paths are relative to this file, so the game works in a subfolder too
 // (e.g. GitHub Pages at /synclife/).
 
-const CACHE = 'synclife-v2';
+const CACHE = 'synclife-v3';
 const SHELL = ['./', 'index.html', 'src/ui/style.css', 'src/ui/app.js', 'manifest.webmanifest', 'icons/icon.svg'];
 
 self.addEventListener('install', (event) => {

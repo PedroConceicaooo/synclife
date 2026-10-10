@@ -3,7 +3,8 @@
 // friend moves to Relationships). Each school stage brings a new class.
 
 import { nextIdAfter } from '../engine/id.js';
-import { createPerson, pickRandomTraits, rollStats, rollAptitudes, rollAppearance, ADULT_STAT_RANGES } from '../engine/person.js';
+import { createPerson, pickRandomTraits, rollStats, rollAptitudes, ADULT_STAT_RANGES } from '../engine/person.js';
+import { rollAppearance } from './appearanceCompat.js';
 import { createRelationship } from './relationship.js';
 import { pickFirstName, randomLastName } from './naming.js';
 import { schoolEntryMonth } from './school.js';
@@ -75,7 +76,7 @@ export function startClass(rng, { people, relationships, playerId, country, mont
       traits: pickRandomTraits(rng, 2),
       stats: rollStats(rng, classmateStatRanges(Math.floor((month - birth) / 12))),
       aptitudes: rollAptitudes(rng),
-      appearance: rollAppearance(rng),
+      appearance: rollAppearance(rng, sex),
     });
     taken.push(classmate.firstName);
     classmateIds.push(classmate.id);
@@ -96,7 +97,7 @@ export function startClass(rng, { people, relationships, playerId, country, mont
       traits: pickRandomTraits(rng, 2),
       stats: rollStats(rng, ADULT_STAT_RANGES),
       occupation: { type: 'job', title: 'teacher' },
-      appearance: rollAppearance(rng),
+      appearance: rollAppearance(rng, sex),
     });
     teacherIds.push(teacher.id);
     addRelationship({

@@ -125,16 +125,17 @@ button:disabled {
   display: flex;
 }
 
+/* The flag follows the end of the name, even when a long name wraps. */
 #top-name {
-  display: flex;
-  align-items: center;
-  gap: 6px;
   font-size: 1.2rem;
   font-weight: 700;
   line-height: 1.2;
 }
 
 #top-flag {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 6px;
   width: 21px;
   height: 14px;
   border-radius: 2px;

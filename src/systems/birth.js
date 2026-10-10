@@ -2,7 +2,8 @@
 // relationships with both parents and with every child they already have.
 
 import { nextIdAfter } from '../engine/id.js';
-import { createPerson, rollStats, rollAptitudes, inheritAppearance, NEWBORN_STAT_RANGES } from '../engine/person.js';
+import { createPerson, rollStats, rollAptitudes, NEWBORN_STAT_RANGES } from '../engine/person.js';
+import { inheritFrom } from './appearanceCompat.js';
 import { createRelationship } from './relationship.js';
 import { nameChild } from './naming.js';
 
@@ -47,7 +48,7 @@ export function addChild(rng, { parentIds, peopleById, relationshipsById, monthI
   const named = country?.nameList
     ? nameChild(rng, unnamed, { mother, father, country, siblingFirstNames: siblingIds.map((id) => peopleById[id].firstName) })
     : unnamed;
-  const child = { ...named, appearance: inheritAppearance(rng, mother, father) };
+  const child = { ...named, appearance: inheritFrom(rng, mother, father, named.sex) };
 
   const relationships = { ...relationshipsById };
   function add(fields) {

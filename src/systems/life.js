@@ -10,9 +10,8 @@ import {
   rollStats,
   rollAptitudes,
   NEWBORN_STAT_RANGES,
-  rollAppearance,
-  inheritAppearance,
 } from '../engine/person.js';
+import { rollAppearance, inheritFrom } from './appearanceCompat.js';
 import { generateParents, createFamilyRelationships } from './family.js';
 import { nameParents, nameChild } from './naming.js';
 
@@ -48,8 +47,8 @@ export function createNewLife(rng, { countries, nextPersonId, nextRelationshipId
   const cityId = country.cities.includes(choices.cityId) ? choices.cityId : rolledCityId;
   const pickOccupation = () => ({ type: 'job', title: country.occupations[rng.nextInt(0, country.occupations.length)] });
   const named = nameParents(rng, { ...parents, country });
-  const mother = { ...named.mother, cityId, occupation: pickOccupation(), appearance: rollAppearance(rng) };
-  const father = { ...named.father, cityId, occupation: pickOccupation(), appearance: rollAppearance(rng) };
+  const mother = { ...named.mother, cityId, occupation: pickOccupation(), appearance: rollAppearance(rng, 'F') };
+  const father = { ...named.father, cityId, occupation: pickOccupation(), appearance: rollAppearance(rng, 'M') };
   const namedPlayer = nameChild(rng, unnamedPlayer, { mother, father, country });
   const chosenName = (choices.firstName ?? '').trim().slice(0, MAX_FIRST_NAME_LENGTH);
   // Parents start with some everyday stress (design doc: adults only).
@@ -59,7 +58,7 @@ export function createNewLife(rng, { countries, nextPersonId, nextRelationshipId
     ...namedPlayer,
     firstName: chosenName || namedPlayer.firstName,
     cityId,
-    appearance: inheritAppearance(rng, mother, father),
+    appearance: inheritFrom(rng, mother, father, namedPlayer.sex),
   };
 
   return { player, mother, father, country, relationships: { motherChild, fatherChild, marriage } };

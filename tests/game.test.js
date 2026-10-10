@@ -405,10 +405,10 @@ test('playerOccupation follows age and the country school calendar', () => {
 test('everyone in a new life has an appearance, and the player takes after the parents', () => {
   for (let seed = 1; seed <= 20; seed++) {
     const { player, mother, father } = createGameState(baseArgs(seed));
-    for (const person of [player, mother, father]) assert.ok(person.appearance, `${seed} ${person.id}`);
-    for (const trait of ['skin', 'hair']) {
-      assert.ok([mother.appearance[trait], father.appearance[trait]].includes(player.appearance[trait]), `${seed} ${trait}`);
-    }
+    for (const person of [player, mother, father]) assert.ok('skinTone' in person.appearance, `${seed} ${person.id}`);
+    // appearance.js: skin is the parents' average, one step either way at most.
+    const average = (mother.appearance.skinTone + father.appearance.skinTone) / 2;
+    assert.ok(Math.abs(player.appearance.skinTone - average) <= 1.5, `${seed} skin`);
   }
 });
 

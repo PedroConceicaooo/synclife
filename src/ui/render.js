@@ -7,7 +7,7 @@ import { fullName } from '../systems/naming.js';
 import { describeHistory } from './diary.js';
 import { isAdult, availableInteractions, availableActivities, closePeople, playerOccupation, assetShop } from './gameState.js';
 import { assetPrice, resalePrice } from '../systems/assets.js';
-import { avatarElement } from './avatar.js';
+import { avatarElement } from './avatarElement.js';
 import { lifeSummary } from '../systems/lifeEnd.js';
 import { schoolPeople } from '../systems/schoolmates.js';
 import { schoolStageAt } from '../systems/school.js';
