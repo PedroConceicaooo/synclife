@@ -23,7 +23,6 @@ import { calendarPoints, calendarEventsAt, firstDecisionPoint } from './calendar
 import { startClass, promoteFriendships } from './schoolmates.js';
 import { attemptInteraction, listAvailableInteractions } from './interactions.js';
 import { attemptActivity, listActivities } from './activities.js';
-import { applyEffects } from '../engine/effects.js';
 import { isAllowanceAge, payAllowance, transferMoney } from './money.js';
 import { growStats } from './growth.js';
 
@@ -353,20 +352,29 @@ export function attemptPlayerInteraction(state, interactionId, targetPersonId) {
     rng: state.rng,
   });
 
-  const entries = result.attempted
-    ? [
-        { type: 'interaction', interactionId, targetId: targetPersonId, succeeded: result.succeeded },
-        ...moneyEntries(playerBefore, result.peopleById[state.player.id], { source: 'interaction', interactionId, fromId: targetPersonId }),
-        ...statEntries(playerBefore, result.peopleById[state.player.id]),
-      ]
-    : [];
+  if (!result.attempted) {
+    return { ...state, lastInteractionResult: { ...result, interactionId, targetId: targetPersonId } };
+  }
+
+  const triggered = fireTriggeredEvents(state, result.triggeredEvents, { people: result.peopleById, relationships: result.relationshipsById });
+  const friendships = promoteFriendships(triggered.relationships, state.player.id);
+  const playerAfter = triggered.people[state.player.id];
+  const entries = [
+    { type: 'interaction', interactionId, targetId: targetPersonId, succeeded: result.succeeded },
+    ...triggered.entries,
+    ...friendships.newFriendIds.map((personId) => ({ type: 'newFriend', personId })),
+    ...moneyEntries(playerBefore, playerAfter, { source: 'interaction', interactionId, fromId: targetPersonId }),
+    ...statEntries(playerBefore, playerAfter),
+  ];
 
   return {
     ...state,
-    relationships: result.relationshipsById,
-    people: result.peopleById,
+    relationships: friendships.relationships,
+    people: triggered.people,
+    pendingDecisions: [...state.pendingDecisions, ...triggered.pendingDecisions],
+    firedEvents: [...state.firedEvents, ...triggered.fired],
     lastInteractionResult: { ...result, interactionId, targetId: targetPersonId },
-    history: entries.length > 0 ? appendToCurrentBlock(state.history, entries) : state.history,
+    history: appendToCurrentBlock(state.history, entries),
   };
 }
 
@@ -378,6 +386,31 @@ export function availableInteractions(state, targetPersonId) {
     country: state.country,
     currentMonthIndex: state.currentMonthIndex,
   });
+}
+
+// Events set off by an activity or an interaction: ones with options become
+// a decision, the rest happen right away.
+function fireTriggeredEvents(state, eventIds, { people, relationships }) {
+  let peopleNow = people;
+  let relationshipsNow = relationships;
+  const entries = [];
+  const pendingDecisions = [];
+  for (const eventId of eventIds) {
+    const event = state.eventsById[eventId];
+    const result = firePlayerEvent(event, {
+      player: peopleNow[state.player.id],
+      peopleById: peopleNow,
+      relationshipsById: relationshipsNow,
+      country: state.country,
+      rng: state.rng,
+    });
+    peopleNow = result.peopleById;
+    relationshipsNow = result.relationshipsById;
+    if (result.decision) pendingDecisions.push(result.decision);
+    else entries.push({ type: 'event', eventId, ...(result.succeeded === null ? {} : { succeeded: result.succeeded }) });
+  }
+  const fired = eventIds.map((eventId) => ({ eventId, month: state.currentMonthIndex, playerId: state.player.id }));
+  return { people: peopleNow, relationships: relationshipsNow, entries, pendingDecisions, fired };
 }
 
 export function availableActivities(state) {
@@ -411,43 +444,22 @@ export function attemptPlayerActivity(state, activityId) {
     return { ...state, lastActivityResult: { attempted: false, reason: result.reason, activityId } };
   }
 
-  let people = result.peopleById;
-  let relationships = result.relationshipsById;
-  const entries = [{ type: 'activity', activityId }];
-  const eventEntries = [];
-  const pendingDecisions = [];
-
-  for (const eventId of result.triggeredEvents) {
-    const event = state.eventsById[eventId];
-    if (event.options) {
-      pendingDecisions.push({ trigger: eventId, firingRelationship: null });
-      continue;
-    }
-    const applied = applyEffects(event.effects ?? [], {
-      relationship: null,
-      relationshipsById: relationships,
-      peopleById: people,
-      playerId,
-      country: state.country,
-    });
-    people = applied.peopleById;
-    relationships = applied.relationshipsById;
-    eventEntries.push({ type: 'event', eventId });
-  }
-
-  entries.push(
-    ...eventEntries,
+  const triggered = fireTriggeredEvents(state, result.triggeredEvents, { people: result.peopleById, relationships: result.relationshipsById });
+  const { people, relationships } = triggered;
+  const entries = [
+    { type: 'activity', activityId },
+    ...triggered.entries,
     ...moneyEntries(playerBefore, people[playerId], { source: 'activity', activityId }),
     ...statEntries(playerBefore, people[playerId]),
-  );
+  ];
 
   return {
     ...state,
     people,
     relationships,
     activityUsesThisPeriod: { ...uses, [activityId]: (uses[activityId] ?? 0) + 1 },
-    pendingDecisions: [...state.pendingDecisions, ...pendingDecisions],
-    firedEvents: [...state.firedEvents, ...result.triggeredEvents.map((eventId) => ({ eventId, month: state.currentMonthIndex, playerId }))],
+    pendingDecisions: [...state.pendingDecisions, ...triggered.pendingDecisions],
+    firedEvents: [...state.firedEvents, ...triggered.fired],
     history: appendToCurrentBlock(state.history, entries),
     lastActivityResult: { attempted: true, activityId, triggeredEvents: result.triggeredEvents },
   };

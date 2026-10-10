@@ -8,8 +8,20 @@ export function indexInteractions(interactions) {
   return Object.fromEntries(interactions.map((interaction) => [interaction.id, interaction]));
 }
 
-// player is only needed for playerStat modifiers (event checks).
-export function resolveChance(chance, { relationship, targetPersonId, target, player }) {
+// Average of how much the people holding `role` toward the player like the
+// player (e.g. their teachers), or null when nobody holds it.
+function roleAffinity(role, relationshipsById, playerId) {
+  const values = Object.values(relationshipsById)
+    .filter((r) => playerId in r.roles)
+    .map((r) => [Object.keys(r.roles).find((id) => id !== playerId), r])
+    .filter(([otherId, r]) => r.roles[otherId] === role)
+    .map(([otherId, r]) => r.affinity[otherId]);
+  return values.length > 0 ? values.reduce((sum, v) => sum + v, 0) / values.length : null;
+}
+
+// player is only needed for playerStat modifiers, relationshipsById and
+// playerId for roleAffinity (event checks).
+export function resolveChance(chance, { relationship, targetPersonId, target, player, relationshipsById, playerId }) {
   let p = chance.base;
 
   for (const modifier of chance.modifiers) {
@@ -23,6 +35,11 @@ export function resolveChance(chance, { relationship, targetPersonId, target, pl
       case 'playerStat':
         p += ((player.stats[modifier.stat] - 50) / 100) * modifier.weight;
         break;
+      case 'roleAffinity': {
+        const value = roleAffinity(modifier.role, relationshipsById, playerId);
+        if (value !== null) p += ((value - 50) / 100) * modifier.weight;
+        break;
+      }
       default:
         throw new Error(`Unknown chance factor: ${modifier.factor}`);
     }
@@ -74,7 +91,15 @@ export function attemptInteraction(
     },
   );
 
-  return { attempted: true, succeeded, relationshipsById: nextRelationshipsById, peopleById: nextPeopleById };
+  // Consequences that may come later (design doc: annoying a teacher can
+  // bring a warning). on: "success", "failure" or "any" (the default).
+  const outcome = succeeded ? 'success' : 'failure';
+  const triggeredEvents = (interaction.randomEvents ?? [])
+    .filter((r) => (r.on ?? 'any') === 'any' || r.on === outcome)
+    .filter((r) => rng.chance(r.chance))
+    .map((r) => r.event);
+
+  return { attempted: true, succeeded, relationshipsById: nextRelationshipsById, peopleById: nextPeopleById, triggeredEvents };
 }
 
 // Display order of the profile's categories (design doc: up to six).

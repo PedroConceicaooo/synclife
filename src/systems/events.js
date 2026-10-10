@@ -100,7 +100,7 @@ export function firePlayerEvent(event, { player, peopleById, relationshipsById, 
   let effects = event.effects ?? [];
   let succeeded = null;
   if (event.check) {
-    succeeded = rng.chance(resolveChance(event.check, { player }));
+    succeeded = rng.chance(resolveChance(event.check, { player, relationshipsById, playerId: player.id }));
     effects = succeeded ? event.success : event.failure;
   }
   const result = applyEffects(effects, { relationship: null, relationshipsById, peopleById, playerId: player.id, country });
