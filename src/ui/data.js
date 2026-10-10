@@ -128,7 +128,7 @@ const MANIFEST = {
 };
 
 async function fetchAll(dir, files) {
-  return Promise.all(files.map((fileName) => fetch(`/data/${dir}/${fileName}`).then((response) => response.json())));
+  return Promise.all(files.map((fileName) => fetch(`data/${dir}/${fileName}`).then((response) => response.json())));
 }
 
 export async function loadGameData() {
@@ -142,7 +142,7 @@ export async function loadGameData() {
 
   const countriesWithNames = await Promise.all(
     countries.map(async (country) =>
-      country.names ? { ...country, nameList: await (await fetch(`/data/${country.names}`)).json() } : country,
+      country.names ? { ...country, nameList: await (await fetch(`data/${country.names}`)).json() } : country,
     ),
   );
 
@@ -158,7 +158,7 @@ export async function loadGameData() {
 // The chosen language plus Portuguese as the fallback (only pt-BR exists so
 // far, so both are the same file today).
 export async function loadLocale(language = FALLBACK_LANGUAGE) {
-  const load = async (lang) => (await fetch(`/locales/${lang}/ui.json`)).json();
+  const load = async (lang) => (await fetch(`locales/${lang}/ui.json`)).json();
   const fallback = await load(FALLBACK_LANGUAGE);
   const entries = language === FALLBACK_LANGUAGE ? fallback : await load(language).catch(() => ({}));
   return { language, entries, fallback };

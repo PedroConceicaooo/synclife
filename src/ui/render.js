@@ -84,7 +84,7 @@ export function renderHeader(dom, state, locale) {
   clearChildren(dom.topAvatar);
   dom.topAvatar.appendChild(avatarElement(player, ageOf(state, player), 52));
   dom.topNameText.textContent = fullName(player, state.country);
-  dom.topFlag.src = `/src/ui/flags/${state.country.id}.svg`;
+  dom.topFlag.src = `src/ui/flags/${state.country.id}.svg`;
   dom.topFlag.alt = locale.format('ui.flag_alt', { country: countryName });
   dom.topPhase.textContent = occupationLabel(state, locale);
   dom.topMoney.textContent = locale.money(player.money, state.country.currency.code, state.country.currency.display);
@@ -478,7 +478,7 @@ export function renderStart(dom, locale, countries, form, { onRandom, onOpenCust
     'start.country_label',
     'countryId',
     countries
-      .map((c) => ({ value: c.id, label: locale.t(`country.${c.id}`), image: `/src/ui/flags/${c.id}.svg` }))
+      .map((c) => ({ value: c.id, label: locale.t(`country.${c.id}`), image: `src/ui/flags/${c.id}.svg` }))
       .sort((a, b) => a.label.localeCompare(b.label, locale.language)),
   );
 
