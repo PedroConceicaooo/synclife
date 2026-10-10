@@ -7,10 +7,13 @@ import {
   attemptPlayerInteraction,
   attemptPlayerActivity,
 } from './gameState.js';
+import { toSave, fromSave } from '../systems/save.js';
+import { continueAsSibling } from '../systems/lifeEnd.js';
 import {
   renderHeader,
   renderStats,
   renderDiary,
+  renderSummary,
   renderControls,
   renderRelations,
   renderProfile,
@@ -29,6 +32,14 @@ const dom = {
   screens: byId('screens'),
   lifeScreen: byId('life-screen'),
   diary: byId('diary'),
+  summary: byId('summary'),
+  summaryTitle: byId('summary-title'),
+  summaryStatsTitle: byId('summary-stats-title'),
+  summaryStats: byId('summary-stats'),
+  summaryMilestonesTitle: byId('summary-milestones-title'),
+  summaryMilestones: byId('summary-milestones'),
+  summaryRelationsTitle: byId('summary-relations-title'),
+  summaryRelations: byId('summary-relations'),
   relationsScreen: byId('relations-screen'),
   relationsTitle: byId('relations-title'),
   relationsList: byId('relations-list'),
@@ -53,17 +64,48 @@ const dom = {
 
 const SCREENS = { life: 'lifeScreen', relations: 'relationsScreen', profile: 'profileScreen', activities: 'activitiesScreen' };
 
+// One save slot in this browser. Storage can be missing or full (private
+// mode, blocked site data): the game still runs, it just won't remember.
+const SAVE_KEY = 'synclife.save';
+
+function readSave(gameData) {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    return raw ? fromSave(JSON.parse(raw), gameData) : null;
+  } catch (error) {
+    console.warn('Ignoring unreadable save:', error);
+    return null;
+  }
+}
+
+function writeSave(state) {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(toSave(state)));
+  } catch (error) {
+    console.warn('Could not save the game:', error);
+  }
+}
+
 async function main() {
   const [gameData, localeEntries] = await Promise.all([loadGameData(), loadLocale()]);
   const locale = createLocale(localeEntries);
 
-  let state = createGameState({ seed: Date.now(), ...gameData });
+  const newLife = () => createGameState({ seed: Date.now(), ...gameData });
+  let state = readSave(gameData) ?? newLife();
   let view = { screen: 'life' };
 
   // The newest diary block sits at the bottom; show it after each change.
   function scrollDiaryToEnd() {
     const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
     dom.screens.scrollTo({ top: dom.screens.scrollHeight, behavior });
+  }
+
+  // Every change to the game goes through here: save, then redraw.
+  function update(nextState, nextView = view) {
+    state = nextState;
+    view = nextView;
+    writeSave(state);
+    render();
   }
 
   function render() {
@@ -73,64 +115,57 @@ async function main() {
     renderStats(dom, state, locale);
     renderControls(dom, state, locale, view, {
       onAdvance: (months) => {
-        state = advanceStep(state, months);
-        view = { screen: 'life' };
-        render();
+        update(advanceStep(state, months), { screen: 'life' });
         scrollDiaryToEnd();
       },
       onTab: (tab) => {
-        if (tab === 'activities') state = { ...state, lastActivityResult: null };
-        view = { screen: tab };
-        render();
+        const next = tab === 'activities' ? { ...state, lastActivityResult: null } : state;
+        update(next, { screen: tab });
         if (tab === 'life') scrollDiaryToEnd();
         else dom.screens.scrollTo({ top: 0 });
+      },
+      onNewLife: () => {
+        update(newLife(), { screen: 'life' });
+        dom.screens.scrollTo({ top: 0 });
+      },
+      onContinueAs: (siblingId) => {
+        update(continueAsSibling(state, siblingId), { screen: 'life' });
+        dom.screens.scrollTo({ top: 0 });
       },
     });
 
     if (view.screen === 'life') {
       renderDiary(dom, state, locale);
+      renderSummary(dom, state, locale);
     } else if (view.screen === 'relations') {
       renderRelations(dom, state, locale, {
         onOpenProfile: (personId) => {
-          view = { screen: 'profile', personId, category: null };
-          render();
+          update(state, { screen: 'profile', personId, category: null });
           dom.screens.scrollTo({ top: 0 });
         },
       });
     } else if (view.screen === 'activities') {
       renderActivities(dom, state, locale, {
-        onDoActivity: (activityId) => {
-          state = attemptPlayerActivity(state, activityId);
-          render();
-        },
+        onDoActivity: (activityId) => update(attemptPlayerActivity(state, activityId)),
       });
     } else {
       renderProfile(dom, state, locale, view.personId, view.category, {
-        onBack: () => {
-          view = { screen: 'relations' };
-          render();
-        },
-        onInteract: (interactionId, targetPersonId) => {
-          state = attemptPlayerInteraction(state, interactionId, targetPersonId);
-          render();
-        },
-        onSelectCategory: (category) => {
-          view = { ...view, category };
-          render();
-        },
+        onBack: () => update(state, { screen: 'relations' }),
+        onInteract: (interactionId, targetPersonId) => update(attemptPlayerInteraction(state, interactionId, targetPersonId)),
+        onSelectCategory: (category) => update(state, { ...view, category }),
       });
     }
 
     renderDecisionModal(dom, state, locale, {
       onChoose: (optionId) => {
-        state = resolveDecision(state, optionId);
-        render();
+        update(resolveDecision(state, optionId));
         if (view.screen === 'life') scrollDiaryToEnd();
       },
     });
   }
 
   render();
+  scrollDiaryToEnd();
 }
 
 main();

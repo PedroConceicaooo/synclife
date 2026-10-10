@@ -56,3 +56,9 @@ test('every world event has a diary text in pt-BR', () => {
     assert.ok(LOCALE[`event.${event.id}.text`], `${event.id}.text`);
   }
 });
+
+test('every milestone event has a short summary text in pt-BR', () => {
+  for (const event of EVENTS.filter((e) => e.milestone)) {
+    assert.ok(LOCALE[`milestone.${event.id}`], event.id);
+  }
+});

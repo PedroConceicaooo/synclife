@@ -6,6 +6,7 @@ import { loadEvents } from './systems/eventsLoader.js';
 import { loadInteractions } from './systems/interactionsLoader.js';
 import { loadActivities } from './systems/activitiesLoader.js';
 import { createGameState, advanceStep, resolveDecision, isAdult } from './systems/game.js';
+import { lifeSummary } from './systems/lifeEnd.js';
 
 const COUNTRIES_DIR = fileURLToPath(new URL('../data/countries/', import.meta.url));
 const EVENTS_DIR = fileURLToPath(new URL('../data/events/', import.meta.url));
@@ -87,6 +88,11 @@ function main() {
 
   const player = state.people[state.player.id];
   console.log(`Done: ${formatPerson(player)} age=${ageAt(player.birth, state.currentMonthIndex)} date=${formatDate(state.currentMonthIndex)}`);
+
+  const summary = lifeSummary(state);
+  console.log(`Milestones: ${summary.milestones.map((m) => `${m.eventId}@${ageAt(player.birth, m.month)}`).join(', ')}`);
+  console.log(`Strongest: ${summary.strongestRelationships.map((r) => `${r.role}=${r.strength}`).join(', ')}`);
+  console.log(`Can continue as: ${summary.successors.join(', ') || 'nobody'}`);
   for (const relationship of Object.values(state.relationships)) {
     const sides = Object.entries(relationship.affinity)
       .map(([personId, value]) => `${personId}=${value.toFixed(1)}`)

@@ -424,3 +424,39 @@ h1 {
   color: var(--on-pen);
   font-weight: 600;
 }
+
+/* The end at 18: summary under the diary, choices in the controls. */
+#summary {
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 6px solid var(--ruler);
+}
+
+#summary h2 {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  font-weight: 600;
+  margin: 18px 0 8px;
+}
+
+#summary-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+}
+
+#summary-milestones,
+#summary-relations {
+  list-style: none;
+  padding: 0;
+}
+
+#summary-milestones li + li {
+  margin-top: 4px;
+}
+
+#advance button.secondary {
+  background: none;
+  color: var(--pen);
+  border: 1px solid var(--pen);
+}

@@ -6,6 +6,7 @@ import { affinityBand } from './affinityColor.js';
 import { fullName } from '../systems/naming.js';
 import { describeHistory } from './diary.js';
 import { isAdult, lifePhase, availableInteractions, availableActivities, closePeople } from './gameState.js';
+import { lifeSummary } from '../systems/lifeEnd.js';
 
 const STATS = ['happiness', 'health', 'intelligence', 'looks'];
 
@@ -66,10 +67,27 @@ export function renderDiary(dom, state, locale) {
   }
 }
 
-export function renderControls(dom, state, locale, view, { onAdvance, onTab }) {
+function personAge(state, locale, personId) {
+  return locale.plural('age.years', ageAt(state.people[personId].birth, state.currentMonthIndex));
+}
+
+export function renderControls(dom, state, locale, view, { onAdvance, onTab, onNewLife, onContinueAs }) {
   clearChildren(dom.advance);
   if (isAdult(state)) {
-    dom.advance.appendChild(el('p', { text: locale.t('ui.adulthood_placeholder') }));
+    // Design doc: at 18, a new life or carrying on as a younger sibling.
+    dom.advance.appendChild(el('p', { text: locale.t('ui.end_prompt') }));
+    for (const siblingId of lifeSummary(state).successors) {
+      const button = el('button', {
+        text: locale.format('ui.continue_as', { name: state.people[siblingId].firstName, age: personAge(state, locale, siblingId) }),
+      });
+      button.type = 'button';
+      button.addEventListener('click', () => onContinueAs(siblingId));
+      dom.advance.appendChild(button);
+    }
+    const newLife = el('button', { className: 'secondary', text: locale.t('ui.new_life') });
+    newLife.type = 'button';
+    newLife.addEventListener('click', onNewLife);
+    dom.advance.appendChild(newLife);
   } else {
     for (const [months, key] of [
       [6, 'ui.advance_6_months'],
@@ -97,6 +115,47 @@ export function renderControls(dom, state, locale, view, { onAdvance, onTab }) {
     button.setAttribute('aria-selected', String(tab === activeTab));
     button.addEventListener('click', () => onTab(tab));
     dom.tabs.appendChild(button);
+  }
+}
+
+// Shown under the diary once the player is 18 (design doc: main events,
+// final stats, strongest relationships).
+export function renderSummary(dom, state, locale) {
+  dom.summary.hidden = !isAdult(state);
+  if (dom.summary.hidden) return;
+
+  const summary = lifeSummary(state);
+  const player = state.people[state.player.id];
+  dom.summaryTitle.textContent = locale.t('ui.summary_title');
+  dom.summaryStatsTitle.textContent = locale.t('ui.summary_stats');
+  dom.summaryMilestonesTitle.textContent = locale.t('ui.summary_milestones');
+  dom.summaryRelationsTitle.textContent = locale.t('ui.summary_relations');
+
+  clearChildren(dom.summaryStats);
+  for (const stat of STATS) dom.summaryStats.appendChild(meter(locale.t(`ui.stat_${stat}`), summary.stats[stat]));
+
+  // Each milestone once, at the first time it happened.
+  clearChildren(dom.summaryMilestones);
+  const seen = new Set();
+  for (const milestone of summary.milestones) {
+    if (seen.has(milestone.eventId)) continue;
+    seen.add(milestone.eventId);
+    const text = locale.format('ui.summary_milestone', {
+      age: locale.age(milestone.month - player.birth),
+      text: locale.t(`milestone.${milestone.eventId}`),
+    });
+    dom.summaryMilestones.appendChild(el('li', { text }));
+  }
+
+  clearChildren(dom.summaryRelations);
+  for (const { personId, role, strength } of summary.strongestRelationships) {
+    const item = el('li', { className: 'row' });
+    item.append(
+      el('strong', { text: fullName(state.people[personId], state.country) }),
+      el('span', { className: 'detail', text: locale.t(`role.${role}`) }),
+      meter(locale.t('ui.relation_strength'), strength),
+    );
+    dom.summaryRelations.appendChild(item);
   }
 }
 
