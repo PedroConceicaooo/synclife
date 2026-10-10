@@ -19,6 +19,7 @@ import {
   closePeople,
   lifePhase,
   playableCountries,
+  playerOccupation,
   isAdult,
 } from '../src/systems/game.js';
 
@@ -388,4 +389,25 @@ test('playableCountries lists the five countries, resolved', () => {
   const countries = playableCountries(COUNTRIES_BY_ID);
   assert.deepEqual(countries.map((c) => c.id), ['BR', 'GB', 'JP', 'RU', 'US']);
   assert.ok(countries.every((c) => c.cities.length > 0));
+});
+
+test('playerOccupation follows age and the country school calendar', () => {
+  const state = createGameState({ ...baseArgs(5), choices: { countryId: 'JP' } });
+  const at = (months) => playerOccupation({ ...state, currentMonthIndex: state.player.birth + months });
+  assert.deepEqual(at(0), { type: 'baby' });
+  assert.deepEqual(at(3 * 12), { type: 'preschool' });
+  assert.equal(at(8 * 12).type, 'school');
+  assert.equal(at(8 * 12).stageId, 'elementary');
+  assert.equal(at(13 * 12 + 6).stageId, 'middle');
+  assert.deepEqual(at(18 * 12), { type: 'adult' });
+});
+
+test('everyone in a new life has an appearance, and the player takes after the parents', () => {
+  for (let seed = 1; seed <= 20; seed++) {
+    const { player, mother, father } = createGameState(baseArgs(seed));
+    for (const person of [player, mother, father]) assert.ok(person.appearance, `${seed} ${person.id}`);
+    for (const trait of ['skin', 'hair']) {
+      assert.ok([mother.appearance[trait], father.appearance[trait]].includes(player.appearance[trait]), `${seed} ${trait}`);
+    }
+  }
 });

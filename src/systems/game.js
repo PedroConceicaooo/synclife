@@ -21,6 +21,7 @@ import {
 import { evaluateConditions } from '../engine/conditions.js';
 import { calendarPoints, calendarEventsAt, firstDecisionPoint } from './calendar.js';
 import { startClass, promoteFriendships } from './schoolmates.js';
+import { schoolStageAt, schoolEntryMonth } from './school.js';
 import { attemptInteraction, listAvailableInteractions } from './interactions.js';
 import { attemptActivity, listActivities } from './activities.js';
 import { isAllowanceAge, payAllowance, transferMoney } from './money.js';
@@ -503,4 +504,20 @@ export function playableCountries(countriesById) {
     .filter((id) => id !== 'default')
     .sort()
     .map((id) => resolveCountry(id, countriesById));
+}
+
+// What the player "does" right now, shown under the name (design: baby,
+// a school stage, later a job). Adult jobs come after version 1.
+const BABY_UNTIL_AGE = 3;
+
+export function playerOccupation(state) {
+  const { birth } = state.player;
+  const month = state.currentMonthIndex;
+  const age = ageAt(birth, month);
+  if (age >= ADULT_AGE) return { type: 'adult' };
+  const stage = schoolStageAt(birth, month, state.country.education);
+  if (stage) return { type: 'school', stageId: stage.stageId, grade: stage.grade };
+  const entry = schoolEntryMonth(birth, state.country.education);
+  if (entry !== null && month >= entry) return { type: 'graduated' };
+  return { type: age < BABY_UNTIL_AGE ? 'baby' : 'preschool' };
 }

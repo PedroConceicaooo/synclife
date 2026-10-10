@@ -111,3 +111,12 @@ test('a whole life meets a new class at every school stage, and friends show up 
   assert.equal(teachers.length, TEACHERS_PER_CLASS);
   assert.ok(closePeople(state).every((p) => !classmates.includes(p.personId)));
 });
+
+test('nobody starts a class already a friend', () => {
+  for (let seed = 1; seed <= 30; seed++) {
+    const state = createGameState({ seed, ...DATA });
+    const entry = schoolEntryMonth(state.player.birth, state.country.education);
+    const result = startClass(createRng(seed), { people: state.people, relationships: state.relationships, playerId: state.player.id, country: state.country, month: entry });
+    assert.deepEqual(promoteFriendships(result.relationships, state.player.id).newFriendIds, [], `seed ${seed}`);
+  }
+});

@@ -10,6 +10,8 @@ import {
   rollStats,
   rollAptitudes,
   NEWBORN_STAT_RANGES,
+  rollAppearance,
+  inheritAppearance,
 } from '../engine/person.js';
 import { generateParents, createFamilyRelationships } from './family.js';
 import { nameParents, nameChild } from './naming.js';
@@ -46,11 +48,16 @@ export function createNewLife(rng, { countries, nextPersonId, nextRelationshipId
   const cityId = country.cities.includes(choices.cityId) ? choices.cityId : rolledCityId;
   const pickOccupation = () => ({ type: 'job', title: country.occupations[rng.nextInt(0, country.occupations.length)] });
   const named = nameParents(rng, { ...parents, country });
-  const mother = { ...named.mother, cityId, occupation: pickOccupation() };
-  const father = { ...named.father, cityId, occupation: pickOccupation() };
+  const mother = { ...named.mother, cityId, occupation: pickOccupation(), appearance: rollAppearance(rng) };
+  const father = { ...named.father, cityId, occupation: pickOccupation(), appearance: rollAppearance(rng) };
   const namedPlayer = nameChild(rng, unnamedPlayer, { mother, father, country });
   const chosenName = (choices.firstName ?? '').trim().slice(0, MAX_FIRST_NAME_LENGTH);
-  const player = { ...namedPlayer, firstName: chosenName || namedPlayer.firstName, cityId };
+  const player = {
+    ...namedPlayer,
+    firstName: chosenName || namedPlayer.firstName,
+    cityId,
+    appearance: inheritAppearance(rng, mother, father),
+  };
 
   return { player, mother, father, country, relationships: { motherChild, fatherChild, marriage } };
 }

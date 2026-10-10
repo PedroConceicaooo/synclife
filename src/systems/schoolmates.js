@@ -3,7 +3,7 @@
 // friend moves to Relationships). Each school stage brings a new class.
 
 import { nextIdAfter } from '../engine/id.js';
-import { createPerson, pickRandomTraits, rollStats, rollAptitudes, ADULT_STAT_RANGES } from '../engine/person.js';
+import { createPerson, pickRandomTraits, rollStats, rollAptitudes, rollAppearance, ADULT_STAT_RANGES } from '../engine/person.js';
 import { createRelationship } from './relationship.js';
 import { pickFirstName, randomLastName } from './naming.js';
 import { schoolEntryMonth } from './school.js';
@@ -18,7 +18,8 @@ function classmateStatRanges(ageYears) {
   const base = Math.min(60, 15 + 3 * ageYears);
   return { happiness: [40, 91], health: [50, 91], intelligence: [base, base + 26], looks: [20, 81] };
 }
-const CLASSMATE_AFFINITY = [40, 66];
+// Always below FRIENDSHIP_THRESHOLD: friends come from time together, not day one.
+const CLASSMATE_AFFINITY = [40, 60];
 const TEACHER_AFFINITY = [45, 61];
 const TEACHER_AGE_YEARS = [25, 61];
 
@@ -74,6 +75,7 @@ export function startClass(rng, { people, relationships, playerId, country, mont
       traits: pickRandomTraits(rng, 2),
       stats: rollStats(rng, classmateStatRanges(Math.floor((month - birth) / 12))),
       aptitudes: rollAptitudes(rng),
+      appearance: rollAppearance(rng),
     });
     taken.push(classmate.firstName);
     classmateIds.push(classmate.id);
@@ -94,6 +96,7 @@ export function startClass(rng, { people, relationships, playerId, country, mont
       traits: pickRandomTraits(rng, 2),
       stats: rollStats(rng, ADULT_STAT_RANGES),
       occupation: { type: 'job', title: 'teacher' },
+      appearance: rollAppearance(rng),
     });
     teacherIds.push(teacher.id);
     addRelationship({

@@ -23,6 +23,7 @@ test('createPerson defaults money to 0, traits to an empty array, stats to a fla
     countryId: 'BR',
     cityId: null,
     occupation: null,
+    appearance: null,
     money: 0,
     traits: [],
     stats: { happiness: 50, health: 50, intelligence: 50, looks: 50 },

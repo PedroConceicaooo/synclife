@@ -17,8 +17,26 @@ export function createPerson({
   lastName = null,
   cityId = null,
   occupation = null,
+  appearance = null,
 }) {
-  return { id, firstName, lastName, sex, birth, countryId, cityId, money, traits, stats, aptitudes, occupation };
+  return { id, firstName, lastName, sex, birth, countryId, cityId, money, traits, stats, aptitudes, occupation, appearance };
+}
+
+// Looks for the avatar, as indices into the UI palettes: skin tone, hair
+// colour and hair style. Rolled with the seed, so the same life looks the
+// same; children take after one parent or the other.
+export const APPEARANCE_CHOICES = { skin: 6, hair: 6, hairStyle: 3 };
+
+export function rollAppearance(rng) {
+  return Object.fromEntries(Object.entries(APPEARANCE_CHOICES).map(([trait, count]) => [trait, rng.nextInt(0, count)]));
+}
+
+export function inheritAppearance(rng, mother, father) {
+  const pick = (trait) => {
+    const parent = rng.chance(0.5) ? mother : father;
+    return parent?.appearance?.[trait] ?? rng.nextInt(0, APPEARANCE_CHOICES[trait]);
+  };
+  return { skin: pick('skin'), hair: pick('hair'), hairStyle: rng.nextInt(0, APPEARANCE_CHOICES.hairStyle) };
 }
 
 // [min, maxExclusive] per stat, as rng.nextInt takes them. A newborn starts
