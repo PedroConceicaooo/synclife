@@ -28,13 +28,17 @@ Simulador de vida em texto, mobile-first. O mundo é feito de pessoas: todo NPC 
 - Testes com `node:test` em `tests/`. Toda função do motor ganha teste.
 - Commits pequenos, um assunto por commit, mensagem em inglês no imperativo (`add month-based clock`).
 
-## Marco atual
+## Estado atual
 
-**M1 — Tempo e personagem.** Pronto quando, via `npm start`:
-- um personagem nasce num dos 5 países, com mês de nascimento;
-- o jogo avança 6 ou 12 meses por vez até os 18 anos;
-- aniversários acontecem no mês certo, mesmo no meio de um avanço;
-- a mesma semente gera sempre a mesma vida;
-- existem testes para relógio, idade e gerador aleatório.
+M1 a M7 do design estão feitos, e o M8 (conteúdo) está em andamento. O jogo cobre a vida inteira até os 18:
 
-Fora do M1: família, eventos, interações, interface, save.
+- **Motor:** relógio em meses, semente, família com irmãos, eventos sorteados e de calendário escolar por país, decisões que interrompem o avanço, interações, atividades (bicos, lazer, pequenos delitos), bens, escola com turma e professores, amizade, namoro, pets, emoções, traços formados pelas escolhas, estresse dos pais, save e fim aos 18 com continuação como irmão.
+- **Interface:** tela de início (vida aleatória ou personalizada), diário com régua de crescimento, abas Escola, Bens, Relações e Atividades em volta do botão de avançar, PWA instalável e offline.
+- **Comandos:** `npm test`, `npm start -- --seed=42` (vida no console), `npm run ui` (servidor em http://localhost:4000), `npm run legal-review` (gera `docs/legal-review.md`).
+
+Pendências conhecidas:
+
+- Leis dos 5 países são rascunho de IA (`reviewStatus: "ai_draft"`); precisam de revisão humana pelo checklist `docs/legal-review.md`.
+- `topics.same_sex_relationship` sem dados: aceitação lida como neutra (50) até ser pesquisada.
+- Ao publicar mudanças, aumentar `CACHE` em `sw.js` para os jogadores receberem a versão nova.
+- Vida adulta (18+) fora da versão 1.

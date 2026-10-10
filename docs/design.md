@@ -194,6 +194,7 @@ Código e chaves em inglês; o jogo começa em português do Brasil e pode receb
 - **Gênero gramatical:** sintaxe `{player|quietinho|quietinha}`; o motor escolhe a forma pelo sexo da pessoa indicada.
 - **Idioma reserva:** se faltar um texto num idioma, o jogo mostra o português.
 - **Números, moedas e datas:** formatados com `Intl.NumberFormat` e `Intl.DateTimeFormat`.
+- **Variações de texto:** um texto pode ser uma lista de variações; a escolhida é sempre a mesma para aquela linha do diário, para o texto não mudar ao redesenhar a tela.
 - **Nomes locais:** nomes de etapas escolares (como Shōgakkō) ficam nos textos traduzidos, com explicação no idioma do jogador.
 
 ## Formatos de dados
@@ -429,4 +430,4 @@ Cada marco termina com algo jogável ou testável:
 - [ ] Quando e em quais lojas lançar (Google Play, App Store).
 - [ ] Quantas interações por pessoa a cada avanço de tempo.
 - [ ] Lista final de traços de personalidade e de estados emocionais temporários.
-- [ ] Pesquisa e preenchimento das leis dos 5 países, com fonte e data.
+- [ ] Revisão humana das leis dos 5 países (rascunho de IA com fonte já preenchido; checklist em `docs/legal-review.md`) e pesquisa da aceitação social de temas sensíveis.
