@@ -33,7 +33,7 @@ function migrate(save) {
   throw new Error(`Unsupported save version: ${save.saveVersion}`);
 }
 
-export function fromSave(rawSave, { countriesById, eventsById, interactionsById, activitiesById }) {
+export function fromSave(rawSave, { countriesById, eventsById, interactionsById, activitiesById, assetsById = {} }) {
   const save = migrate(rawSave);
   const base = {
     seed: save.seed,
@@ -45,6 +45,7 @@ export function fromSave(rawSave, { countriesById, eventsById, interactionsById,
     eventsById,
     interactionsById,
     activitiesById,
+    assetsById,
     pendingDecisions: save.pendingDecisions,
     firedEvents: save.firedEvents,
     activityUsesThisPeriod: save.activityUsesThisPeriod,

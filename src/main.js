@@ -5,6 +5,7 @@ import { loadCountries } from './engine/countriesLoader.js';
 import { loadEvents } from './systems/eventsLoader.js';
 import { loadInteractions } from './systems/interactionsLoader.js';
 import { loadActivities } from './systems/activitiesLoader.js';
+import { loadAssets } from './systems/assetsLoader.js';
 import { createGameState, advanceStep, resolveDecision, continueAdvance, canContinueAdvance, isAdult } from './systems/game.js';
 import { lifeSummary } from './systems/lifeEnd.js';
 
@@ -12,6 +13,7 @@ const COUNTRIES_DIR = fileURLToPath(new URL('../data/countries/', import.meta.ur
 const EVENTS_DIR = fileURLToPath(new URL('../data/events/', import.meta.url));
 const INTERACTIONS_DIR = fileURLToPath(new URL('../data/interactions/', import.meta.url));
 const ACTIVITIES_DIR = fileURLToPath(new URL('../data/activities/', import.meta.url));
+const ASSETS_DIR = fileURLToPath(new URL('../data/assets/', import.meta.url));
 
 function readSeedFromArgs() {
   const arg = process.argv.find((a) => a.startsWith('--seed='));
@@ -73,6 +75,7 @@ function main() {
     eventsById: loadEvents(EVENTS_DIR),
     interactionsById: loadInteractions(INTERACTIONS_DIR),
     activitiesById: loadActivities(ACTIVITIES_DIR),
+    assetsById: loadAssets(ASSETS_DIR),
   });
 
   console.log(`Born: ${formatPerson(state.player)} sex=${state.player.sex} country=${state.country.id}`);

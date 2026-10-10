@@ -1,0 +1,32 @@
+{
+  "id": "photo_social",
+  "category": "social",
+  "conditions": {
+    "minAge": 13
+  },
+  "requires": [
+    "smartphone"
+  ],
+  "onBuy": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ],
+  "yearly": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": 1
+    }
+  ]
+}

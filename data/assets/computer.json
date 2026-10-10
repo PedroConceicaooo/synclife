@@ -1,0 +1,27 @@
+{
+  "id": "computer",
+  "category": "electronics",
+  "conditions": {
+    "minAge": 8
+  },
+  "price": {
+    "scale": "large",
+    "times": 6
+  },
+  "onBuy": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 3
+    }
+  ],
+  "yearly": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "intelligence",
+      "delta": 2
+    }
+  ]
+}

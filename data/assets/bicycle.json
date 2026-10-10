@@ -1,0 +1,27 @@
+{
+  "id": "bicycle",
+  "category": "vehicle",
+  "conditions": {
+    "minAge": 4
+  },
+  "price": {
+    "scale": "medium",
+    "times": 4
+  },
+  "onBuy": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 3
+    }
+  ],
+  "yearly": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 2
+    }
+  ]
+}

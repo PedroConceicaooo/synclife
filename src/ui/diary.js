@@ -74,7 +74,8 @@ function babyBornLine(state, locale, month) {
 function moneyLine(entry, state, locale) {
   const amount = locale.money(Math.abs(entry.amount), state.country.currency.code);
   if (entry.amount > 0) return locale.format('diary.money.gain', { amount });
-  return locale.format(entry.source === 'activity' ? 'diary.money.spent' : 'diary.money.lost', { amount });
+  const spent = entry.source === 'activity' || entry.source === 'asset';
+  return locale.format(spent ? 'diary.money.spent' : 'diary.money.lost', { amount });
 }
 
 function entryLine(entry, state, locale, block) {
@@ -83,6 +84,13 @@ function entryLine(entry, state, locale, block) {
   switch (entry.type) {
     case 'birthday':
       return locale.format('diary.birthday', { age: locale.plural('age.years', entry.age) });
+    case 'assetBought': {
+      const item = text(`asset.${entry.assetId}.title`);
+      const free = !state.assetsById?.[entry.assetId]?.price;
+      return locale.format(free ? 'diary.account_created' : 'diary.asset_bought', { item });
+    }
+    case 'assetSold':
+      return locale.format('diary.asset_sold', { item: text(`asset.${entry.assetId}.title`) });
     case 'newClass':
       return newClassLine(state, locale, entry);
     case 'newFriend': {

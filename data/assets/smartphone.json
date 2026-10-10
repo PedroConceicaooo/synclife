@@ -1,0 +1,27 @@
+{
+  "id": "smartphone",
+  "category": "electronics",
+  "conditions": {
+    "minAge": 10
+  },
+  "price": {
+    "scale": "medium",
+    "times": 12
+  },
+  "onBuy": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 4
+    }
+  ],
+  "yearly": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ]
+}

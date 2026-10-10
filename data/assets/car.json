@@ -1,0 +1,28 @@
+{
+  "id": "car",
+  "category": "vehicle",
+  "conditions": {
+    "minAge": 16,
+    "minLegalAge": "driving"
+  },
+  "price": {
+    "scale": "large",
+    "times": 60
+  },
+  "onBuy": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 6
+    }
+  ],
+  "yearly": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    }
+  ]
+}

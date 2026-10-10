@@ -1,0 +1,32 @@
+{
+  "id": "video_social",
+  "category": "social",
+  "conditions": {
+    "minAge": 13
+  },
+  "requires": [
+    "smartphone"
+  ],
+  "onBuy": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ],
+  "yearly": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "intelligence",
+      "delta": -1
+    }
+  ]
+}

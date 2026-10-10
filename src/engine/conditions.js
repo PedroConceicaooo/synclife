@@ -45,6 +45,9 @@ function evaluateCondition(key, expected, target, context) {
     // School by the country calendar (needs context.country).
     case 'inSchool':
       return (schoolStageAt(target.birth, context.currentMonthIndex, context.country.education) !== null) === expected;
+    // minLegalAge: "driving" -> at least the country's legal age for it.
+    case 'minLegalAge':
+      return ageAt(target.birth, context.currentMonthIndex) >= context.country.ages[expected];
     case 'minMoney':
       return target.money >= resolveAmount(expected, context.country);
     case 'targetRole':

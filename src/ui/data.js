@@ -7,6 +7,7 @@ import { indexCountries } from '../engine/countries.js';
 import { indexEvents } from '../systems/events.js';
 import { indexInteractions } from '../systems/interactions.js';
 import { indexActivities } from '../systems/activities.js';
+import { indexAssets } from '../systems/assets.js';
 import { FALLBACK_LANGUAGE } from '../i18n/locale.js';
 
 const MANIFEST = {
@@ -84,6 +85,16 @@ const MANIFEST = {
     'annoy_teacher.json',
     'complain.json',
   ],
+  assets: [
+    'bicycle.json',
+    'skateboard.json',
+    'car.json',
+    'video_game.json',
+    'smartphone.json',
+    'computer.json',
+    'photo_social.json',
+    'video_social.json',
+  ],
   activities: [
     'carry_groceries.json',
     'wash_cars.json',
@@ -93,7 +104,6 @@ const MANIFEST = {
     'babysit.json',
     'amusement_park.json',
     'buy_book.json',
-    'buy_video_game.json',
     'buy_clothes.json',
     'gym.json',
   ],
@@ -104,11 +114,12 @@ async function fetchAll(dir, files) {
 }
 
 export async function loadGameData() {
-  const [countries, events, interactions, activities] = await Promise.all([
+  const [countries, events, interactions, activities, assets] = await Promise.all([
     fetchAll('countries', MANIFEST.countries),
     fetchAll('events', MANIFEST.events),
     fetchAll('interactions', MANIFEST.interactions),
     fetchAll('activities', MANIFEST.activities),
+    fetchAll('assets', MANIFEST.assets),
   ]);
 
   const countriesWithNames = await Promise.all(
@@ -122,6 +133,7 @@ export async function loadGameData() {
     eventsById: indexEvents(events),
     interactionsById: indexInteractions(interactions),
     activitiesById: indexActivities(activities),
+    assetsById: indexAssets(assets),
   };
 }
 

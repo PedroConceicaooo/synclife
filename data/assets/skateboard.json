@@ -1,0 +1,33 @@
+{
+  "id": "skateboard",
+  "category": "vehicle",
+  "conditions": {
+    "minAge": 7
+  },
+  "price": {
+    "scale": "medium",
+    "times": 2
+  },
+  "onBuy": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    }
+  ],
+  "yearly": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 1
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ]
+}

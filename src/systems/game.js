@@ -24,6 +24,7 @@ import { startClass, promoteFriendships } from './schoolmates.js';
 import { schoolStageAt, schoolEntryMonth } from './school.js';
 import { attemptInteraction, listAvailableInteractions } from './interactions.js';
 import { attemptActivity, listActivities } from './activities.js';
+import { buyAsset, sellAsset, listShop, applyAssetUpkeep } from './assets.js';
 import { isAllowanceAge, payAllowance, transferMoney } from './money.js';
 import { growStats } from './growth.js';
 
@@ -34,7 +35,7 @@ export const ADULT_AGE = 18;
 const MIN_LOGGED_STAT_DELTA = 1;
 
 // choices: see createNewLife (custom name, sex, country and city).
-export function createGameState({ seed, countriesById, eventsById, interactionsById, activitiesById, choices }) {
+export function createGameState({ seed, countriesById, eventsById, interactionsById, activitiesById, assetsById = {}, choices }) {
   const rng = createRng(seed);
   const nextPersonId = createIdGenerator('p');
   const nextRelationshipId = createIdGenerator('r');
@@ -66,6 +67,7 @@ export function createGameState({ seed, countriesById, eventsById, interactionsB
     eventsById,
     interactionsById,
     activitiesById,
+    assetsById,
     pendingDecisions: [],
     firedEvents: [],
     activityUsesThisPeriod: {},
@@ -231,6 +233,7 @@ export function advanceStep(state, requestedMonths) {
   for (const f of world.fired) entries.push({ type: 'worldEvent', eventId: f.eventId, relationshipId: f.relationshipId });
 
   people = growChildren(people, relationships, { months, monthIndex: state.currentMonthIndex });
+  people = applyAssetUpkeep(state.assetsById ?? {}, { player: people[playerId], peopleById: people, relationshipsById: relationships, country: state.country, months });
 
   const calendar = processCalendar(state, points, { people, relationships });
   people = calendar.people;
@@ -520,4 +523,54 @@ export function playerOccupation(state) {
   const entry = schoolEntryMonth(birth, state.country.education);
   if (entry !== null && month >= entry) return { type: 'graduated' };
   return { type: age < BABY_UNTIL_AGE ? 'baby' : 'preschool' };
+}
+
+export function assetShop(state) {
+  return listShop(state.assetsById ?? {}, {
+    player: state.people[state.player.id],
+    country: state.country,
+    currentMonthIndex: state.currentMonthIndex,
+  });
+}
+
+export function buyPlayerAsset(state, assetId) {
+  const asset = state.assetsById[assetId];
+  const playerBefore = state.people[state.player.id];
+  const result = buyAsset(asset, {
+    player: playerBefore,
+    peopleById: state.people,
+    relationshipsById: state.relationships,
+    country: state.country,
+    currentMonthIndex: state.currentMonthIndex,
+  });
+  if (!result.bought) return { ...state, lastAssetResult: { done: false, reason: result.reason, assetId } };
+
+  const playerAfter = result.peopleById[state.player.id];
+  return {
+    ...state,
+    people: result.peopleById,
+    lastAssetResult: { done: true, action: 'bought', assetId },
+    history: appendToCurrentBlock(state.history, [
+      { type: 'assetBought', assetId },
+      ...moneyEntries(playerBefore, playerAfter, { source: 'asset', assetId }),
+      ...statEntries(playerBefore, playerAfter),
+    ]),
+  };
+}
+
+export function sellPlayerAsset(state, assetId) {
+  const asset = state.assetsById[assetId];
+  const playerBefore = state.people[state.player.id];
+  const result = sellAsset(asset, state.assetsById, { player: playerBefore, peopleById: state.people, country: state.country });
+  if (!result.sold) return { ...state, lastAssetResult: { done: false, reason: result.reason, assetId } };
+
+  return {
+    ...state,
+    people: result.peopleById,
+    lastAssetResult: { done: true, action: 'sold', assetId, dropped: result.dropped },
+    history: appendToCurrentBlock(state.history, [
+      ...result.dropped.map((id) => ({ type: 'assetSold', assetId: id })),
+      ...moneyEntries(playerBefore, result.peopleById[state.player.id], { source: 'asset', assetId }),
+    ]),
+  };
 }
