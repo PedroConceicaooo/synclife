@@ -6,7 +6,8 @@ import { createRng } from '../engine/random.js';
 import { resolveCountry } from '../engine/countries.js';
 import { focusOnPlayer } from './game.js';
 
-export const SAVE_VERSION = 1;
+// 2: people carry teams, tryouts and tryoutSignups (team sports).
+export const SAVE_VERSION = 2;
 
 export function toSave(state) {
   return {
@@ -29,10 +30,26 @@ export function toSave(state) {
   };
 }
 
-// Older versions get converted here when the format changes.
-function migrate(save) {
-  if (save.saveVersion === SAVE_VERSION) return save;
-  throw new Error(`Unsupported save version: ${save.saveVersion}`);
+// Older versions get converted here, one version at a time.
+const MIGRATIONS = {
+  // 1 -> 2: nobody was on a team yet.
+  1: (save) => ({
+    ...save,
+    saveVersion: 2,
+    people: Object.fromEntries(
+      Object.entries(save.people).map(([id, person]) => [id, { teams: [], tryouts: [], tryoutSignups: [], ...person }]),
+    ),
+  }),
+};
+
+export function migrate(save) {
+  let current = save;
+  while (current.saveVersion !== SAVE_VERSION) {
+    const step = MIGRATIONS[current.saveVersion];
+    if (!step) throw new Error(`Unsupported save version: ${current.saveVersion}`);
+    current = step(current);
+  }
+  return current;
 }
 
 export function fromSave(rawSave, { countriesById, eventsById, interactionsById, activitiesById, assetsById = {}, clubsById = {}, leaguesById = {} }) {

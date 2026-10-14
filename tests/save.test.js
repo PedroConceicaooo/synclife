@@ -6,7 +6,7 @@ import { loadEvents } from '../src/systems/eventsLoader.js';
 import { loadInteractions } from '../src/systems/interactionsLoader.js';
 import { loadActivities } from '../src/systems/activitiesLoader.js';
 import { createGameState, advanceStep, resolveDecision, attemptPlayerInteraction, attemptPlayerActivity } from '../src/systems/game.js';
-import { toSave, fromSave, SAVE_VERSION } from '../src/systems/save.js';
+import { toSave, fromSave, migrate, SAVE_VERSION } from '../src/systems/save.js';
 
 const dir = (d) => fileURLToPath(new URL(`../data/${d}/`, import.meta.url));
 const DATA = {
@@ -65,4 +65,26 @@ test('saves carry their version and unknown versions are refused', () => {
   const save = toSave(createGameState({ seed: 1, ...DATA }));
   assert.equal(save.saveVersion, SAVE_VERSION);
   assert.throws(() => fromSave({ ...save, saveVersion: 999 }, DATA), /Unsupported save version/);
+});
+
+test('a version 1 save (before team sports) is converted and keeps playing', () => {
+  const state = play(createGameState({ seed: 21, ...DATA }), 4);
+  const v1 = JSON.parse(JSON.stringify({ ...toSave(state), saveVersion: 1 }));
+  for (const person of Object.values(v1.people)) {
+    delete person.teams;
+    delete person.tryouts;
+    delete person.tryoutSignups;
+  }
+
+  const migrated = migrate(v1);
+  assert.equal(migrated.saveVersion, 2);
+  for (const person of Object.values(migrated.people)) {
+    assert.deepEqual([person.teams, person.tryouts, person.tryoutSignups], [[], [], []], person.id);
+  }
+  assert.equal(migrate(migrated), migrated, 'a current save is left as it is');
+
+  const loaded = fromSave(v1, DATA);
+  assert.deepEqual(loaded.people[loaded.player.id].teams, []);
+  assert.doesNotThrow(() => play(loaded, 2));
+  assert.throws(() => fromSave({ ...v1, saveVersion: 0 }, DATA), /Unsupported save version/);
 });
