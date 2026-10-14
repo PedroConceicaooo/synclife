@@ -1,0 +1,155 @@
+{
+  "id": "judo",
+  "category": "physical",
+  "group": "martial_arts",
+  "conditions": {
+    "minAge": 4
+  },
+  "enrollment": {
+    "monthlyFee": "small",
+    "selfPayMinAge": 12,
+    "permissionUnder": 18,
+    "permission": {
+      "base": 0.6,
+      "modifiers": [
+        {
+          "factor": "affinity",
+          "weight": 0.6
+        },
+        {
+          "factor": "targetTrait",
+          "value": "generous",
+          "adjust": 0.15
+        },
+        {
+          "factor": "targetTrait",
+          "value": "rigid",
+          "adjust": -0.1
+        },
+        {
+          "factor": "targetStress",
+          "weight": -0.3
+        },
+        {
+          "factor": "targetWealth",
+          "weight": 0.25
+        },
+        {
+          "factor": "parentPays",
+          "adjust": -0.2
+        }
+      ]
+    },
+    "success": [
+      {
+        "op": "stat",
+        "target": "player",
+        "stat": "happiness",
+        "delta": 3
+      }
+    ],
+    "failure": [
+      {
+        "op": "affinity",
+        "side": "player",
+        "delta": -2
+      },
+      {
+        "op": "stat",
+        "target": "player",
+        "stat": "happiness",
+        "delta": -2
+      }
+    ]
+  },
+  "training": {
+    "aptitude": "physical",
+    "levels": [
+      {
+        "id": "white"
+      },
+      {
+        "id": "gray",
+        "minAge": 5,
+        "minSkill": 5,
+        "minMonths": 6
+      },
+      {
+        "id": "blue",
+        "minAge": 7,
+        "minSkill": 10,
+        "minMonths": 12
+      },
+      {
+        "id": "yellow",
+        "minAge": 9,
+        "minSkill": 15,
+        "minMonths": 12
+      },
+      {
+        "id": "orange",
+        "minAge": 11,
+        "minSkill": 20,
+        "minMonths": 12
+      },
+      {
+        "id": "green",
+        "minAge": 13,
+        "minSkill": 28,
+        "minMonths": 12
+      },
+      {
+        "id": "purple",
+        "minAge": 14,
+        "minSkill": 38,
+        "minMonths": 12
+      },
+      {
+        "id": "brown",
+        "minAge": 16,
+        "minSkill": 50,
+        "minMonths": 18
+      },
+      {
+        "id": "black",
+        "minAge": 17,
+        "minSkill": 65,
+        "minMonths": 24
+      }
+    ],
+    "exam": {
+      "chance": 0.6,
+      "skillWeight": 0.03,
+      "retryMonths": 6
+    },
+    "injury": {
+      "chance": 0.03,
+      "health": -6,
+      "months": [
+        3,
+        10
+      ]
+    },
+    "techniques": [
+      "ukemi",
+      "o_goshi",
+      "o_soto_gari",
+      "ippon_seoi_nage",
+      "kesa_gatame"
+    ]
+  },
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 1
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ]
+}

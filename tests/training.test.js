@@ -210,9 +210,36 @@ test('trainable activities in data have levels and techniques with pt-BR texts',
       assert.ok((level.minSkill ?? 0) >= lastSkill, `${id}.${level.id}: levels go up in skill`);
       lastSkill = level.minSkill ?? 0;
     }
-    for (const technique of training.techniques) assert.ok(LOCALE[`technique.${id}.${technique}`], `technique.${id}.${technique}`);
+    const levelIds = training.levels.map((l) => l.id);
+    assert.equal(new Set(levelIds).size, levelIds.length, `${id}: level ids are unique`);
+    for (const technique of training.techniques) {
+      const techniqueId = technique.id ?? technique;
+      assert.ok(LOCALE[`technique.${id}.${techniqueId}`], `technique.${id}.${techniqueId}`);
+    }
   }
-  for (const key of ['diary.training', 'diary.training_technique', 'diary.training_max', 'diary.exam_failed', 'diary.stripe', 'diary.injury', 'ui.activity_injured', 'ui.training_stripes.other', 'diary.level_up', 'ui.training_uses_left.other', 'ui.training_techniques']) {
+  const activities = Object.values(loadActivities(ACTIVITIES_DIR));
+  for (const { id, group } of activities.filter((a) => a.group)) assert.ok(LOCALE[`activityGroup.${group}`], `${id}: activityGroup.${group}`);
+  // Own level-up lines must point at a real level.
+  for (const key of Object.keys(LOCALE).filter((k) => /^activity\.[a-z_]+\.level_up\./.test(k))) {
+    const [, activityId, , levelId] = key.split('.');
+    const activity = activities.find((a) => a.id === activityId);
+    assert.ok(activity?.training.levels.some((l) => l.id === levelId), key);
+  }
+  for (const key of [
+    'diary.training',
+    'diary.training_technique',
+    'diary.training_max',
+    'diary.exam_failed',
+    'diary.stripe',
+    'diary.injury',
+    'ui.activity_injured',
+    'ui.training_stripes.other',
+    'ui.activity_group_count.other',
+    'ui.activity_group_enrolled.other',
+    'diary.level_up',
+    'ui.training_uses_left.other',
+    'ui.training_techniques',
+  ]) {
     assert.ok(LOCALE[key], key);
   }
 });
@@ -288,4 +315,23 @@ test('an injury takes health and blocks physical training until it heals', () =>
   assert.equal(blocked.reason, 'injured');
   const healed = attemptActivity(activity, { ...args, player: injured, peopleById: { p_player: injured }, currentMonthIndex: month + 4, rng: MID_RNG });
   assert.equal(healed.attempted, true);
+});
+
+test('a level with maxAge is skipped by anyone older', () => {
+  const training = { levels: [{ id: 'red' }, { id: 'poom', minSkill: 50, maxAge: 14 }, { id: 'black', minAge: 15, minSkill: 50 }] };
+  const entry = { ...newSkillEntry(0), skill: 60 };
+  assert.equal(nextLevel(training, entry, { birth: 0 }, 14 * 12).id, 'poom');
+  assert.equal(nextLevel(training, entry, { birth: 0 }, 15 * 12).id, 'black');
+  const result = trainSkill(training, entry, { person: { birth: 0 }, monthIndex: 16 * 12, rng: MID_RNG });
+  assert.equal(result.levelId, 'black');
+  assert.equal(result.entry.level, 2);
+});
+
+test('a technique with minAge waits for the age, and the ones after it too', () => {
+  const training = { levels: [{ id: 'a' }], techniques: ['k5', 'k10', { id: 'marathon', minAge: 18 }] };
+  assert.deepEqual(techniquesLearned(training, { sessions: 20 }, 12), ['k5', 'k10']);
+  assert.deepEqual(techniquesLearned(training, { sessions: 20 }, 18), ['k5', 'k10', 'marathon']);
+  assert.deepEqual(techniquesLearned(training, { sessions: 20 }), ['k5', 'k10', 'marathon']);
+  const entry = { ...newSkillEntry(0), sessions: 19 };
+  assert.equal(trainSkill(training, entry, { person: { birth: 0 }, monthIndex: 18 * 12, rng: MID_RNG }).technique, 'marathon');
 });

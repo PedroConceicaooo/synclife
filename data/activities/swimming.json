@@ -1,0 +1,119 @@
+{
+  "id": "swimming",
+  "category": "physical",
+  "conditions": {
+    "minAge": 3
+  },
+  "enrollment": {
+    "monthlyFee": "small",
+    "selfPayMinAge": 12,
+    "permissionUnder": 18,
+    "permission": {
+      "base": 0.6,
+      "modifiers": [
+        {
+          "factor": "affinity",
+          "weight": 0.6
+        },
+        {
+          "factor": "targetTrait",
+          "value": "generous",
+          "adjust": 0.15
+        },
+        {
+          "factor": "targetTrait",
+          "value": "rigid",
+          "adjust": -0.1
+        },
+        {
+          "factor": "targetStress",
+          "weight": -0.3
+        },
+        {
+          "factor": "targetWealth",
+          "weight": 0.25
+        },
+        {
+          "factor": "parentPays",
+          "adjust": -0.2
+        }
+      ]
+    },
+    "success": [
+      {
+        "op": "stat",
+        "target": "player",
+        "stat": "happiness",
+        "delta": 3
+      }
+    ],
+    "failure": [
+      {
+        "op": "affinity",
+        "side": "player",
+        "delta": -2
+      },
+      {
+        "op": "stat",
+        "target": "player",
+        "stat": "happiness",
+        "delta": -2
+      }
+    ]
+  },
+  "training": {
+    "aptitude": "physical",
+    "levels": [
+      {
+        "id": "water_adaptation"
+      },
+      {
+        "id": "strokes",
+        "minAge": 5,
+        "minSkill": 15,
+        "minMonths": 12
+      },
+      {
+        "id": "school_team",
+        "minAge": 8,
+        "minSkill": 40,
+        "minMonths": 18
+      },
+      {
+        "id": "federated",
+        "minAge": 12,
+        "minSkill": 65,
+        "minMonths": 24
+      }
+    ],
+    "injury": {
+      "chance": 0.005,
+      "health": -4,
+      "months": [
+        2,
+        7
+      ]
+    },
+    "techniques": [
+      "crawl",
+      "backstroke",
+      "breaststroke",
+      "butterfly",
+      "flip_turn"
+    ]
+  },
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 1
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "id": "systema",
+  "category": "physical",
+  "group": "martial_arts",
+  "conditions": {
+    "minAge": 6
+  },
+  "enrollment": {
+    "monthlyFee": "small",
+    "selfPayMinAge": 12,
+    "permissionUnder": 18,
+    "permission": {
+      "base": 0.6,
+      "modifiers": [
+        {
+          "factor": "affinity",
+          "weight": 0.6
+        },
+        {
+          "factor": "targetTrait",
+          "value": "generous",
+          "adjust": 0.15
+        },
+        {
+          "factor": "targetTrait",
+          "value": "rigid",
+          "adjust": -0.1
+        },
+        {
+          "factor": "targetStress",
+          "weight": -0.3
+        },
+        {
+          "factor": "targetWealth",
+          "weight": 0.25
+        },
+        {
+          "factor": "parentPays",
+          "adjust": -0.2
+        }
+      ]
+    },
+    "success": [
+      {
+        "op": "stat",
+        "target": "player",
+        "stat": "happiness",
+        "delta": 3
+      }
+    ],
+    "failure": [
+      {
+        "op": "affinity",
+        "side": "player",
+        "delta": -2
+      },
+      {
+        "op": "stat",
+        "target": "player",
+        "stat": "happiness",
+        "delta": -2
+      }
+    ]
+  },
+  "training": {
+    "aptitude": "physical",
+    "levels": [
+      {
+        "id": "beginner"
+      },
+      {
+        "id": "practitioner",
+        "minAge": 10,
+        "minSkill": 25,
+        "minMonths": 12
+      },
+      {
+        "id": "advanced",
+        "minAge": 15,
+        "minSkill": 50,
+        "minMonths": 24
+      },
+      {
+        "id": "instructor",
+        "minAge": 20,
+        "minSkill": 75,
+        "minMonths": 36
+      }
+    ],
+    "injury": {
+      "chance": 0.02,
+      "health": -4,
+      "months": [
+        2,
+        7
+      ]
+    },
+    "techniques": [
+      "combat_breathing",
+      "falls_rolls",
+      "relaxed_strike",
+      "grab_escape"
+    ]
+  },
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 1
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ]
+}

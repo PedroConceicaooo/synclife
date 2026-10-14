@@ -47,17 +47,33 @@ export function newSkillEntry(monthIndex) {
   return { skill: 0, peak: 0, sessions: 0, lastTrainedMonth: monthIndex, level: 0, levelSince: monthIndex, stripes: 0, examRetryMonth: null };
 }
 
-export function techniquesLearned(training, entry) {
+// A technique is an id, or { id, minAge } for one that waits for an age
+// (the marathon at 18): the list stops there until the person is old enough.
+const techniqueId = (technique) => technique.id ?? technique;
+
+export function techniquesLearned(training, entry, ageYears = Infinity) {
   const techniques = training.techniques ?? [];
-  return techniques.slice(0, Math.min(techniques.length, Math.floor((entry?.sessions ?? 0) / SESSIONS_PER_TECHNIQUE)));
+  const tooYoung = techniques.findIndex((t) => (t.minAge ?? 0) > ageYears);
+  const available = tooYoung === -1 ? techniques.length : tooYoung;
+  return techniques.slice(0, Math.min(available, Math.floor((entry?.sessions ?? 0) / SESSIONS_PER_TECHNIQUE))).map(techniqueId);
+}
+
+// Index of the level that comes after the current one at this age. A level
+// with maxAge is skipped by anyone older (taekwondo's poom is for under-15s;
+// an older red belt goes straight to black).
+export function upcomingLevelIndex(training, entry, ageYears) {
+  let index = entry.level + 1;
+  while (training.levels[index] && ageYears > (training.levels[index].maxAge ?? Infinity)) index++;
+  return training.levels[index] ? index : null;
 }
 
 // The next level when the person meets all of its requirements now:
 // minimum skill, months at the current level and age — and, after a failed
 // exam, the wait before trying again.
 export function nextLevel(training, entry, person, monthIndex) {
-  const next = training.levels[entry.level + 1];
-  if (!next) return null;
+  const index = upcomingLevelIndex(training, entry, ageAt(person.birth, monthIndex));
+  if (index === null) return null;
+  const next = training.levels[index];
   if (entry.examRetryMonth != null && monthIndex < entry.examRetryMonth) return null;
   if (entry.skill < (next.minSkill ?? 0)) return null;
   if (monthIndex - entry.levelSince < (next.minMonths ?? 0)) return null;
@@ -74,10 +90,10 @@ export function examChance(exam, skill, minSkill = 0) {
 // Stripes (graus) on the current level, spaced evenly in skill and in time
 // between it and the next one: stripe k of n needs k/(n+1) of the way.
 // The last level has none.
-export function stripesEarned(training, entry, monthIndex) {
+export function stripesEarned(training, entry, monthIndex, ageYears) {
   const count = training.stripes ?? 0;
   const current = training.levels[entry.level];
-  const next = training.levels[entry.level + 1];
+  const next = training.levels[upcomingLevelIndex(training, entry, ageYears)];
   if (count === 0 || !next) return 0;
   const skillFrom = current.minSkill ?? 0;
   const skillShare = (entry.skill - skillFrom) / Math.max(1, (next.minSkill ?? 0) - skillFrom);
@@ -95,11 +111,14 @@ export function isInjured(person, monthIndex) {
 export function trainSkill(training, entry, { person, monthIndex, rng }) {
   const current = entry ?? newSkillEntry(monthIndex);
   const aptitude = person.aptitudes?.[training.aptitude ?? 'physical'];
-  const gain = trainingGain(current.skill, aptitude, rng, ageAt(person.birth, monthIndex));
+  const age = ageAt(person.birth, monthIndex);
+  const gain = trainingGain(current.skill, aptitude, rng, age);
   const skill = current.skill + gain;
   const sessions = current.sessions + 1;
-  const before = techniquesLearned(training, current).length;
-  const learned = techniquesLearned(training, { sessions });
+  // Compared at the age of the last session, so a technique that was only
+  // waiting for a birthday (the marathon) is still announced when it comes.
+  const before = techniquesLearned(training, current, ageAt(person.birth, current.lastTrainedMonth)).length;
+  const learned = techniquesLearned(training, { sessions }, age);
   const technique = learned.length > before ? learned[learned.length - 1] : null;
 
   let updated = { stripes: 0, examRetryMonth: null, ...current, skill, peak: Math.max(current.peak, skill), sessions, lastTrainedMonth: monthIndex };
@@ -111,12 +130,12 @@ export function trainSkill(training, entry, { person, monthIndex, rng }) {
     updated = { ...updated, examRetryMonth: monthIndex + training.exam.retryMonths };
   } else if (level) {
     levelId = level.id;
-    updated = { ...updated, level: updated.level + 1, levelSince: monthIndex, stripes: 0, examRetryMonth: null };
+    updated = { ...updated, level: training.levels.indexOf(level), levelSince: monthIndex, stripes: 0, examRetryMonth: null };
   }
 
   // One stripe per session at most, so each one gets its own diary line.
   let stripe = null;
-  if (!levelId && stripesEarned(training, updated, monthIndex) > updated.stripes) {
+  if (!levelId && stripesEarned(training, updated, monthIndex, age) > updated.stripes) {
     stripe = updated.stripes + 1;
     updated = { ...updated, stripes: stripe };
   }

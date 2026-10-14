@@ -445,6 +445,34 @@ h1 {
   margin-top: 6px;
 }
 
+/* A group of activities (martial arts, dances): one row with a chevron
+   that opens the list under it, indented. */
+.row.activity-group {
+  position: relative;
+  padding-right: 28px;
+}
+
+.row.activity-group::after {
+  content: "";
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--ink-soft);
+  border-bottom: 2px solid var(--ink-soft);
+  transform: translateY(-75%) rotate(45deg);
+}
+
+.row.activity-group.open::after {
+  transform: translateY(-25%) rotate(-135deg);
+}
+
+.activity-group-items {
+  padding-left: 14px;
+  border-left: 2px solid var(--rule);
+}
+
 .people-list {
   list-style: none;
   padding: 0;

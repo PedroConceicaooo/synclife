@@ -450,29 +450,67 @@ function enrollmentButtons({ id, enrollment }, state, locale, { onEnroll, onLeav
   return submenu;
 }
 
-export function renderActivities(dom, state, locale, { onDoActivity, onEnroll, onLeave }) {
+function activityRow(item, state, locale, { onDoActivity, onEnroll, onLeave }) {
+  const { id, blocker } = item;
+  const nodes = [];
+  const button = el('button', { className: 'row activity' });
+  button.type = 'button';
+  button.disabled = blocker !== null || state.pendingDecisions.length > 0;
+  button.append(
+    el('strong', { text: locale.t(`activity.${id}.title`) }),
+    el('span', { className: 'detail', text: blocker ? locale.format(ACTIVITY_BLOCKER_KEYS[blocker], {}, sexesOf(state)) : locale.t(`activity.${id}.description`) }),
+  );
+  if (item.enrollment) button.append(el('span', { className: 'detail', text: enrollmentDetail(item, state, locale) }));
+  if (item.levelId && blocker !== 'notEnrolled') button.append(...trainingDetails(item, locale));
+  button.addEventListener('click', () => onDoActivity(id));
+  nodes.push(button);
+  if (item.enrollment) nodes.push(enrollmentButtons(item, state, locale, { onEnroll, onLeave }));
+  return nodes;
+}
+
+// Activities with a `group` (martial arts, dances) sit behind one row that
+// opens them, so twenty sports don't bury the rest of the screen.
+function groupRow(group, items, open, locale, onToggleGroup) {
+  const button = el('button', { className: `row activity-group${open ? ' open' : ''}` });
+  button.type = 'button';
+  button.setAttribute('aria-expanded', String(open));
+  const enrolled = items.filter((a) => a.enrollment?.enrolled).length;
+  button.append(
+    el('strong', { text: locale.t(`activityGroup.${group}`) }),
+    el('span', { className: 'detail', text: locale.plural(enrolled > 0 ? 'ui.activity_group_enrolled' : 'ui.activity_group_count', enrolled > 0 ? enrolled : items.length) }),
+  );
+  button.addEventListener('click', () => onToggleGroup(open ? null : group));
+  return button;
+}
+
+// Design doc: lists with title and a one-line description. Activities the
+// player can't do right now stay visible, disabled, with the reason.
+export function renderActivities(dom, state, locale, { onDoActivity, onEnroll, onLeave, onToggleGroup, openGroup = null }) {
   dom.activitiesTitle.textContent = locale.t('ui.activities_title');
   dom.activitiesResult.textContent = state.lastActivityResult ? activityResultText(state, state.lastActivityResult, locale, sexesOf(state)) : '';
+  const callbacks = { onDoActivity, onEnroll, onLeave };
 
   clearChildren(dom.activitiesList);
   for (const group of availableActivities(state)) {
     const section = el('div', { className: 'activities-group' });
     section.appendChild(el('h2', { text: locale.t(`activityCategory.${group.category}`) }));
 
+    const seenGroups = new Set();
     for (const item of group.activities) {
-      const { id, blocker } = item;
-      const button = el('button', { className: 'row activity' });
-      button.type = 'button';
-      button.disabled = blocker !== null || state.pendingDecisions.length > 0;
-      button.append(
-        el('strong', { text: locale.t(`activity.${id}.title`) }),
-        el('span', { className: 'detail', text: blocker ? locale.format(ACTIVITY_BLOCKER_KEYS[blocker], {}, sexesOf(state)) : locale.t(`activity.${id}.description`) }),
-      );
-      if (item.enrollment) button.append(el('span', { className: 'detail', text: enrollmentDetail(item, state, locale) }));
-      if (item.levelId && blocker !== 'notEnrolled') button.append(...trainingDetails(item, locale));
-      button.addEventListener('click', () => onDoActivity(id));
-      section.appendChild(button);
-      if (item.enrollment) section.appendChild(enrollmentButtons(item, state, locale, { onEnroll, onLeave }));
+      if (!item.group) {
+        section.append(...activityRow(item, state, locale, callbacks));
+        continue;
+      }
+      if (seenGroups.has(item.group)) continue;
+      seenGroups.add(item.group);
+      const members = group.activities.filter((a) => a.group === item.group);
+      const open = openGroup === item.group;
+      section.appendChild(groupRow(item.group, members, open, locale, onToggleGroup));
+      if (open) {
+        const inner = el('div', { className: 'activity-group-items' });
+        for (const member of members) inner.append(...activityRow(member, state, locale, callbacks));
+        section.appendChild(inner);
+      }
     }
     dom.activitiesList.appendChild(section);
   }

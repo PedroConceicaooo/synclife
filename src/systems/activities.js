@@ -8,6 +8,7 @@
 // (training.js): two sessions per period, each one raising the skill.
 
 import { evaluateConditions } from '../engine/conditions.js';
+import { ageAt } from '../engine/time.js';
 import { applyEffects } from '../engine/effects.js';
 import { addMoney, resolveAmount } from './money.js';
 import { resolveChance } from './interactions.js';
@@ -44,14 +45,14 @@ export function activityBlocker(activity, { player, country, currentMonthIndex, 
 
 // What the Activities screen shows of a skill: sessions left, bar, level
 // and techniques.
-function trainingStatus(activity, player, uses) {
+function trainingStatus(activity, player, uses, currentMonthIndex) {
   const entry = player.skills?.[activity.id];
   return {
     usesLeft: Math.max(0, usesPerPeriod(activity) - uses),
     skill: entry?.skill ?? 0,
     levelId: activity.training.levels[entry?.level ?? 0].id,
     stripes: entry?.stripes ?? 0,
-    techniques: techniquesLearned(activity.training, entry),
+    techniques: techniquesLearned(activity.training, entry, ageAt(player.birth, currentMonthIndex)),
   };
 }
 
@@ -71,9 +72,10 @@ export function listActivities(activitiesById, { player, country, currentMonthIn
     .map((activity) => ({
       id: activity.id,
       category: activity.category,
+      ...(activity.group ? { group: activity.group } : {}),
       minAge: activity.conditions.minAge,
       blocker: activityBlocker(activity, { player, country, currentMonthIndex, usesThisPeriod: usesById[activity.id] ?? 0 }),
-      ...(activity.training ? trainingStatus(activity, player, usesById[activity.id] ?? 0) : {}),
+      ...(activity.training ? trainingStatus(activity, player, usesById[activity.id] ?? 0, currentMonthIndex) : {}),
       ...(activity.enrollment ? { enrollment: enrollmentStatus(activity, player, { country, currentMonthIndex }) } : {}),
     }))
     .filter((a) => a.blocker !== 'conditions')

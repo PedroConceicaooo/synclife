@@ -1,6 +1,7 @@
 {
   "id": "bjj",
   "category": "physical",
+  "group": "martial_arts",
   "conditions": {
     "minAge": 4
   },

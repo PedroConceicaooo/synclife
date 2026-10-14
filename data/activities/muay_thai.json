@@ -1,0 +1,168 @@
+{
+  "id": "muay_thai",
+  "category": "physical",
+  "group": "martial_arts",
+  "conditions": {
+    "minAge": 7
+  },
+  "enrollment": {
+    "monthlyFee": "small",
+    "selfPayMinAge": 12,
+    "permissionUnder": 18,
+    "permission": {
+      "base": 0.6,
+      "modifiers": [
+        {
+          "factor": "affinity",
+          "weight": 0.6
+        },
+        {
+          "factor": "targetTrait",
+          "value": "generous",
+          "adjust": 0.15
+        },
+        {
+          "factor": "targetTrait",
+          "value": "rigid",
+          "adjust": -0.1
+        },
+        {
+          "factor": "targetStress",
+          "weight": -0.3
+        },
+        {
+          "factor": "targetWealth",
+          "weight": 0.25
+        },
+        {
+          "factor": "parentPays",
+          "adjust": -0.2
+        }
+      ]
+    },
+    "success": [
+      {
+        "op": "stat",
+        "target": "player",
+        "stat": "happiness",
+        "delta": 3
+      }
+    ],
+    "failure": [
+      {
+        "op": "affinity",
+        "side": "player",
+        "delta": -2
+      },
+      {
+        "op": "stat",
+        "target": "player",
+        "stat": "happiness",
+        "delta": -2
+      }
+    ]
+  },
+  "training": {
+    "aptitude": "physical",
+    "levels": [
+      {
+        "id": "white"
+      },
+      {
+        "id": "white_red",
+        "minAge": 8,
+        "minSkill": 6,
+        "minMonths": 6
+      },
+      {
+        "id": "red",
+        "minAge": 9,
+        "minSkill": 12,
+        "minMonths": 12
+      },
+      {
+        "id": "red_light_blue",
+        "minAge": 10,
+        "minSkill": 18,
+        "minMonths": 12
+      },
+      {
+        "id": "light_blue",
+        "minAge": 12,
+        "minSkill": 25,
+        "minMonths": 12
+      },
+      {
+        "id": "light_blue_dark_blue",
+        "minAge": 13,
+        "minSkill": 32,
+        "minMonths": 12
+      },
+      {
+        "id": "dark_blue",
+        "minAge": 14,
+        "minSkill": 40,
+        "minMonths": 12
+      },
+      {
+        "id": "dark_blue_black",
+        "minAge": 16,
+        "minSkill": 50,
+        "minMonths": 18
+      },
+      {
+        "id": "black",
+        "minAge": 18,
+        "minSkill": 62,
+        "minMonths": 24
+      },
+      {
+        "id": "black_white",
+        "minAge": 20,
+        "minSkill": 75,
+        "minMonths": 24
+      },
+      {
+        "id": "black_white_red",
+        "minAge": 25,
+        "minSkill": 88,
+        "minMonths": 36
+      }
+    ],
+    "exam": {
+      "chance": 0.6,
+      "skillWeight": 0.03,
+      "retryMonths": 6
+    },
+    "injury": {
+      "chance": 0.05,
+      "health": -6,
+      "months": [
+        3,
+        10
+      ]
+    },
+    "techniques": [
+      "jab_cross",
+      "roundhouse_kick",
+      "teep",
+      "knee",
+      "elbow",
+      "clinch"
+    ]
+  },
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 1
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ]
+}

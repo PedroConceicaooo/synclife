@@ -1,0 +1,126 @@
+{
+  "id": "tap_dance",
+  "category": "physical",
+  "group": "dance",
+  "conditions": {
+    "minAge": 5
+  },
+  "enrollment": {
+    "monthlyFee": "small",
+    "selfPayMinAge": 12,
+    "permissionUnder": 18,
+    "permission": {
+      "base": 0.6,
+      "modifiers": [
+        {
+          "factor": "affinity",
+          "weight": 0.6
+        },
+        {
+          "factor": "targetTrait",
+          "value": "generous",
+          "adjust": 0.15
+        },
+        {
+          "factor": "targetTrait",
+          "value": "rigid",
+          "adjust": -0.1
+        },
+        {
+          "factor": "targetStress",
+          "weight": -0.3
+        },
+        {
+          "factor": "targetWealth",
+          "weight": 0.25
+        },
+        {
+          "factor": "parentPays",
+          "adjust": -0.2
+        }
+      ]
+    },
+    "success": [
+      {
+        "op": "stat",
+        "target": "player",
+        "stat": "happiness",
+        "delta": 3
+      }
+    ],
+    "failure": [
+      {
+        "op": "affinity",
+        "side": "player",
+        "delta": -2
+      },
+      {
+        "op": "stat",
+        "target": "player",
+        "stat": "happiness",
+        "delta": -2
+      }
+    ]
+  },
+  "training": {
+    "aptitude": "physical",
+    "levels": [
+      {
+        "id": "beginner"
+      },
+      {
+        "id": "basic",
+        "minAge": 7,
+        "minSkill": 15,
+        "minMonths": 12
+      },
+      {
+        "id": "intermediate",
+        "minAge": 10,
+        "minSkill": 35,
+        "minMonths": 18
+      },
+      {
+        "id": "advanced",
+        "minAge": 13,
+        "minSkill": 60,
+        "minMonths": 24
+      },
+      {
+        "id": "professional",
+        "minAge": 18,
+        "minSkill": 80,
+        "minMonths": 24
+      }
+    ],
+    "injury": {
+      "chance": 0.01,
+      "health": -4,
+      "months": [
+        2,
+        7
+      ]
+    },
+    "techniques": [
+      "shuffle",
+      "flap",
+      "ball_change",
+      "cramp_roll",
+      "time_step"
+    ]
+  },
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 1
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    }
+  ]
+}

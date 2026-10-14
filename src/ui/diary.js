@@ -84,7 +84,9 @@ function moneyLine(entry, state, locale) {
 export function trainingLine(locale, activityId, { gain, technique }) {
   const activity = locale.t(`activity.${activityId}.title`);
   if (!technique) return locale.format(gain > 0 ? 'diary.training' : 'diary.training_max', { activity, gain });
-  return locale.format('diary.training_technique', { activity, gain, technique: locale.t(`technique.${activityId}.${technique}`) });
+  // An activity may word it its own way (running: "completei 10 km").
+  const own = `activity.${activityId}.training_technique`;
+  return locale.format(locale.has(own) ? own : 'diary.training_technique', { activity, gain, technique: locale.t(`technique.${activityId}.${technique}`) });
 }
 
 // Level up, failed exam, stripe and injury: the other lines a session can
@@ -93,8 +95,11 @@ export function trainingEventLine(locale, entry, sex) {
   const activity = locale.t(`activity.${entry.activityId}.title`);
   const sexes = { player: sex };
   switch (entry.type) {
-    case 'levelUp':
-      return locale.format('diary.level_up', { activity, level: locale.t(`level.${entry.activityId}.${entry.levelId}`) });
+    case 'levelUp': {
+      // A level may have its own line (capoeira's first cord comes at the batizado).
+      const own = `activity.${entry.activityId}.level_up.${entry.levelId}`;
+      return locale.format(locale.has(own) ? own : 'diary.level_up', { activity, level: locale.t(`level.${entry.activityId}.${entry.levelId}`) }, sexes);
+    }
     case 'examFailed':
       return locale.format('diary.exam_failed', { activity, level: locale.t(`level.${entry.activityId}.${entry.levelId}`) }, sexes);
     case 'stripe':
