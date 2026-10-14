@@ -215,7 +215,10 @@ function entryLine(entry, state, locale, block, index) {
       if (entry.succeeded !== undefined) return text(`event.${entry.eventId}.${entry.succeeded ? 'success' : 'failure'}`);
       if (!entry.optionId) return text(`event.${entry.eventId}.text`);
       return locale.format('diary.choice', {
-        prompt: text(`event.${entry.eventId}.prompt`),
+        // A scout's invitation names its club.
+        prompt: entry.clubId
+          ? locale.format(`event.${entry.eventId}.prompt`, { club: clubName(locale, state.clubsById[entry.clubId]) }, { player: state.player.sex })
+          : text(`event.${entry.eventId}.prompt`),
         option: text(`event.${entry.eventId}.option.${entry.optionId}`),
       });
     case 'worldEvent':
@@ -239,6 +242,18 @@ function entryLine(entry, state, locale, block, index) {
       return tryoutLine(locale, entry, entry.clubId ? state.clubsById[entry.clubId] : null);
     case 'tryoutSignup':
       return tryoutSignupLine(locale, entry, state.clubsById[entry.clubId], entry.parentId ? who(state, locale, entry.parentId) : null);
+    case 'teamJoined':
+      return locale.format(entry.parentId ? 'diary.team_joined.allowed' : 'diary.team_joined', {
+        activity: locale.t(`activity.${entry.activityId}.title`),
+        team: teamName(locale, entry.teamLevelId, state.clubsById[entry.clubId]),
+        parent: entry.parentId ? who(state, locale, entry.parentId) : '',
+      });
+    case 'scoutRefused':
+      return locale.format('diary.scout_refused', {
+        activity: locale.t(`activity.${entry.activityId}.title`),
+        club: clubName(locale, state.clubsById[entry.clubId]),
+        parent: who(state, locale, entry.parentId),
+      });
     case 'tryoutRefused':
       return locale.format('diary.tryout_refused', {
         activity: locale.t(`activity.${entry.activityId}.title`),

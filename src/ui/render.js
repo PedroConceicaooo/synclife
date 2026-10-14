@@ -4,7 +4,7 @@
 import { ageAt } from '../engine/time.js';
 import { affinityBand } from './affinityColor.js';
 import { fullName } from '../systems/naming.js';
-import { describeHistory, trainingLine, trainingEventLine, enrollmentLine } from './diary.js';
+import { describeHistory, trainingLine, trainingEventLine, enrollmentLine, clubName } from './diary.js';
 import { isAdult, availableInteractions, availableActivities, closePeople, playerOccupation, assetShop } from './gameState.js';
 import { assetPrice, resalePrice } from '../systems/assets.js';
 import { avatarElement, sexIconElement, nameElement } from './avatarElement.js';
@@ -558,7 +558,8 @@ export function renderDecisionModal(dom, state, locale, { onChoose }) {
   const sexes = sexesOf(state);
 
   dom.decisionModal.hidden = false;
-  dom.decisionPrompt.textContent = locale.format(`event.${decision.trigger}.prompt`, {}, sexes);
+  const params = decision.clubId ? { club: clubName(locale, state.clubsById[decision.clubId]) } : {};
+  dom.decisionPrompt.textContent = locale.format(`event.${decision.trigger}.prompt`, params, sexes);
 
   clearChildren(dom.decisionOptions);
   for (const option of decisionEvent.options) {

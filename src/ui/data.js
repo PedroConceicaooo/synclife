@@ -40,6 +40,8 @@ const MANIFEST = {
     'sibling_mischief.json',
     'school_tryout_football.json',
     'school_tryout_basketball.json',
+    'scout_invite_football.json',
+    'scout_invite_basketball.json',
     'babysitter.json',
     'neighbor_extra_tip.json',
     'teacher_confiscates.json',

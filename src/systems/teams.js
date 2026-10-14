@@ -34,6 +34,10 @@ export function isOnTeam(person, activityId, key) {
   return (person.teams ?? []).some((team) => team.activityId === activityId && team.teamKey === key);
 }
 
+export function isOnClubTeam(person, activityId) {
+  return (person.teams ?? []).some((team) => team.activityId === activityId && team.clubId);
+}
+
 // On any team of this sport: its training comes with the team, free
 // (docs/atividades.md 7.5: the club charges no fee for team training).
 export function isOnAnyTeam(person, activityId) {
@@ -45,7 +49,7 @@ export function isOnAnyTeam(person, activityId) {
 // at a time, besides the school team).
 export function teamTryoutBlocker(activity, target, { person, monthIndex, country }) {
   if (isOnTeam(person, activity.id, teamKey(target))) return 'onTeam';
-  if (target.kind === 'club' && (person.teams ?? []).some((team) => team.activityId === activity.id && team.clubId)) return 'otherClub';
+  if (target.kind === 'club' && isOnClubTeam(person, activity.id)) return 'otherClub';
   return tryoutBlocker(activity, target, { person, monthIndex, country, attempts: person.tryouts ?? [] });
 }
 
@@ -129,6 +133,20 @@ export function runDueTryouts(person, untilMonth, { activitiesById, clubsById, l
     if (result.entry) entries.push(result.entry);
   }
   return { person: current, entries };
+}
+
+// A scout's invitation, accepted: straight onto the club's team in the
+// category for the age, no tryout. Returns { person, entry }, or a null
+// entry when it no longer applies (already in a club, no category).
+export function joinClubTeam(person, activity, club, monthIndex) {
+  const clubSport = club.sports[activity.id];
+  const level = clubSport && clubTeamLevel(activity, clubSport, ageAt(person.birth, monthIndex));
+  if (!level || isOnClubTeam(person, activity.id)) return { person, entry: null };
+  const team = { activityId: activity.id, teamKey: club.id, clubId: club.id, teamLevelId: level.id, since: monthIndex };
+  return {
+    person: { ...person, teams: [...(person.teams ?? []), team] },
+    entry: { type: 'teamJoined', activityId: activity.id, clubId: club.id, teamLevelId: level.id },
+  };
 }
 
 // What happens to one team at the end of a school year: { outcome, team }.

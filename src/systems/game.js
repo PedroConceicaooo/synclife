@@ -31,7 +31,8 @@ import { growStats } from './growth.js';
 import { decayAllSkills } from './training.js';
 import { requestEnrollment, leaveEnrollment, chargeEnrollments, askParentPermission } from './enrollment.js';
 import { compete, competitionBlocker } from './competitions.js';
-import { tryOut, endSeason, signUpForTryout, runDueTryouts } from './teams.js';
+import { tryOut, endSeason, signUpForTryout, runDueTryouts, joinClubTeam } from './teams.js';
+import { rollScoutInvites } from './scout.js';
 import { payStipends, mergeStipendEntries } from './stipend.js';
 
 const START_YEAR = 2000;
@@ -318,6 +319,17 @@ export function advanceStep(state, requestedMonths) {
   people = { ...people, [playerId]: stipends.person };
   entries.push(...stipends.entries);
 
+  const scoutInvites = rollScoutInvites(state.eventsById, {
+    person: people[playerId],
+    activitiesById: state.activitiesById,
+    clubsById: state.clubsById ?? {},
+    country: state.country,
+    relationshipsById: relationships,
+    monthIndex: nextMonthIndex,
+    months,
+    rng: state.rng,
+  });
+
   const playerEvents = processPlayerEvents(state.eventsById, {
     player: people[playerId],
     peopleById: people,
@@ -372,7 +384,7 @@ export function advanceStep(state, requestedMonths) {
     people,
     birthdays,
     fired: world.fired,
-    pendingDecisions: [...world.pendingDecisions, ...calendar.pendingDecisions, ...playerEvents.pendingDecisions],
+    pendingDecisions: [...world.pendingDecisions, ...calendar.pendingDecisions, ...playerEvents.pendingDecisions, ...scoutInvites],
     remainingMonths,
     activityUsesThisPeriod: {},
     enrollmentAskedThisPeriod: {},
@@ -427,15 +439,37 @@ export function resolveDecision(state, optionId) {
     people = { ...people, [state.player.id]: tried.person };
     if (tried.entry) tryoutEntries.push(tried.entry);
   }
+  // A scout's invitation accepted: the parents of a minor have the last word.
+  let relationships = result.relationshipsById;
+  if (option.joinClub) {
+    const activity = state.activitiesById[decisionEvent.scout.activity];
+    const permission = askParentPermission(activity, {
+      playerId: state.player.id,
+      peopleById: people,
+      relationshipsById: relationships,
+      country: state.country,
+      currentMonthIndex: state.currentMonthIndex,
+      rng: state.rng,
+    });
+    people = permission.peopleById;
+    relationships = permission.relationshipsById;
+    if (permission.allowed) {
+      const joined = joinClubTeam(people[state.player.id], activity, state.clubsById[decision.clubId], state.currentMonthIndex);
+      people = { ...people, [state.player.id]: joined.person };
+      if (joined.entry) tryoutEntries.push({ ...joined.entry, ...(permission.parentId ? { parentId: permission.parentId } : {}) });
+    } else {
+      tryoutEntries.push({ type: 'scoutRefused', activityId: activity.id, clubId: decision.clubId, parentId: permission.parentId });
+    }
+  }
   const playerAfter = people[state.player.id];
 
   return {
     ...state,
-    relationships: result.relationshipsById,
+    relationships,
     people,
     pendingDecisions: state.pendingDecisions.slice(1),
     history: appendToCurrentBlock(state.history, [
-      { type: 'event', eventId: decisionEvent.id, optionId: result.optionId },
+      { type: 'event', eventId: decisionEvent.id, optionId: result.optionId, ...(decision.clubId ? { clubId: decision.clubId } : {}) },
       ...tryoutEntries,
       ...moneyEntries(playerBefore, playerAfter, { source: 'event', eventId: decisionEvent.id }),
       ...statEntries(playerBefore, playerAfter),

@@ -1,0 +1,31 @@
+{
+  "id": "scout_invite_football",
+  "subject": "player",
+  "scout": {
+    "activity": "football"
+  },
+  "conditions": {
+    "minAge": 8,
+    "maxAge": 17,
+    "trainsActivity": "football",
+    "notOnClubTeam": "football"
+  },
+  "options": [
+    {
+      "id": "accept",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 5
+        }
+      ],
+      "joinClub": true
+    },
+    {
+      "id": "decline",
+      "effects": []
+    }
+  ]
+}

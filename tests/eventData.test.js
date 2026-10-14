@@ -99,3 +99,18 @@ test('texts with variants are non-empty lists of strings', () => {
     assert.ok(value.length > 1 && value.every((v) => typeof v === 'string' && v.length > 0), key);
   }
 });
+
+test('scout events name a team sport, declare minAge, are never rolled on their own, and only they join a club', () => {
+  const activitiesById = loadActivities(fileURLToPath(new URL('../data/activities/', import.meta.url)));
+  for (const event of EVENTS) {
+    const joins = (event.options ?? []).some((o) => o.joinClub);
+    if (!event.scout) {
+      assert.equal(joins, false, `${event.id}: joinClub needs a scout event`);
+      continue;
+    }
+    assert.ok(activitiesById[event.scout.activity]?.teamLevels, event.id);
+    assert.equal(typeof event.conditions.minAge, 'number', event.id);
+    assert.equal(event.yearlyChance, undefined, event.id);
+    assert.ok(joins, event.id);
+  }
+});

@@ -1,0 +1,31 @@
+{
+  "id": "scout_invite_basketball",
+  "subject": "player",
+  "scout": {
+    "activity": "basketball"
+  },
+  "conditions": {
+    "minAge": 8,
+    "maxAge": 17,
+    "trainsActivity": "basketball",
+    "notOnClubTeam": "basketball"
+  },
+  "options": [
+    {
+      "id": "accept",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 5
+        }
+      ],
+      "joinClub": true
+    },
+    {
+      "id": "decline",
+      "effects": []
+    }
+  ]
+}
