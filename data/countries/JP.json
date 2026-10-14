@@ -20,6 +20,14 @@
     "fukuoka",
     "kyoto"
   ],
+  "clubNamePatterns": [
+    "momiji",
+    "kaede",
+    "tsubame",
+    "hotaru",
+    "shirakaba",
+    "nagisa"
+  ],
   "naming": {
     "familyNameFirst": true
   },

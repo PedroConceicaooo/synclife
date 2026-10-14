@@ -34,6 +34,32 @@
     "schoolYearStartMonth": 9,
     "stages": []
   },
+  "clubNamePatterns": [
+    "tucanos",
+    "aurora",
+    "ipe_roxo",
+    "garcas",
+    "cometa",
+    "maritaca"
+  ],
+  "youthStipend": {
+    "minAge": 14,
+    "maxAge": 19,
+    "teamLevels": {
+      "youth_u15": {
+        "scale": "medium",
+        "multiplier": 2
+      },
+      "youth_u17": {
+        "scale": "medium",
+        "multiplier": 3
+      },
+      "youth_u20": {
+        "scale": "medium",
+        "multiplier": 4
+      }
+    }
+  },
   "petNames": {
     "dog": [
       "Rex",

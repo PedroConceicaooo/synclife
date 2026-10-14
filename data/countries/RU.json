@@ -19,6 +19,14 @@
     "kazan",
     "nizhny_novgorod"
   ],
+  "clubNamePatterns": [
+    "kedr",
+    "topol",
+    "ryabina",
+    "severyanka",
+    "yantar",
+    "sinitsa"
+  ],
   "education": {
     "schoolYearStartMonth": 9,
     "stages": [

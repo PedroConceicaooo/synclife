@@ -18,6 +18,14 @@
     "liverpool",
     "bristol"
   ],
+  "clubNamePatterns": [
+    "kestrels",
+    "heron_park",
+    "lanterns",
+    "oakmoor",
+    "ferrymen",
+    "skylarks"
+  ],
   "ages": {
     "driving": 17,
     "criminalResponsibility": 10

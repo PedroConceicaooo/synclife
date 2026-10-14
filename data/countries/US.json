@@ -20,6 +20,14 @@
     "boston",
     "atlanta"
   ],
+  "clubNamePatterns": [
+    "otters",
+    "lanterns",
+    "kestrels",
+    "junipers",
+    "ironwood",
+    "harbor_lights"
+  ],
   "ages": {
     "drinking": 21,
     "smoking": 21,
