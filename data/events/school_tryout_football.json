@@ -1,0 +1,30 @@
+{
+  "id": "school_tryout_football",
+  "subject": "player",
+  "calendar": {
+    "on": "schoolYearStart"
+  },
+  "conditions": {
+    "minAge": 8,
+    "inSchool": true,
+    "trainsActivity": "football",
+    "notOnTeam": {
+      "activity": "football",
+      "team": "school"
+    }
+  },
+  "options": [
+    {
+      "id": "sign_up",
+      "effects": [],
+      "tryout": {
+        "activity": "football",
+        "team": "school"
+      }
+    },
+    {
+      "id": "skip",
+      "effects": []
+    }
+  ]
+}

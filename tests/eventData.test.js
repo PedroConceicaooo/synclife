@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { loadEvents } from '../src/systems/eventsLoader.js';
+import { loadActivities } from '../src/systems/activitiesLoader.js';
 
 const EVENTS_DIR = fileURLToPath(new URL('../data/events/', import.meta.url));
 const LOCALE = JSON.parse(readFileSync(new URL('../locales/pt-BR/ui.json', import.meta.url), 'utf8'));
@@ -73,8 +74,18 @@ test('every milestone event has a short summary text in pt-BR', () => {
 test('calendar events declare minAge and a known calendar point, and are never rolled', () => {
   for (const event of EVENTS.filter((e) => e.calendar)) {
     assert.equal(typeof event.conditions?.minAge, 'number', event.id);
-    assert.ok(['stageStart', 'schoolYearEnd'].includes(event.calendar.on), event.id);
+    assert.ok(['stageStart', 'schoolYearStart', 'schoolYearEnd'].includes(event.calendar.on), event.id);
     assert.equal(event.yearlyChance, undefined, event.id);
+  }
+});
+
+test('options that hold a tryout name a team sport and the school team', () => {
+  const activitiesById = loadActivities(fileURLToPath(new URL('../data/activities/', import.meta.url)));
+  for (const event of EVENTS) {
+    for (const option of (event.options ?? []).filter((o) => o.tryout)) {
+      assert.ok(activitiesById[option.tryout.activity]?.teamLevels, `${event.id}.${option.id}`);
+      assert.equal(option.tryout.team, 'school', `${event.id}.${option.id}: club tryouts go by sign-up`);
+    }
   }
 });
 

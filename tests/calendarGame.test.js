@@ -137,3 +137,36 @@ test('a dated decision whose conditions fail does not cut the advance short', ()
   assert.ok(always.currentMonthIndex < atSchool.currentMonthIndex + 12);
   assert.deepEqual(always.pendingDecisions.map((d) => d.trigger), ['yearly_question']);
 });
+
+test('a player who trains football is asked about the school team each school year until on it', () => {
+  const base = newLifeIn('BR');
+  const playerId = base.player.id;
+  // Ten years old, a month before a school year starts, with some football.
+  const entry = schoolEntryMonth(base.player.birth, base.country.education);
+  const month = entry + 4 * 12 - 1;
+  const trained = { ...base.people[playerId], skills: { football: { skill: 60, peak: 60, sessions: 10, lastTrainedMonth: month, level: 0, levelSince: month } } };
+  const state = { ...base, currentMonthIndex: month, people: { ...base.people, [playerId]: trained } };
+
+  const asked = advanceStep(state, 6);
+  assert.equal(asked.currentMonthIndex, entry + 4 * 12, 'the advance stops at the school year start');
+  assert.deepEqual(asked.pendingDecisions.map((d) => d.trigger), ['school_tryout_football']);
+
+  const signed = resolveDecision({ ...asked, rng: { ...asked.rng, chance: () => true } }, 'sign_up');
+  const lines = signed.history.at(-1).entries;
+  assert.equal(lines.at(-1).type, 'tryout');
+  assert.equal(lines.at(-1).passed, true);
+  assert.deepEqual(signed.people[playerId].teams.map((t) => t.teamKey), ['school']);
+
+  // At the end of the school year (December) the team is reviewed; next year
+  // no question.
+  const yearEnd = advanceStep(continueAdvance(signed), 6);
+  const review = yearEnd.history.flatMap((b) => b.entries).find((e) => e.type === 'teamSeason');
+  assert.equal(review?.activityId, 'football');
+  const nextYear = advanceStep({ ...yearEnd, rng: { ...yearEnd.rng, chance: () => true } }, 12);
+  const kept = nextYear.people[playerId].teams.some((t) => t.teamKey === 'school');
+  assert.equal(nextYear.pendingDecisions.some((d) => d.trigger === 'school_tryout_football'), !kept);
+
+  // Without football, nobody asks.
+  const quiet = advanceStep({ ...state, people: base.people }, 6);
+  assert.equal(quiet.pendingDecisions.some((d) => d.trigger === 'school_tryout_football'), false);
+});

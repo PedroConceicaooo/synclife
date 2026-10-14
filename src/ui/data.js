@@ -38,6 +38,8 @@ const MANIFEST = {
     'caught_by_parents.json',
     'caught_by_police.json',
     'sibling_mischief.json',
+    'school_tryout_football.json',
+    'school_tryout_basketball.json',
     'babysitter.json',
     'neighbor_extra_tip.json',
     'teacher_confiscates.json',

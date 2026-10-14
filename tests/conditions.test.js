@@ -64,3 +64,13 @@ test('inSchool follows the country school calendar', () => {
   assert.equal(evaluateConditions({ inSchool: true }, child, at(2007, 4)), true);
   assert.equal(evaluateConditions({ inSchool: false }, child, at(2007, 3)), true);
 });
+
+test('trainsActivity and notOnTeam look at the person\'s skills and teams', () => {
+  const person = { skills: { football: { skill: 10 } }, teams: [{ activityId: 'football', teamKey: 'school' }] };
+  assert.equal(evaluateConditions({ trainsActivity: 'football' }, person), true);
+  assert.equal(evaluateConditions({ trainsActivity: 'basketball' }, person), false);
+  assert.equal(evaluateConditions({ trainsActivity: 'football' }, {}), false);
+  assert.equal(evaluateConditions({ notOnTeam: { activity: 'football', team: 'school' } }, person), false);
+  assert.equal(evaluateConditions({ notOnTeam: { activity: 'basketball', team: 'school' } }, person), true);
+  assert.equal(evaluateConditions({ notOnTeam: { activity: 'football', team: 'school' } }, {}), true);
+});

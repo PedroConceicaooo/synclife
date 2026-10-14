@@ -31,6 +31,7 @@ import { growStats } from './growth.js';
 import { decayAllSkills } from './training.js';
 import { requestEnrollment, leaveEnrollment, chargeEnrollments } from './enrollment.js';
 import { compete, competitionBlocker } from './competitions.js';
+import { tryOut, endSeason } from './teams.js';
 
 const START_YEAR = 2000;
 export const ADULT_AGE = 18;
@@ -39,7 +40,17 @@ export const ADULT_AGE = 18;
 const MIN_LOGGED_STAT_DELTA = 1;
 
 // choices: see createNewLife (custom name, sex, country and city).
-export function createGameState({ seed, countriesById, eventsById, interactionsById, activitiesById, assetsById = {}, choices }) {
+export function createGameState({
+  seed,
+  countriesById,
+  eventsById,
+  interactionsById,
+  activitiesById,
+  assetsById = {},
+  clubsById = {},
+  leaguesById = {},
+  choices,
+}) {
   const rng = createRng(seed);
   const nextPersonId = createIdGenerator('p');
   const nextRelationshipId = createIdGenerator('r');
@@ -72,6 +83,8 @@ export function createGameState({ seed, countriesById, eventsById, interactionsB
     interactionsById,
     activitiesById,
     assetsById,
+    clubsById,
+    leaguesById,
     pendingDecisions: [],
     firedEvents: [],
     activityUsesThisPeriod: {},
@@ -182,6 +195,19 @@ function processCalendar(state, points, { people, relationships }) {
   let relationshipsNow = relationships;
 
   for (const point of points) {
+    // The school year is the teams' season (teams.js).
+    if (point.on === 'schoolYearEnd') {
+      const season = endSeason(peopleNow[state.player.id], {
+        activitiesById: state.activitiesById,
+        clubsById: state.clubsById ?? {},
+        leaguesById: state.leaguesById ?? {},
+        monthIndex: point.month,
+        country: state.country,
+        rng: state.rng,
+      });
+      peopleNow = { ...peopleNow, [state.player.id]: season.person };
+      entries.push(...season.entries);
+    }
     if (point.on === 'stageStart') {
       entries.push({ type: 'schoolStage', stageId: point.stageId });
       const school = startClass(state.rng, {
@@ -362,15 +388,30 @@ export function resolveDecision(state, optionId) {
     optionId,
     currentMonthIndex: state.currentMonthIndex,
   });
-  const playerAfter = result.peopleById[state.player.id];
+  // An option may hold a tryout (school teams): { activity, team }.
+  const option = decisionEvent.options.find((o) => o.id === result.optionId);
+  let people = result.peopleById;
+  const tryoutEntries = [];
+  if (option.tryout) {
+    const tried = tryOut(people[state.player.id], state.activitiesById[option.tryout.activity], { kind: option.tryout.team }, {
+      monthIndex: state.currentMonthIndex,
+      country: state.country,
+      rng: state.rng,
+      leaguesById: state.leaguesById ?? {},
+    });
+    people = { ...people, [state.player.id]: tried.person };
+    if (tried.entry) tryoutEntries.push(tried.entry);
+  }
+  const playerAfter = people[state.player.id];
 
   return {
     ...state,
     relationships: result.relationshipsById,
-    people: result.peopleById,
+    people,
     pendingDecisions: state.pendingDecisions.slice(1),
     history: appendToCurrentBlock(state.history, [
       { type: 'event', eventId: decisionEvent.id, optionId: result.optionId },
+      ...tryoutEntries,
       ...moneyEntries(playerBefore, playerAfter, { source: 'event', eventId: decisionEvent.id }),
       ...statEntries(playerBefore, playerAfter),
     ]),

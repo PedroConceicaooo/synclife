@@ -1,0 +1,30 @@
+{
+  "id": "school_tryout_basketball",
+  "subject": "player",
+  "calendar": {
+    "on": "schoolYearStart"
+  },
+  "conditions": {
+    "minAge": 8,
+    "inSchool": true,
+    "trainsActivity": "basketball",
+    "notOnTeam": {
+      "activity": "basketball",
+      "team": "school"
+    }
+  },
+  "options": [
+    {
+      "id": "sign_up",
+      "effects": [],
+      "tryout": {
+        "activity": "basketball",
+        "team": "school"
+      }
+    },
+    {
+      "id": "skip",
+      "effects": []
+    }
+  ]
+}

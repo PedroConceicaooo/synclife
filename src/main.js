@@ -6,6 +6,7 @@ import { loadEvents } from './systems/eventsLoader.js';
 import { loadInteractions } from './systems/interactionsLoader.js';
 import { loadActivities } from './systems/activitiesLoader.js';
 import { loadAssets } from './systems/assetsLoader.js';
+import { loadClubs, loadLeagues } from './systems/clubsLoader.js';
 import { createGameState, advanceStep, resolveDecision, continueAdvance, canContinueAdvance, isAdult } from './systems/game.js';
 import { lifeSummary } from './systems/lifeEnd.js';
 
@@ -14,6 +15,8 @@ const EVENTS_DIR = fileURLToPath(new URL('../data/events/', import.meta.url));
 const INTERACTIONS_DIR = fileURLToPath(new URL('../data/interactions/', import.meta.url));
 const ACTIVITIES_DIR = fileURLToPath(new URL('../data/activities/', import.meta.url));
 const ASSETS_DIR = fileURLToPath(new URL('../data/assets/', import.meta.url));
+const CLUBS_DIR = fileURLToPath(new URL('../data/clubs/', import.meta.url));
+const LEAGUES_DIR = fileURLToPath(new URL('../data/leagues/', import.meta.url));
 
 function readSeedFromArgs() {
   const arg = process.argv.find((a) => a.startsWith('--seed='));
@@ -76,6 +79,8 @@ function main() {
     interactionsById: loadInteractions(INTERACTIONS_DIR),
     activitiesById: loadActivities(ACTIVITIES_DIR),
     assetsById: loadAssets(ASSETS_DIR),
+    clubsById: loadClubs(CLUBS_DIR),
+    leaguesById: loadLeagues(LEAGUES_DIR),
   });
 
   console.log(`Born: ${formatPerson(state.player)} sex=${state.player.sex} country=${state.country.id}`);

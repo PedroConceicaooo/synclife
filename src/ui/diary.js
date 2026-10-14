@@ -139,18 +139,32 @@ export function clubName(locale, club) {
   return locale.format(`clubPattern.${club.namePattern}`, { city: locale.t(cityKey) });
 }
 
-// The coach's words after a tryout (tryouts.js); the score is never shown.
-// club is null for the school team.
-export function tryoutLine(locale, entry, club) {
-  const team = club
-    ? locale.format('tryout.team.club', { level: locale.t(`teamLevel.${entry.teamLevelId}`), club: clubName(locale, club) })
+// "time da escola" or "sub-15 do Tucanos de Recife"; club is null for the
+// school team.
+function teamName(locale, teamLevelId, club) {
+  return club
+    ? locale.format('tryout.team.club', { level: locale.t(`teamLevel.${teamLevelId}`), club: clubName(locale, club) })
     : locale.t('tryout.team.school');
+}
+
+// The coach's words after a tryout (tryouts.js); the score is never shown.
+export function tryoutLine(locale, entry, club) {
   return locale.format(`diary.tryout.${entry.passed ? 'passed' : 'failed'}`, {
     activity: locale.t(`activity.${entry.activityId}.title`),
-    team,
+    team: teamName(locale, entry.teamLevelId, club),
     praise: locale.t(`tryout.praise.${entry.praise}`),
     critique: entry.critique ? locale.t(`tryout.critique.${entry.critique}`) : '',
   });
+}
+
+// The end-of-year review of a team (teams.js): kept, promoted, released
+// or left with school.
+export function teamSeasonLine(locale, entry, club, sex) {
+  return locale.format(
+    `diary.team.${entry.outcome}`,
+    { activity: locale.t(`activity.${entry.activityId}.title`), team: teamName(locale, entry.teamLevelId, club) },
+    { player: sex },
+  );
 }
 
 function entryLine(entry, state, locale, block, index) {
@@ -212,6 +226,8 @@ function entryLine(entry, state, locale, block, index) {
       return trainingEventLine(locale, entry, state.player.sex);
     case 'tryout':
       return tryoutLine(locale, entry, entry.clubId ? state.clubsById[entry.clubId] : null);
+    case 'teamSeason':
+      return teamSeasonLine(locale, entry, entry.clubId ? state.clubsById[entry.clubId] : null, state.player.sex);
     case 'interaction':
       return locale.format('diary.interaction', {
         label: text(`interaction.${entry.interactionId}.label`),

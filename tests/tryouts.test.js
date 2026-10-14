@@ -19,7 +19,7 @@ import { loadActivities } from '../src/systems/activitiesLoader.js';
 import { loadLeagues } from '../src/systems/clubsLoader.js';
 import { createRng } from '../src/engine/random.js';
 import { createLocale } from '../src/i18n/locale.js';
-import { tryoutLine, clubName } from '../src/ui/diary.js';
+import { tryoutLine, clubName, teamSeasonLine } from '../src/ui/diary.js';
 
 const dir = (path) => fileURLToPath(new URL(`../data/${path}/`, import.meta.url));
 const FOOTBALL = loadActivities(dir('activities')).football;
@@ -164,4 +164,12 @@ test('the diary shows the coach, not the score; club names use the pattern and t
   assert.equal(passed, 'Futebol, peneira do time da escola: o técnico gostou da minha técnica. Passei!');
   // No number besides the category's own name.
   assert.doesNotMatch((failed + passed).replace('sub-15', ''), /\d/);
+});
+
+test('the diary tells each end-of-year team review', () => {
+  const entry = (outcome, teamLevelId) => ({ type: 'teamSeason', activityId: 'football', teamLevelId, outcome });
+  assert.equal(teamSeasonLine(LOCALE, entry('kept', 'school'), null, 'M'), 'Futebol: continuo no time da escola.');
+  assert.equal(teamSeasonLine(LOCALE, entry('promoted', 'youth_u17'), CLUB, 'F'), 'Futebol: fui promovida para o sub-17 do Tucanos de Recife!');
+  assert.equal(teamSeasonLine(LOCALE, entry('released', 'youth_u15'), CLUB, 'M'), 'Futebol: fui dispensado do sub-15 do Tucanos de Recife.');
+  assert.equal(teamSeasonLine(LOCALE, entry('left', 'school'), null, 'F'), 'Futebol: terminei a escola e me despedi do time da escola.');
 });

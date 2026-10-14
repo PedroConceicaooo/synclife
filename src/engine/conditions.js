@@ -5,6 +5,7 @@ import { ageAt } from './time.js';
 import { resolveAmount } from '../systems/money.js';
 import { childrenOf } from '../systems/birth.js';
 import { schoolStageAt } from '../systems/school.js';
+import { isOnTeam } from '../systems/teams.js';
 
 export function evaluateConditions(conditions = {}, target, context = {}) {
   for (const [key, expected] of Object.entries(conditions)) {
@@ -60,6 +61,12 @@ function evaluateCondition(key, expected, target, context) {
       return !holdsRole(expected, target, context);
     case 'targetSpecies':
       return context.target?.species === expected;
+    // Has trained this activity at least once (has a skill in it).
+    case 'trainsActivity':
+      return Boolean(target.skills?.[expected]);
+    // Not on that team yet: { "activity": "football", "team": "school" }.
+    case 'notOnTeam':
+      return !isOnTeam(target, expected.activity, expected.team);
     case 'minMoney':
       return target.money >= resolveAmount(expected, context.country);
     case 'targetRole':
