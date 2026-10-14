@@ -41,9 +41,11 @@ export function isOnAnyTeam(person, activityId) {
 }
 
 // Why this person can't try out now, or null (tryoutBlocker, plus being on
-// that team already).
+// that team already, or on another club's team of the same sport: one club
+// at a time, besides the school team).
 export function teamTryoutBlocker(activity, target, { person, monthIndex, country }) {
   if (isOnTeam(person, activity.id, teamKey(target))) return 'onTeam';
+  if (target.kind === 'club' && (person.teams ?? []).some((team) => team.activityId === activity.id && team.clubId)) return 'otherClub';
   return tryoutBlocker(activity, target, { person, monthIndex, country, attempts: person.tryouts ?? [] });
 }
 

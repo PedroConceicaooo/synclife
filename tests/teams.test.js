@@ -185,3 +185,11 @@ test('a team player trains the sport without a class fee', () => {
   assert.equal(listed.enrollment.trainsWithTeam, true);
   assert.equal(listed.blocker, null);
 });
+
+test('one club at a time per sport: on a club team, other clubs wait; the school team is fine', () => {
+  const other = { ...CLUB, id: 'cl_br_recife_2' };
+  const inClub = person({ teams: [{ activityId: 'football', teamKey: CLUB.id, clubId: CLUB.id, teamLevelId: 'youth_u15', since: 0 }] });
+  assert.equal(teamTryoutBlocker(FOOTBALL, { kind: 'club', club: other }, { person: inClub, monthIndex: march(13), country: COUNTRY }), 'otherClub');
+  assert.equal(teamTryoutBlocker(FOOTBALL, { kind: 'school' }, { person: inClub, monthIndex: march(13), country: COUNTRY }), null);
+  assert.equal(signUpForTryout(inClub, FOOTBALL, other, { monthIndex: march(13), country: COUNTRY }).blocker, 'otherClub');
+});
