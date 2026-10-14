@@ -1,0 +1,126 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
+import { isOnTeam, teamTryoutBlocker, tryOut, endSeason, nextSeasonStart, KEEP_MARGIN } from '../src/systems/teams.js';
+import { loadActivities } from '../src/systems/activitiesLoader.js';
+import { loadLeagues } from '../src/systems/clubsLoader.js';
+
+const dir = (path) => fileURLToPath(new URL(`../data/${path}/`, import.meta.url));
+const ACTIVITIES = loadActivities(dir('activities'));
+const FOOTBALL = ACTIVITIES.football;
+const LEAGUES = loadLeagues(dir('leagues'));
+// School from 6 to 18, years from February to December (like Brazil).
+const COUNTRY = { education: { schoolYearStartMonth: 2, schoolYearEndMonth: 12, stages: [{ id: 'elementary', startAge: 6, years: 12 }] } };
+const CLUB = {
+  id: 'cl_br_recife_1',
+  countryId: 'BR',
+  cityId: 'recife',
+  namePattern: 'tucanos',
+  sports: { football: { proLeague: 'br_football_pro_3', youthLeague: 'football_youth_regional', teamLevels: ['youth_u11', 'youth_u15', 'youth_u17'], tryoutMonths: [10, 1] } },
+};
+const CONTEXT = { activitiesById: ACTIVITIES, clubsById: { [CLUB.id]: CLUB }, leaguesById: LEAGUES, country: COUNTRY };
+
+// Born in January of year 0: the school year starting in February of year
+// N is the one at age N; December of year N ends it.
+const march = (age) => age * 12 + 2;
+const december = (age) => age * 12 + 11;
+
+function person({ skill = 60, health = 70, teams = [], tryouts = [] } = {}) {
+  return {
+    id: 'p_kid',
+    birth: 0,
+    stats: { happiness: 50, health, intelligence: 50, looks: 50 },
+    aptitudes: { physical: 0.5 },
+    skills: { football: { skill } },
+    teams,
+    tryouts,
+  };
+}
+
+const passes = { next: () => 0.5, chance: () => true };
+const fails = { next: () => 0.5, chance: () => false };
+
+test('tryOut: passing joins the team; the attempt is kept either way', () => {
+  const school = { kind: 'school' };
+  const joined = tryOut(person(), FOOTBALL, school, { monthIndex: march(10), country: COUNTRY, rng: passes });
+  assert.equal(joined.blocker, null);
+  assert.deepEqual(joined.person.teams, [{ activityId: 'football', teamKey: 'school', teamLevelId: 'school', since: march(10) }]);
+  assert.deepEqual(joined.person.tryouts, [{ activityId: 'football', teamKey: 'school', season: 10 }]);
+  assert.equal(joined.entry.type, 'tryout');
+  assert.equal(joined.entry.passed, true);
+  assert.equal(isOnTeam(joined.person, 'football', 'school'), true);
+
+  const club = { kind: 'club', club: CLUB };
+  const failed = tryOut(person(), FOOTBALL, club, { monthIndex: march(13), country: COUNTRY, rng: fails, leaguesById: LEAGUES });
+  assert.deepEqual(failed.person.teams, []);
+  assert.deepEqual(failed.person.tryouts, [{ activityId: 'football', teamKey: CLUB.id, season: 13 }]);
+  assert.equal(failed.entry.passed, false);
+  assert.equal(failed.entry.clubId, CLUB.id);
+  assert.equal(failed.entry.teamLevelId, 'youth_u15');
+  assert.ok(failed.entry.critique);
+  assert.equal('score' in failed.entry, false);
+});
+
+test('a second try at the same team waits for the next season; being on it blocks a tryout', () => {
+  const club = { kind: 'club', club: CLUB };
+  const first = tryOut(person(), FOOTBALL, club, { monthIndex: march(13), country: COUNTRY, rng: fails, leaguesById: LEAGUES });
+  const again = tryOut(first.person, FOOTBALL, club, { monthIndex: march(13) + 3, country: COUNTRY, rng: passes, leaguesById: LEAGUES });
+  assert.equal(again.blocker, 'alreadyTried');
+  assert.equal(again.person, first.person);
+  const nextYear = tryOut(first.person, FOOTBALL, club, { monthIndex: march(14), country: COUNTRY, rng: passes, leaguesById: LEAGUES });
+  assert.equal(nextYear.blocker, null);
+  assert.equal(teamTryoutBlocker(FOOTBALL, club, { person: nextYear.person, monthIndex: march(15), country: COUNTRY }), 'onTeam');
+});
+
+test('endSeason: same category next year is kept with KEEP_MARGIN of slack, else released', () => {
+  const team = { activityId: 'football', teamKey: CLUB.id, clubId: CLUB.id, teamLevelId: 'youth_u15', since: march(13) };
+  const chances = [];
+  const watching = { next: () => 0.5, chance: (c) => (chances.push(c), true) };
+  const kept = endSeason(person({ teams: [team] }), { ...CONTEXT, monthIndex: december(13), rng: watching });
+  assert.deepEqual(kept.person.teams, [team]);
+  assert.deepEqual(kept.entries, [{ type: 'teamSeason', activityId: 'football', clubId: CLUB.id, teamLevelId: 'youth_u15', outcome: 'kept' }]);
+
+  // The same person facing the entry requirement would have a lower chance.
+  const entering = endSeason(person({ teams: [{ ...team, teamLevelId: 'youth_u11' }] }), { ...CONTEXT, monthIndex: december(13), rng: watching });
+  assert.equal(entering.entries[0].outcome, 'promoted');
+  assert.ok(chances[0] > chances[1], `keeping (${chances[0]}) is easier than moving up (${chances[1]}) by ${KEEP_MARGIN} points`);
+
+  const released = endSeason(person({ teams: [team] }), { ...CONTEXT, monthIndex: december(13), rng: fails });
+  assert.deepEqual(released.person.teams, []);
+  assert.equal(released.entries[0].outcome, 'released');
+});
+
+test('endSeason: an age that calls for the next category promotes, from the next season on', () => {
+  // 15 in under-15; next season at 16 is under-17.
+  const team = { activityId: 'football', teamKey: CLUB.id, clubId: CLUB.id, teamLevelId: 'youth_u15', since: march(14) };
+  const result = endSeason(person({ teams: [team] }), { ...CONTEXT, monthIndex: december(15), rng: passes });
+  assert.deepEqual(result.person.teams, [{ ...team, teamLevelId: 'youth_u17', since: march(16) - 1 }]);
+  assert.equal(result.entries[0].outcome, 'promoted');
+  assert.equal(result.entries[0].teamLevelId, 'youth_u17');
+});
+
+test('endSeason: a club without the next category, or a club gone, releases', () => {
+  // This club stops at under-17: at 18 there is no category.
+  const team = { activityId: 'football', teamKey: CLUB.id, clubId: CLUB.id, teamLevelId: 'youth_u17', since: march(16) };
+  assert.equal(endSeason(person({ teams: [team] }), { ...CONTEXT, monthIndex: december(17), rng: passes }).entries[0].outcome, 'released');
+  const gone = endSeason(person({ teams: [team] }), { ...CONTEXT, clubsById: {}, monthIndex: december(16), rng: passes });
+  assert.equal(gone.entries[0].outcome, 'released');
+});
+
+test('endSeason: leaving school ends the school team; people without teams are untouched', () => {
+  const team = { activityId: 'football', teamKey: 'school', teamLevelId: 'school', since: march(17) };
+  const left = endSeason(person({ teams: [team] }), { ...CONTEXT, monthIndex: december(17), rng: passes });
+  assert.deepEqual(left.person.teams, []);
+  assert.equal(left.entries[0].outcome, 'left');
+  const kept = endSeason(person({ teams: [team] }), { ...CONTEXT, monthIndex: december(12), rng: passes });
+  assert.equal(kept.entries[0].outcome, 'kept');
+
+  const nobody = person();
+  assert.equal(endSeason(nobody, { ...CONTEXT, monthIndex: december(12), rng: passes }).person, nobody);
+});
+
+test('nextSeasonStart is the first month of the next school year', () => {
+  assert.equal(nextSeasonStart(december(13), 2), march(14) - 1); // Brazil: December, then February
+  assert.equal(nextSeasonStart(13 * 12 + 1, 2), march(14) - 1); // February itself: the following one
+  assert.equal(nextSeasonStart(13 * 12 + 6, 9), 13 * 12 + 8); // July, start in September
+});
