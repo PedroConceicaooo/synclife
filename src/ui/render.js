@@ -4,7 +4,7 @@
 import { ageAt } from '../engine/time.js';
 import { affinityBand } from './affinityColor.js';
 import { fullName } from '../systems/naming.js';
-import { describeHistory } from './diary.js';
+import { describeHistory, trainingLine, levelUpLine } from './diary.js';
 import { isAdult, availableInteractions, availableActivities, closePeople, playerOccupation, assetShop } from './gameState.js';
 import { assetPrice, resalePrice } from '../systems/assets.js';
 import { avatarElement, sexIconElement, nameElement } from './avatarElement.js';
@@ -380,8 +380,29 @@ function activityResultText(state, result, locale, sexes) {
     .map((eventId) => `event.${eventId}.text`)
     .filter((key) => locale.has(key))
     .map((key) => locale.format(key, {}, sexes));
+  if (result.training) {
+    const { training, activityId } = result;
+    return [trainingLine(locale, activityId, training), training.levelId && levelUpLine(locale, activityId, training.levelId), ...eventTexts]
+      .filter(Boolean)
+      .join(' ');
+  }
   const outcome = result.succeeded === false ? 'failed' : 'done';
   return [locale.format(`activity.${result.activityId}.${outcome}`, {}, sexes, lastLineSeed(state, 'activity')), ...eventTexts].join(' ');
+}
+
+// Skills (training.js): level and skill bar, sessions left in the period
+// and the techniques learned so far.
+function trainingDetails({ id, skill, levelId, techniques, usesLeft }, locale) {
+  const level = locale.t(`level.${id}.${levelId}`);
+  const nodes = [
+    meter(level.charAt(0).toLocaleUpperCase(locale.language) + level.slice(1), skill),
+    el('span', { className: 'detail', text: locale.plural('ui.training_uses_left', usesLeft) }),
+  ];
+  if (techniques.length > 0) {
+    const list = locale.list(techniques.map((t) => locale.t(`technique.${id}.${t}`)));
+    nodes.push(el('span', { className: 'detail', text: locale.format('ui.training_techniques', { list }) }));
+  }
+  return nodes;
 }
 
 // Design doc: lists with title and a one-line description. Activities the
@@ -395,7 +416,8 @@ export function renderActivities(dom, state, locale, { onDoActivity }) {
     const section = el('div', { className: 'activities-group' });
     section.appendChild(el('h2', { text: locale.t(`activityCategory.${group.category}`) }));
 
-    for (const { id, blocker } of group.activities) {
+    for (const item of group.activities) {
+      const { id, blocker } = item;
       const button = el('button', { className: 'row activity' });
       button.type = 'button';
       button.disabled = blocker !== null || state.pendingDecisions.length > 0;
@@ -403,6 +425,7 @@ export function renderActivities(dom, state, locale, { onDoActivity }) {
         el('strong', { text: locale.t(`activity.${id}.title`) }),
         el('span', { className: 'detail', text: blocker ? locale.t(ACTIVITY_BLOCKER_KEYS[blocker]) : locale.t(`activity.${id}.description`) }),
       );
+      if (item.levelId) button.append(...trainingDetails(item, locale));
       button.addEventListener('click', () => onDoActivity(id));
       section.appendChild(button);
     }

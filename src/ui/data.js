@@ -124,6 +124,7 @@ const MANIFEST = {
     'buy_book.json',
     'buy_clothes.json',
     'gym.json',
+    'bjj.json',
   ],
 };
 

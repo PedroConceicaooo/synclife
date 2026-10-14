@@ -79,6 +79,18 @@ function moneyLine(entry, state, locale) {
   return locale.format(spent ? 'diary.money.spent' : 'diary.money.lost', { amount });
 }
 
+// Shared with the Activities screen, which shows the same line right after
+// a session.
+export function trainingLine(locale, activityId, { gain, technique }) {
+  const activity = locale.t(`activity.${activityId}.title`);
+  if (!technique) return locale.format(gain > 0 ? 'diary.training' : 'diary.training_max', { activity, gain });
+  return locale.format('diary.training_technique', { activity, gain, technique: locale.t(`technique.${activityId}.${technique}`) });
+}
+
+export function levelUpLine(locale, activityId, levelId) {
+  return locale.format('diary.level_up', { activity: locale.t(`activity.${activityId}.title`), level: locale.t(`level.${activityId}.${levelId}`) });
+}
+
 function entryLine(entry, state, locale, block, index) {
   // Event, activity and interaction texts may use {player|o|a}, and may
   // have variants: the block and line pick one, always the same.
@@ -123,6 +135,10 @@ function entryLine(entry, state, locale, block, index) {
       return entry.eventId === 'new_baby' ? babyBornLine(state, locale, block.month) : text(`event.${entry.eventId}.text`);
     case 'activity':
       return text(`activity.${entry.activityId}.${entry.succeeded === false ? 'failed' : 'done'}`);
+    case 'training':
+      return trainingLine(locale, entry.activityId, entry);
+    case 'levelUp':
+      return levelUpLine(locale, entry.activityId, entry.levelId);
     case 'interaction':
       return locale.format('diary.interaction', {
         label: text(`interaction.${entry.interactionId}.label`),
@@ -155,6 +171,7 @@ function statsLine(entries, locale) {
 function entryKind(entry) {
   if (entry.type === 'event' && entry.optionId) return 'choice';
   if (entry.type === 'money') return 'money';
+  if (entry.type === 'levelUp') return 'choice';
   return 'text';
 }
 

@@ -1,22 +1,21 @@
 {
   "id": "gym",
-  "category": "leisure",
+  "category": "physical",
   "conditions": {
     "minAge": 14
   },
   "cost": "small",
+  "training": {
+    "aptitude": "physical",
+    "levels": [
+      { "id": "beginner" },
+      { "id": "intermediate", "minSkill": 30, "minMonths": 12 },
+      { "id": "advanced", "minSkill": 60, "minMonths": 24 }
+    ],
+    "techniques": ["squat", "bench_press", "deadlift", "row", "overhead_press"]
+  },
   "effects": [
-    {
-      "op": "stat",
-      "target": "player",
-      "stat": "health",
-      "delta": 3
-    },
-    {
-      "op": "stat",
-      "target": "player",
-      "stat": "looks",
-      "delta": 1
-    }
+    { "op": "stat", "target": "player", "stat": "health", "delta": 3 },
+    { "op": "stat", "target": "player", "stat": "looks", "delta": 1 }
   ]
 }

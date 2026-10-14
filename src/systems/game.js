@@ -28,6 +28,7 @@ import { attemptActivity, listActivities } from './activities.js';
 import { buyAsset, sellAsset, listShop, applyAssetUpkeep } from './assets.js';
 import { isAllowanceAge, payAllowance, transferMoney } from './money.js';
 import { growStats } from './growth.js';
+import { decayAllSkills } from './training.js';
 
 const START_YEAR = 2000;
 export const ADULT_AGE = 18;
@@ -234,6 +235,7 @@ export function advanceStep(state, requestedMonths) {
   let relationships = decayAll(state.relationships, months);
   relationships = resetInteractionsThisPeriod(relationships);
   let people = relaxStress(expireEmotions(state.people, nextMonthIndex), months);
+  people = decayAllSkills(people, state.currentMonthIndex, nextMonthIndex);
 
   const world = processRelationshipEvents(state.eventsById, relationships, {
     currentMonthIndex: nextMonthIndex,
@@ -473,7 +475,10 @@ export function attemptPlayerActivity(state, activityId) {
   const triggered = fireTriggeredEvents(state, result.triggeredEvents, { people: result.peopleById, relationships: result.relationshipsById });
   const { people, relationships } = triggered;
   const entries = [
-    { type: 'activity', activityId, ...(activity.check ? { succeeded: result.succeeded } : {}) },
+    result.training
+      ? { type: 'training', activityId, gain: result.training.gain, technique: result.training.technique }
+      : { type: 'activity', activityId, ...(activity.check ? { succeeded: result.succeeded } : {}) },
+    ...(result.training?.levelId ? [{ type: 'levelUp', activityId, levelId: result.training.levelId }] : []),
     ...triggered.entries,
     ...moneyEntries(playerBefore, people[playerId], { source: 'activity', activityId }),
     ...statEntries(playerBefore, people[playerId]),
@@ -487,7 +492,13 @@ export function attemptPlayerActivity(state, activityId) {
     pendingDecisions: [...state.pendingDecisions, ...triggered.pendingDecisions],
     firedEvents: [...state.firedEvents, ...triggered.fired],
     history: appendToCurrentBlock(state.history, entries),
-    lastActivityResult: { attempted: true, activityId, succeeded: result.succeeded, triggeredEvents: triggered.fired.map((f) => f.eventId) },
+    lastActivityResult: {
+      attempted: true,
+      activityId,
+      succeeded: result.succeeded,
+      triggeredEvents: triggered.fired.map((f) => f.eventId),
+      training: result.training,
+    },
   };
 }
 
