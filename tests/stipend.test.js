@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { stipendPerMonth, stipendsFor, payStipends } from '../src/systems/stipend.js';
+import { stipendPerMonth, stipendsFor, payStipends, mergeStipendEntries } from '../src/systems/stipend.js';
 import { loadCountries } from '../src/engine/countriesLoader.js';
 import { resolveCountry } from '../src/engine/countries.js';
 import { loadEvents } from '../src/systems/eventsLoader.js';
@@ -84,4 +84,19 @@ test('in the game, a club player of 14 is paid every advance, up to the review t
 
   const lines = describeBlock(after.history.at(-1), after, LOCALE).lines.map((l) => l.text);
   assert.ok(lines.some((line) => line.startsWith('Bolsa do ')), lines.join('\n'));
+});
+
+test('mergeStipendEntries keeps one line per club, where the first payment was', () => {
+  const event = { type: 'event', eventId: 'x' };
+  const merged = mergeStipendEntries([
+    { type: 'money', source: 'stipend', clubId: 'cl_a', amount: 100 },
+    event,
+    { type: 'money', source: 'stipend', clubId: 'cl_b', amount: 5 },
+    { type: 'money', source: 'stipend', clubId: 'cl_a', amount: 50 },
+  ]);
+  assert.deepEqual(merged, [
+    { type: 'money', source: 'stipend', clubId: 'cl_a', amount: 150 },
+    event,
+    { type: 'money', source: 'stipend', clubId: 'cl_b', amount: 5 },
+  ]);
 });

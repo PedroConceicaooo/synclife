@@ -32,7 +32,7 @@ import { decayAllSkills } from './training.js';
 import { requestEnrollment, leaveEnrollment, chargeEnrollments } from './enrollment.js';
 import { compete, competitionBlocker } from './competitions.js';
 import { tryOut, endSeason, signUpForTryout, runDueTryouts } from './teams.js';
-import { payStipends } from './stipend.js';
+import { payStipends, mergeStipendEntries } from './stipend.js';
 
 const START_YEAR = 2000;
 export const ADULT_AGE = 18;
@@ -383,7 +383,7 @@ export function advanceStep(state, requestedMonths) {
       ...calendar.fired,
       ...playerEvents.fired.map((f) => ({ ...f, playerId })),
     ],
-    history: [...state.history, { month: nextMonthIndex, entries }],
+    history: [...state.history, { month: nextMonthIndex, entries: mergeStipendEntries(entries) }],
   };
 }
 
