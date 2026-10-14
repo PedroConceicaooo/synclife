@@ -50,4 +50,4 @@ Pendências conhecidas:
 - Time da faculdade (`college`): já existe nos `teamLevels` de futebol e basquete e nas ligas `*_college`, mas sem conteúdo. Fazer junto com a vida adulta (peneira no início do ano letivo da faculdade, nota mínima ~40).
 - Bolsa de formação (`youthStipend`): é regra do jogo, igual em todos os países (decisão de 2026-10-14). Os outros 4 países estão como `simplified` (regra do jogo, sem lei equivalente). Só o Brasil cita lei (Lei 14.597/2023, art. 99, §3º), ainda `needs_primary_check` porque o texto não abriu na consulta; a idade "a partir de 14" é decisão do projeto.
 - Esportes coletivos ainda sem jogos da liga nem tempo de jogo (`docs/atividades.md` 7.4) e sem história simulada dos clubes (posição por temporada, 7.6).
-- O evento antigo `join_sports_team` ("O time da escola está fazendo testes") é anterior às peneiras e não põe ninguém em time; decidir se vira uma peneira, sai ou fica como lembrança genérica.
+- `sibling_mischief` ("Seu irmão ou sua irmã quebrou a janela") não diz qual irmão: com dois ou mais, o efeito de assumir a culpa vai para um deles sem que o texto diga qual.
