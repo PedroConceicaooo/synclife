@@ -34,7 +34,7 @@ M1 a M7 do design estão feitos, e o M8 (conteúdo) está em andamento. O jogo c
 
 - **Motor:** relógio em meses, semente, família com irmãos, eventos sorteados e de calendário escolar por país, decisões que interrompem o avanço, interações, atividades (bicos, lazer, pequenos delitos), bens, escola com turma e professores, amizade, namoro, pets, emoções, traços formados pelas escolhas, estresse dos pais, save e fim aos 18 com continuação como irmão.
 - **Atividades físicas** (`docs/atividades.md`): 23 modalidades com habilidade, golpes, níveis e faixas com exame e graus, lesões, matrícula com autorização dos pais e mensalidade, e competições com medalhas.
-- **Esportes coletivos** (futebol e basquete, `docs/atividades.md` seção 7): aula paga sem time, peneira com nota escondida e frase do técnico, time da escola (peneira no início do ano letivo), clubes fictícios com base por categoria (`data/clubs/`, gerados por `npm run generate-clubs`), ligas por país Série A a D (`data/leagues/`), inscrição em peneira de clube, convite de olheiro, jogos da liga com tempo de jogo (titular, rodízio ou banco), promoção, manutenção ou dispensa no fim do ano letivo, e auxílio atleta dos 14 aos 19, regra do jogo igual em todos os países (`athleteAllowance`). Save na versão 2.
+- **Esportes coletivos** (futebol e basquete, `docs/atividades.md` seção 7): aula paga sem time, peneira com nota escondida e frase do técnico, time da escola (peneira no início do ano letivo), clubes fictícios com base por categoria (`data/clubs/`, gerados por `npm run generate-clubs`), ligas por país Série A a D (`data/leagues/`) com tabela simulada a cada temporada (`clubSeasons`), inscrição em peneira de clube, convite de olheiro, jogos da liga com tempo de jogo (titular, rodízio ou banco), promoção, manutenção ou dispensa no fim do ano letivo, e auxílio atleta dos 14 aos 19, regra do jogo igual em todos os países (`athleteAllowance`). Save na versão 2.
 - **Interface:** tela de início (vida aleatória ou personalizada), diário com régua de crescimento, abas Escola, Bens, Relações e Atividades em volta do botão de avançar, PWA instalável e offline. Atividades tem grupos (artes marciais, dança) e, nos esportes coletivos, "Clubes e peneiras"; a aba Escola mostra os times.
 - **Comandos:** `npm test`, `npm start -- --seed=42` (vida no console), `npm run ui` (servidor em http://localhost:4000), `npm run legal-review` (gera `docs/legal-review.md`), `npm run generate-clubs` (clubes e ligas profissionais).
 
@@ -46,7 +46,7 @@ Pendências conhecidas:
 - `topics.same_sex_relationship`: legalidade e aceitação (Pew) preenchidas; `risk` vazio até existir mecânica que use.
 - Serviço militar (BR alistamento aos 18, RU obrigatório) fica para a vida adulta, fora da v1.
 - Ao publicar mudanças, aumentar `CACHE` em `sw.js` para os jogadores receberem a versão nova.
+- `docs/atividades.md` 7.5 ainda descreve a bolsa pela Lei 14.597/2023; no jogo ela virou o auxílio atleta, regra do jogo sem lei (decisão de 2026-10-14).
 - Vida adulta (18+) fora da versão 1.
 - Time da faculdade (`college`): já existe nos `teamLevels` de futebol e basquete e nas ligas `*_college`, mas sem conteúdo. Fazer junto com a vida adulta (peneira no início do ano letivo da faculdade, nota mínima ~40).
-- Clubes ainda sem história simulada (posição na liga por temporada, `docs/atividades.md` 7.6).
 - `sibling_mischief` ("Seu irmão ou sua irmã quebrou a janela") não diz qual irmão: com dois ou mais, o efeito de assumir a culpa vai para um deles sem que o texto diga qual.
