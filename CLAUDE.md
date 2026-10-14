@@ -46,7 +46,6 @@ Pendências conhecidas:
 - `topics.same_sex_relationship`: legalidade e aceitação (Pew) preenchidas; `risk` vazio até existir mecânica que use.
 - Serviço militar (BR alistamento aos 18, RU obrigatório) fica para a vida adulta, fora da v1.
 - Ao publicar mudanças, aumentar `CACHE` em `sw.js` para os jogadores receberem a versão nova.
-- `docs/atividades.md` 7.5 ainda descreve a bolsa pela Lei 14.597/2023; no jogo ela virou o auxílio atleta, regra do jogo sem lei (decisão de 2026-10-14).
 - Vida adulta (18+) fora da versão 1.
 - Time da faculdade (`college`): já existe nos `teamLevels` de futebol e basquete e nas ligas `*_college`, mas sem conteúdo. Fazer junto com a vida adulta (peneira no início do ano letivo da faculdade, nota mínima ~40).
 - `sibling_mischief` ("Seu irmão ou sua irmã quebrou a janela") não diz qual irmão: com dois ou mais, o efeito de assumir a culpa vai para um deles sem que o texto diga qual.
