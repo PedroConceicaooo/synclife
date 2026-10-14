@@ -17,9 +17,15 @@ const FIELDS = {
   'ages.driving': 'Idade para dirigir',
   'ages.criminalResponsibility': 'Responsabilidade penal (justiça juvenil)',
   education: 'Sistema escolar',
+  youthStipend: 'Bolsa de formação (base de clube)',
 };
 
 function valueOf(country, field) {
+  if (field === 'youthStipend') {
+    const { minAge, maxAge, teamLevels } = country.youthStipend;
+    const amounts = Object.entries(teamLevels).map(([level, a]) => `${level} ${a.multiplier}× ${a.scale} (${country.currency.code} ${country.currency.scale[a.scale] * a.multiplier}/mês)`);
+    return `${minAge} a ${maxAge} anos; ${amounts.join('; ')}`;
+  }
   if (field === 'education') {
     const { schoolYearStartMonth, stages } = country.education;
     const list = stages.map((s) => `${s.id} ${s.startAge}+ (${s.years} anos${s.entranceExam ? ', exame' : ''})`).join('; ');

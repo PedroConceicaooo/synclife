@@ -93,6 +93,13 @@
       "checkedAt": "2026-10-10",
       "verifiedAt": null,
       "reviewStatus": "simplified"
+    },
+    "youthStipend": {
+      "source": "⚠️ Não verificado na fonte primária: a bolsa de formação no Reino Unido ainda não foi pesquisada. Até lá, o jogo herda o padrão do Brasil (Lei 14.597/2023, art. 99, §3º; 14 a 19 anos), como diz docs/atividades.md 7.5.",
+      "checkedUrl": null,
+      "checkedAt": null,
+      "verifiedAt": null,
+      "reviewStatus": "needs_primary_check"
     }
   },
   "topics": {
