@@ -132,6 +132,27 @@ export function enrollmentLine(state, locale, entry) {
   }
 }
 
+// A club's name: its pattern with the city in it, in the city's
+// international form when the locale has one ("London Lanterns").
+export function clubName(locale, club) {
+  const cityKey = locale.has(`clubCity.${club.cityId}`) ? `clubCity.${club.cityId}` : `city.${club.cityId}`;
+  return locale.format(`clubPattern.${club.namePattern}`, { city: locale.t(cityKey) });
+}
+
+// The coach's words after a tryout (tryouts.js); the score is never shown.
+// club is null for the school team.
+export function tryoutLine(locale, entry, club) {
+  const team = club
+    ? locale.format('tryout.team.club', { level: locale.t(`teamLevel.${entry.teamLevelId}`), club: clubName(locale, club) })
+    : locale.t('tryout.team.school');
+  return locale.format(`diary.tryout.${entry.passed ? 'passed' : 'failed'}`, {
+    activity: locale.t(`activity.${entry.activityId}.title`),
+    team,
+    praise: locale.t(`tryout.praise.${entry.praise}`),
+    critique: entry.critique ? locale.t(`tryout.critique.${entry.critique}`) : '',
+  });
+}
+
 function entryLine(entry, state, locale, block, index) {
   // Event, activity and interaction texts may use {player|o|a}, and may
   // have variants: the block and line pick one, always the same.
@@ -189,6 +210,8 @@ function entryLine(entry, state, locale, block, index) {
     case 'injury':
     case 'competition':
       return trainingEventLine(locale, entry, state.player.sex);
+    case 'tryout':
+      return tryoutLine(locale, entry, entry.clubId ? state.clubsById[entry.clubId] : null);
     case 'interaction':
       return locale.format('diary.interaction', {
         label: text(`interaction.${entry.interactionId}.label`),
