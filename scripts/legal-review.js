@@ -42,7 +42,7 @@ const lines = [
   'Situação de cada item:',
   '',
   '- `ai_checked`: o texto da lei foi lido por IA na fonte indicada (link e data abaixo). Falta só a sua confirmação.',
-  '- `simplified`: a regra real varia por estado ou região; o jogo usa um valor nacional representativo, explicado na fonte (regiões estão previstas no design para o futuro).',
+  '- `simplified`: a regra real varia por estado ou região; o jogo usa um valor nacional representativo, explicado na fonte (regiões estão previstas no design para o futuro). Também marca regras do jogo sem lei equivalente no país (a bolsa de formação fora do Brasil): não há o que conferir.',
   '- `needs_primary_check`: ⚠️ a fonte primária ainda não foi conferida; o motivo está no texto da fonte.',
   '- `Reconferir após`: o valor depende de uma decisão pendente; confira de novo depois dessa data.',
   '- `verified`: conferido por uma pessoa.',

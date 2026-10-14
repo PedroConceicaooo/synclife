@@ -99,11 +99,11 @@
       "reviewStatus": "simplified"
     },
     "youthStipend": {
-      "source": "⚠️ Não verificado na fonte primária: a bolsa de formação nos Estados Unidos ainda não foi pesquisada. Até lá, o jogo herda o padrão do Brasil (Lei 14.597/2023, art. 99, §3º; 14 a 19 anos), como diz docs/atividades.md 7.5.",
+      "source": "Simplificação do jogo: a bolsa de formação é uma regra do jogo, igual em todos os países, inspirada na Lei 14.597/2023 do Brasil (art. 99, §3º). O país não tem lei equivalente pesquisada.",
       "checkedUrl": null,
       "checkedAt": null,
       "verifiedAt": null,
-      "reviewStatus": "needs_primary_check"
+      "reviewStatus": "simplified"
     }
   },
   "topics": {

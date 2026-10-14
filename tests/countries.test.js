@@ -110,7 +110,10 @@ test('every country has legal ages and a school system covering childhood, with 
         assert.ok(['ai_draft', 'researched', 'ai_checked', 'simplified', 'needs_primary_check'].includes(entry.reviewStatus), id);
         if (entry.reviewStatus === 'needs_primary_check') assert.match(entry.source, /^⚠️ Não verificado na fonte primária/, id);
         if (entry.reviewStatus === 'simplified') assert.match(entry.source, /^Simplificação do jogo: /, id);
-        if (['ai_checked', 'simplified'].includes(entry.reviewStatus)) assert.ok(entry.checkedUrl && entry.checkedAt, `${id} checked without a url`);
+        // A game rule with no law behind it (the youth stipend outside Brazil)
+        // is a simplification without a link of its own.
+        const gameRule = entry.reviewStatus === 'simplified' && /regra do jogo/.test(entry.source);
+        if (['ai_checked', 'simplified'].includes(entry.reviewStatus) && !gameRule) assert.ok(entry.checkedUrl && entry.checkedAt, `${id} checked without a url`);
       } else {
         assert.equal(entry.reviewStatus, 'verified', id);
       }
