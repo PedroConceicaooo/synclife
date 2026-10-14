@@ -45,3 +45,4 @@ Pendências conhecidas:
 - Serviço militar (BR alistamento aos 18, RU obrigatório) fica para a vida adulta, fora da v1.
 - Ao publicar mudanças, aumentar `CACHE` em `sw.js` para os jogadores receberem a versão nova.
 - Vida adulta (18+) fora da versão 1.
+- Time da faculdade (`college`): já existe nos `teamLevels` de futebol e basquete e nas ligas `*_college`, mas sem conteúdo. Fazer junto com a vida adulta (peneira no início do ano letivo da faculdade, nota mínima ~40).
