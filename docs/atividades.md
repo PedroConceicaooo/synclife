@@ -1,6 +1,6 @@
 # SyncLife — Atividades (referência de design)
 
-Atualizado em 2026-10-10. Este arquivo complementa o `docs/design.md`. Os nomes aqui estão em português para leitura; no código, ids em inglês e textos em `locales/pt-BR`.
+Atualizado em 2026-10-14 (inclui times, peneiras, auxílio atleta e clubes). Este arquivo complementa o `docs/design.md`. Os nomes aqui estão em português para leitura; no código, ids em inglês e textos em `locales/pt-BR`.
 
 ## 1. Estrutura da aba Atividades
 
@@ -9,6 +9,7 @@ Atividades
 ├── Cuidados com o corpo
 ├── Atividades físicas
 │   ├── Basquete, Futebol, Natação, Corrida, Academia, CrossFit
+│   │   └── (esportes coletivos)  →  Aulas · Clubes e peneiras · Competições
 │   ├── Artes marciais  →  submenu com 10 modalidades
 │   └── Dança           →  submenu com 7 estilos
 └── (bicos, pequenos crimes e o que já existe continuam como hoje)
@@ -186,7 +187,82 @@ Não tem faixa. No jogo: iniciante, amador (com cartel de vitórias e derrotas),
 
 Para personagens menores de idade, os movimentos de dança precisam ser adequados à idade (nada sensualizado), seguindo as regras de conteúdo do design.
 
-## 7. Competições
+## 7. Times, peneiras e clubes
+
+Vale para esportes coletivos (futebol, basquete e outros que o jogo ganhar). Lutas e danças usam o sistema de competições da seção 8.
+
+### 7.1 Aula não é time
+
+- **Aula (escolinha):** paga, com mensalidade e autorização dos pais (seção 4). Dá habilidade, mas **não coloca a pessoa em nenhum time**.
+- **Time:** conquistado por **peneira**. Só quem está no time joga campeonato (seção 8).
+- Quem não passa na peneira continua treinando em aula e pode tentar de novo.
+
+### 7.2 A peneira
+
+A nota é calculada na hora e **não aparece para o jogador**; ele só lê uma frase do treinador no diário ("O técnico gostou da sua velocidade, mas pediu mais preparo").
+
+```
+nota = habilidade × 0,5 + saúde × 0,2 + aptidão física (0 a 1) × 100 × 0,2 + sorte (0 a 10)
+```
+
+Cada time declara a nota mínima. A chance de passar sobe conforme a nota passa da exigência e cai a quase zero bem abaixo dela. Valores iniciais, para ajustar com testes:
+
+| Time | Exigência | Idade e quem pode |
+| --- | --- | --- |
+| Escola | ~25 | Matriculado no fundamental ou médio |
+| Faculdade | ~40 | Matriculado (vida adulta; o dado já existe, o conteúdo fica fora da v1) |
+| Base infantil (sub-11) | ~35 | 6 a 11 anos |
+| Base sub-15 | ~55 | 12 a 15 anos |
+| Base sub-17 | ~65 | 15 a 17 anos |
+| Base sub-20 | ~75 | 17 a 20 anos |
+
+- **Escola e faculdade:** uma peneira por ano, no início do ano letivo do país (usa o calendário escolar de cada país).
+- **Base de clube:** no máximo **uma tentativa por clube por ano**.
+- **Reprovar** não tem punição, além de esperar a próxima peneira.
+- Menores de idade precisam de autorização dos pais para a peneira de clube.
+
+### 7.3 Como entrar
+
+| Time | Caminho |
+| --- | --- |
+| Escola e faculdade | Aba **Escola**. Perto do início do ano letivo aparece o aviso "peneira do time de basquete" e o jogador escolhe se inscreve |
+| Base de clube, por **convite** | Evento sorteado: "um olheiro viu você jogar". A chance sobe com habilidade, desempenho no time da escola e em competições. O jogador aceita ou recusa |
+| Base de clube, por **inscrição** | **Atividades → modalidade → Clubes e peneiras**. Lista os clubes da cidade e da região, cada um com categoria, prazo e idade mínima. O requisito aparece só como "acessível" ou "exigente", sem número |
+
+O jogador pode estar em **mais de um time da mesma modalidade ao mesmo tempo** (por exemplo, o time da escola e a base de um clube).
+
+### 7.4 Depois de entrar
+
+Fazer parte do time é um estado do personagem, guardado no save:
+
+- os **jogos** entram no calendário da liga e no diário;
+- o **tempo de jogo** depende do desempenho;
+- no fim do ciclo, o jogador é **promovido** para a categoria seguinte (se a nota ainda atende), **mantido** ou **dispensado**;
+- ao ser dispensado, o jogador perde o auxílio atleta (7.5) e pode tentar outro clube.
+
+### 7.5 Auxílio atleta (regra do jogo)
+
+O auxílio atleta é uma **regra do jogo**, igual em todos os países: um incentivo para quem joga na base de um clube. Não representa a lei de nenhum país, então não entra em `docs/legal-review.md` e não precisa de pesquisa país a país.
+
+| Idade | O que o clube dá |
+| --- | --- |
+| Até 13 anos | **Nenhum pagamento.** O clube não cobra mensalidade pelo treino do time, então o jogador economiza o que pagaria numa aula |
+| 14 a 19 anos | **Auxílio mensal**, valor pequeno, que sobe um pouco a cada categoria (sub-15, sub-17, sub-20). A v1 vai até os 18 |
+
+- O auxílio entra no diário como qualquer outro dinheiro recebido ("Auxílio atleta do clube: R$ 375").
+- O valor usa as escalas (`small`, `medium`, `large`) resolvidas pela moeda de cada país (regra 10 do CLAUDE.md). A faixa de idade e os valores por categoria ficam no país padrão (`athleteAllowance`), e um país só declara algo se quiser mudar o padrão.
+- Fora da base de clube (escola, faculdade, aulas), não existe auxílio.
+- Ao ser dispensado, o jogador para de receber a partir da revisão do fim do ano letivo.
+
+### 7.6 Clubes e ligas (sempre fictícios)
+
+- **Não usar nomes, escudos, cores combinadas nem jogadores reais.** São marcas e direitos de imagem de terceiros, e as lojas de aplicativos recusam esse uso sem licença.
+- A **estrutura** real pode ser copiada: séries (A, B, C, D), ligas estaduais, categorias de base, campeonatos escolares e universitários.
+- Os clubes são **gerados por país e cidade** a partir de padrões genéricos ("Atlético de {cidade}", "Esporte Clube {bairro}", "União {cidade}").
+- Seguindo as regras do projeto: o dado de clube só tem ids, país, cidade, liga e nível. O nome mostrado fica em `locales/pt-BR`.
+- Um clube existe no mundo desde o início da vida (as vidas começam em 2000) e tem sua própria história simulada de forma simples (posição na liga por temporada).
+
+## 8. Competições
 
 Competições aparecem como **eventos com convite ou inscrição**, de acordo com o nível:
 
@@ -203,10 +279,13 @@ Competições aparecem como **eventos com convite ou inscrição**, de acordo co
 - **Lutas:** risco de lesão maior em competição do que em treino.
 - **Estante de conquistas:** medalhas e troféus ficam guardados no perfil, como lembrança da vida.
 - **Exceções reais:** Krav Maga e Systema não têm competições esportivas, porque são sistemas de defesa pessoal. No lugar, entram exames, seminários e eventos de demonstração. Wing Chun tem poucos torneios (de Chi Sao). Breaking tem campeonatos e foi modalidade olímpica em Paris 2024.
-- **Esportes coletivos:** em vez de inscrição individual, o jogador entra no time (peneira) e o time disputa campeonatos; o desempenho dele pesa no resultado.
+- **Esportes coletivos:** em vez de inscrição individual, o jogador entra no time por peneira (seção 7) e o time disputa os campeonatos da liga; o desempenho dele pesa no resultado.
+- **De onde vêm:** a escola organiza o torneio escolar; a academia ou o clube organiza exames, festivais e campeonatos internos; federações e ligas organizam os regionais e estaduais; nacional e internacional só por convite ou seletiva.
+- **Convite ou inscrição:** nos níveis escolar e da academia o convite chega como evento com escolha. Nos demais, o jogador se inscreve em **Atividades → modalidade → Competições**, dentro do prazo.
+- **Taxa e autorização:** a inscrição pode ter taxa. Menores precisam de autorização dos pais e podem usar "Pedir para os pais pagarem" (seção 4).
 - **Corrida:** provas de rua por distância; a maratona normalmente exige 18 anos.
 
-## 8. Formato de dados sugerido
+## 9. Formato de dados sugerido
 
 ```json
 {
