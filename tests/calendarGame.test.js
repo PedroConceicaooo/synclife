@@ -6,7 +6,17 @@ import { loadCountries } from '../src/engine/countriesLoader.js';
 import { loadEvents } from '../src/systems/eventsLoader.js';
 import { loadInteractions } from '../src/systems/interactionsLoader.js';
 import { loadActivities } from '../src/systems/activitiesLoader.js';
-import { createGameState, advanceStep, resolveDecision, continueAdvance, canContinueAdvance, isAdult, signUpPlayerForTryout } from '../src/systems/game.js';
+import {
+  createGameState,
+  advanceStep,
+  resolveDecision,
+  continueAdvance,
+  canContinueAdvance,
+  isAdult,
+  signUpPlayerForTryout,
+  clubTryouts,
+  playerTeams,
+} from '../src/systems/game.js';
 import { loadClubs, loadLeagues } from '../src/systems/clubsLoader.js';
 import { schoolEntryMonth } from '../src/systems/school.js';
 import { toSave, fromSave } from '../src/systems/save.js';
@@ -217,4 +227,19 @@ test('a minor whose parents say no is not signed up and can ask again next perio
   assert.equal(signUpPlayerForTryout(refused, 'football', club.id).lastActivityResult.reason, 'asked');
   const later = advanceStep(refused, 6);
   assert.deepEqual(later.tryoutAskedThisPeriod, {});
+});
+
+test('clubTryouts lists the clubs of the player country, their city first; playerTeams the sports they play', () => {
+  const base = newLifeIn('BR');
+  const playerId = base.player.id;
+  const rows = clubTryouts({ ...base, currentMonthIndex: base.player.birth + 12 * 12 }, 'football');
+  assert.ok(rows.length > 0);
+  assert.ok(rows.every((r) => DATA.clubsById[r.clubId].countryId === 'BR'));
+  const firstAway = rows.findIndex((r) => !r.local);
+  assert.ok(rows.slice(firstAway === -1 ? rows.length : firstAway).every((r) => !r.local));
+
+  assert.deepEqual(playerTeams(base), []);
+  const player = { ...base.people[playerId], skills: { basketball: { skill: 5 } }, teams: [{ activityId: 'football', teamKey: 'school', teamLevelId: 'school', since: 0 }] };
+  const teams = playerTeams({ ...base, people: { ...base.people, [playerId]: player } });
+  assert.deepEqual(teams.map((t) => [t.activityId, t.onSchoolTeam, t.teams.length]).sort(), [['basketball', false, 0], ['football', true, 1]]);
 });

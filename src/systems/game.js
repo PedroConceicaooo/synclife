@@ -31,7 +31,7 @@ import { growStats } from './growth.js';
 import { decayAllSkills } from './training.js';
 import { requestEnrollment, leaveEnrollment, chargeEnrollments, askParentPermission } from './enrollment.js';
 import { compete, competitionBlocker } from './competitions.js';
-import { tryOut, endSeason, signUpForTryout, runDueTryouts, joinClubTeam } from './teams.js';
+import { tryOut, endSeason, signUpForTryout, runDueTryouts, joinClubTeam, listClubTryouts } from './teams.js';
 import { rollScoutInvites } from './scout.js';
 import { payStipends, mergeStipendEntries } from './stipend.js';
 
@@ -638,6 +638,29 @@ export function competePlayer(state, activityId) {
     history: appendToCurrentBlock(state.history, entries),
     lastActivityResult: { attempted: false, activityId, competitionEntries: entries.filter((e) => e.type !== 'stat') },
   };
+}
+
+// The "Clubes e peneiras" list of one team sport for the player.
+export function clubTryouts(state, activityId) {
+  return listClubTryouts(state.people[state.player.id], state.activitiesById[activityId], {
+    clubsById: state.clubsById ?? {},
+    leaguesById: state.leaguesById ?? {},
+    monthIndex: state.currentMonthIndex,
+    country: state.country,
+  });
+}
+
+// The player's teams, and for each team sport they train or play, whether
+// they are on the school team (the School tab).
+export function playerTeams(state) {
+  const player = state.people[state.player.id];
+  return Object.values(state.activitiesById)
+    .filter((activity) => activity.teamLevels && (player.skills?.[activity.id] || (player.teams ?? []).some((t) => t.activityId === activity.id)))
+    .map((activity) => ({
+      activityId: activity.id,
+      teams: (player.teams ?? []).filter((t) => t.activityId === activity.id),
+      onSchoolTeam: (player.teams ?? []).some((t) => t.activityId === activity.id && t.teamKey === 'school'),
+    }));
 }
 
 // Signs the player up for a club's next tryout (Atividades → modalidade →

@@ -149,6 +149,45 @@ export function joinClubTeam(person, activity, club, monthIndex) {
   };
 }
 
+// The last month of the window that starts at `month` (the deadline to
+// sign up for that tryout).
+export function windowEnd(window, month) {
+  let end = month;
+  while (inMonthWindow(window, ((end + 1) % 12) + 1) && end < month + 11) end++;
+  return end;
+}
+
+// The "Clubes e peneiras" list for one sport: every club of the person's
+// country that plays it, their city first, with what the screen shows —
+// category at the tryout, tryout month and deadline, youngest age, the
+// requirement as a word, and why signing up is not possible (or null).
+export function listClubTryouts(person, activity, { clubsById, leaguesById, monthIndex, country }) {
+  const rows = Object.values(clubsById)
+    .filter((club) => club.countryId === person.countryId && club.sports[activity.id])
+    .map((club) => {
+      const clubSport = club.sports[activity.id];
+      const tryoutMonth = nextTryoutMonth(clubSport.tryoutMonths, monthIndex);
+      const level = tryoutTeamLevel(activity, { kind: 'club', club }, person, tryoutMonth);
+      const blocker = isSignedUp(person, activity.id, club.id)
+        ? 'signedUp'
+        : teamTryoutBlocker(activity, { kind: 'club', club }, { person, monthIndex: tryoutMonth, country });
+      return {
+        clubId: club.id,
+        cityId: club.cityId,
+        local: club.cityId === person.cityId,
+        teamLevelId: level?.id ?? null,
+        tryoutMonth,
+        deadline: windowEnd(clubSport.tryoutMonths, tryoutMonth),
+        minAge: Math.min(...activity.teamLevels.filter((l) => clubSport.teamLevels.includes(l.id)).map((l) => l.minAge)),
+        requirement: leaguesById[clubSport.youthLeague]?.requirement ?? null,
+        onTeam: isOnTeam(person, activity.id, club.id),
+        blocker,
+      };
+    });
+  const order = (row) => (row.local ? 0 : 1) * 10 + (row.requirement === 'accessible' ? 0 : 1);
+  return rows.sort((a, b) => order(a) - order(b) || a.clubId.localeCompare(b.clubId));
+}
+
 // What happens to one team at the end of a school year: { outcome, team }.
 // outcome: 'kept', 'promoted', 'released' or 'left' (school is over).
 function reviewTeam(team, person, { activitiesById, clubsById, leaguesById, monthIndex, country, rng }) {

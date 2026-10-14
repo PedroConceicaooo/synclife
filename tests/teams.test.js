@@ -10,6 +10,8 @@ import {
   nextTryoutMonth,
   signUpForTryout,
   runDueTryouts,
+  windowEnd,
+  listClubTryouts,
   KEEP_MARGIN,
 } from '../src/systems/teams.js';
 import { loadActivities } from '../src/systems/activitiesLoader.js';
@@ -192,4 +194,39 @@ test('one club at a time per sport: on a club team, other clubs wait; the school
   assert.equal(teamTryoutBlocker(FOOTBALL, { kind: 'club', club: other }, { person: inClub, monthIndex: march(13), country: COUNTRY }), 'otherClub');
   assert.equal(teamTryoutBlocker(FOOTBALL, { kind: 'school' }, { person: inClub, monthIndex: march(13), country: COUNTRY }), null);
   assert.equal(signUpForTryout(inClub, FOOTBALL, other, { monthIndex: march(13), country: COUNTRY }).blocker, 'otherClub');
+});
+
+test('windowEnd is the last month of the window that starts there', () => {
+  assert.equal(windowEnd([10, 1], 13 * 12 + 9), 14 * 12 + 0); // October to January
+  assert.equal(windowEnd([10, 1], 14 * 12 + 0), 14 * 12 + 0);
+  assert.equal(windowEnd([3, 5], 13 * 12 + 2), 13 * 12 + 4);
+});
+
+test('listClubTryouts: the city first, accessible first, with category, dates, youngest age and blocker', () => {
+  const elite = { ...CLUB, id: 'cl_br_recife_2', sports: { football: { ...CLUB.sports.football, youthLeague: 'football_youth_elite', teamLevels: ['youth_u15', 'youth_u17'] } } };
+  const away = { ...CLUB, id: 'cl_br_salvador_1', cityId: 'salvador' };
+  const foreign = { ...CLUB, id: 'cl_us_chicago_1', countryId: 'US', cityId: 'chicago' };
+  const noFootball = { ...CLUB, id: 'cl_br_recife_3', sports: {} };
+  const clubsById = Object.fromEntries([away, elite, CLUB, foreign, noFootball].map((c) => [c.id, c]));
+  const kid = { ...person(), countryId: 'BR', cityId: 'recife' };
+  const rows = listClubTryouts(kid, FOOTBALL, { clubsById, leaguesById: LEAGUES, monthIndex: march(13), country: COUNTRY });
+
+  assert.deepEqual(rows.map((r) => r.clubId), [CLUB.id, elite.id, away.id]);
+  assert.deepEqual(rows[0], {
+    clubId: CLUB.id,
+    cityId: 'recife',
+    local: true,
+    teamLevelId: 'youth_u15',
+    tryoutMonth: 13 * 12 + 9,
+    deadline: 14 * 12 + 0,
+    minAge: 6,
+    requirement: 'accessible',
+    onTeam: false,
+    blocker: null,
+  });
+  assert.equal(rows[1].requirement, 'demanding');
+  assert.equal(rows[1].minAge, 12);
+
+  const signed = signUpForTryout(kid, FOOTBALL, CLUB, { monthIndex: march(13), country: COUNTRY }).person;
+  assert.equal(listClubTryouts(signed, FOOTBALL, { clubsById, leaguesById: LEAGUES, monthIndex: march(13), country: COUNTRY })[0].blocker, 'signedUp');
 });
