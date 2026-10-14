@@ -1,14 +1,16 @@
 // Dated events (design doc: "Pontos de decisão"): events tied to the school
 // calendar instead of a yearly chance. Data says when, with a closed
-// vocabulary: { "on": "stageStart", "stage": [...], "entranceExam": true }
-// or { "on": "schoolYearEnd" }.
+// vocabulary: { "on": "stageStart", "stage": [...], "entranceExam": true },
+// { "on": "schoolYearStart" } (every year, stage starts included) or
+// { "on": "schoolYearEnd" }.
 
-import { stageStartsBetween, schoolYearEndsBetween } from './school.js';
+import { stageStartsBetween, schoolYearStartsBetween, schoolYearEndsBetween } from './school.js';
 
 // Calendar points in (fromMonth, toMonth], in time order.
 export function calendarPoints(birth, fromMonth, toMonth, education) {
   return [
     ...stageStartsBetween(birth, fromMonth, toMonth, education).map((p) => ({ ...p, on: 'stageStart' })),
+    ...schoolYearStartsBetween(birth, fromMonth, toMonth, education).map((p) => ({ ...p, on: 'schoolYearStart' })),
     ...schoolYearEndsBetween(birth, fromMonth, toMonth, education).map((p) => ({ ...p, on: 'schoolYearEnd' })),
   ].sort((a, b) => a.month - b.month);
 }

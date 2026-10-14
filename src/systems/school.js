@@ -49,6 +49,19 @@ export function stageStartsBetween(birth, fromMonth, toMonth, education) {
     .filter(({ month }) => month > fromMonth && month <= toMonth);
 }
 
+// Every school year start in (fromMonth, toMonth], with the stage of that
+// year — the first of a stage too (tryouts for school teams are yearly).
+export function schoolYearStartsBetween(birth, fromMonth, toMonth, education) {
+  const entry = schoolEntryMonth(birth, education);
+  if (entry === null) return [];
+  const starts = [];
+  for (let year = 0; year < totalYears(education); year++) {
+    const month = entry + year * 12;
+    if (month > fromMonth && month <= toMonth) starts.push({ month, stageId: schoolStageAt(birth, month, education).stageId });
+  }
+  return starts;
+}
+
 // Months from the start of a school year to its last month: the country's
 // schoolYearEndMonth (December in Brazil, March in Japan), or the month
 // before the next start when the country doesn't say.

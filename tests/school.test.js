@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url';
 import { toMonthIndex } from '../src/engine/time.js';
 import { loadCountries } from '../src/engine/countriesLoader.js';
 import { resolveCountry } from '../src/engine/countries.js';
-import { schoolEntryMonth, schoolStageAt, stageStartsBetween, schoolYearEndsBetween } from '../src/systems/school.js';
+import { schoolEntryMonth, schoolStageAt, stageStartsBetween, schoolYearStartsBetween, schoolYearEndsBetween } from '../src/systems/school.js';
+import { calendarPoints } from '../src/systems/calendar.js';
 
 const COUNTRIES_BY_ID = loadCountries(fileURLToPath(new URL('../data/countries/', import.meta.url)));
 const education = (id) => resolveCountry(id, COUNTRIES_BY_ID).education;
@@ -75,4 +76,21 @@ test('without schoolYearEndMonth, the year ends the month before the next start'
   const edu = { schoolYearStartMonth: 4, stages: [{ id: 'elementary', startAge: 6, years: 2 }] };
   const ends = schoolYearEndsBetween(m(2000, 3), m(2000, 1), m(2010, 1), edu);
   assert.deepEqual(ends.map((e) => e.month), [m(2007, 3), m(2008, 3)]);
+});
+
+test('schoolYearStartsBetween returns every school year start in range, with its stage', () => {
+  const birth = m(2000, 1);
+  const br = education('BR'); // entry Feb 2006, middle school from Feb 2011
+  assert.deepEqual(schoolYearStartsBetween(birth, m(2006, 1), m(2007, 6), br), [
+    { month: m(2006, 2), stageId: 'elementary' },
+    { month: m(2007, 2), stageId: 'elementary' },
+  ]);
+  assert.deepEqual(schoolYearStartsBetween(birth, m(2011, 1), m(2011, 6), br), [{ month: m(2011, 2), stageId: 'middle' }]);
+  assert.deepEqual(schoolYearStartsBetween(birth, m(2005, 1), m(2006, 1), br), []);
+  assert.deepEqual(schoolYearStartsBetween(birth, m(2018, 1), m(2019, 6), br), [], 'school is over');
+});
+
+test('calendarPoints puts a stage start before the school year start of the same month', () => {
+  const points = calendarPoints(m(2000, 1), m(2010, 11), m(2011, 3), education('BR'));
+  assert.deepEqual(points.map((p) => p.on), ['schoolYearEnd', 'stageStart', 'schoolYearStart']);
 });
