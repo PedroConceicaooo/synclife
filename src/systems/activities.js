@@ -84,6 +84,7 @@ export function listActivities(activitiesById, { player, country, currentMonthIn
       id: activity.id,
       category: activity.category,
       ...(activity.group ? { group: activity.group } : {}),
+      ...(activity.teamLevels ? { teamSport: true } : {}),
       minAge: activity.conditions.minAge,
       blocker: activityBlocker(activity, { player, country, currentMonthIndex, usesThisPeriod: usesById[activity.id] ?? 0 }),
       ...(activity.training ? trainingStatus(activity, player, usesById[activity.id] ?? 0, currentMonthIndex) : {}),

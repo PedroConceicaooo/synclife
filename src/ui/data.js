@@ -8,6 +8,7 @@ import { indexEvents } from '../systems/events.js';
 import { indexInteractions } from '../systems/interactions.js';
 import { indexActivities } from '../systems/activities.js';
 import { indexAssets } from '../systems/assets.js';
+import { indexClubs, indexLeagues } from '../systems/clubs.js';
 import { FALLBACK_LANGUAGE } from '../i18n/locale.js';
 
 const MANIFEST = {
@@ -151,6 +152,64 @@ const MANIFEST = {
     'tap_dance.json',
     'wing_chun.json',
   ],
+  // Written by scripts/generate-clubs.js, with the pro leagues.
+  clubs: [
+    'BR.json',
+    'GB.json',
+    'JP.json',
+    'RU.json',
+    'US.json',
+  ],
+  leagues: [
+    'basketball_college.json',
+    'basketball_school.json',
+    'basketball_youth_elite.json',
+    'basketball_youth_regional.json',
+    'br_basketball_pro_1.json',
+    'br_basketball_pro_2.json',
+    'br_basketball_pro_3.json',
+    'br_basketball_pro_4.json',
+    'br_football_pro_1.json',
+    'br_football_pro_2.json',
+    'br_football_pro_3.json',
+    'br_football_pro_4.json',
+    'football_college.json',
+    'football_school.json',
+    'football_youth_elite.json',
+    'football_youth_regional.json',
+    'gb_basketball_pro_1.json',
+    'gb_basketball_pro_2.json',
+    'gb_basketball_pro_3.json',
+    'gb_basketball_pro_4.json',
+    'gb_football_pro_1.json',
+    'gb_football_pro_2.json',
+    'gb_football_pro_3.json',
+    'gb_football_pro_4.json',
+    'jp_basketball_pro_1.json',
+    'jp_basketball_pro_2.json',
+    'jp_basketball_pro_3.json',
+    'jp_basketball_pro_4.json',
+    'jp_football_pro_1.json',
+    'jp_football_pro_2.json',
+    'jp_football_pro_3.json',
+    'jp_football_pro_4.json',
+    'ru_basketball_pro_1.json',
+    'ru_basketball_pro_2.json',
+    'ru_basketball_pro_3.json',
+    'ru_basketball_pro_4.json',
+    'ru_football_pro_1.json',
+    'ru_football_pro_2.json',
+    'ru_football_pro_3.json',
+    'ru_football_pro_4.json',
+    'us_basketball_pro_1.json',
+    'us_basketball_pro_2.json',
+    'us_basketball_pro_3.json',
+    'us_basketball_pro_4.json',
+    'us_football_pro_1.json',
+    'us_football_pro_2.json',
+    'us_football_pro_3.json',
+    'us_football_pro_4.json',
+  ],
 };
 
 async function fetchAll(dir, files) {
@@ -158,12 +217,14 @@ async function fetchAll(dir, files) {
 }
 
 export async function loadGameData() {
-  const [countries, events, interactions, activities, assets] = await Promise.all([
+  const [countries, events, interactions, activities, assets, clubs, leagues] = await Promise.all([
     fetchAll('countries', MANIFEST.countries),
     fetchAll('events', MANIFEST.events),
     fetchAll('interactions', MANIFEST.interactions),
     fetchAll('activities', MANIFEST.activities),
     fetchAll('assets', MANIFEST.assets),
+    fetchAll('clubs', MANIFEST.clubs),
+    fetchAll('leagues', MANIFEST.leagues),
   ]);
 
   const countriesWithNames = await Promise.all(
@@ -178,6 +239,8 @@ export async function loadGameData() {
     interactionsById: indexInteractions(interactions),
     activitiesById: indexActivities(activities),
     assetsById: indexAssets(assets),
+    clubsById: indexClubs(clubs),
+    leaguesById: indexLeagues(leagues),
   };
 }
 

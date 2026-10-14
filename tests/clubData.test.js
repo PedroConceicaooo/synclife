@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { indexClubs, indexLeagues } from '../src/systems/clubs.js';
 import { loadClubs, loadLeagues } from '../src/systems/clubsLoader.js';
@@ -143,4 +143,40 @@ test('youth stipend: from 14 to 19 in the default country, a money scale per clu
   }
   for (const id of PLAYABLE) assert.deepEqual(resolveCountry(id, COUNTRIES).youthStipend, stipend, `${id} inherits it`);
   assert.ok(resolveCountry('BR', COUNTRIES).legalSources.youthStipend?.source);
+});
+
+test('the browser manifest lists every club and league file', () => {
+  const uiData = readFileSync(new URL('../src/ui/data.js', import.meta.url), 'utf8');
+  for (const folder of ['clubs', 'leagues']) {
+    for (const fileName of readdirSync(dir(folder)).filter((f) => f.endsWith('.json'))) {
+      assert.ok(uiData.includes(`'${fileName}'`), `${folder}/${fileName}`);
+    }
+  }
+});
+
+test('the clubs screen has its texts: requirements, blockers and labels', () => {
+  for (const requirement of ['accessible', 'demanding']) assert.ok(LOCALE[`ui.requirement.${requirement}`], requirement);
+  for (const blocker of ['asked', 'signedUp', 'onTeam', 'otherClub', 'alreadyTried', 'age', 'noSport', 'notInSchool']) {
+    assert.ok(LOCALE[`ui.tryout_blocked.${blocker}`], blocker);
+  }
+  for (const key of [
+    'ui.clubs_open',
+    'ui.clubs_title',
+    'ui.clubs_local',
+    'ui.clubs_elsewhere',
+    'ui.club_tryout',
+    'ui.club_no_level',
+    'ui.club_info',
+    'ui.club_info_city',
+    'ui.club_sign_up',
+    'ui.club_on_team',
+    'ui.team_on',
+    'ui.trains_with_team',
+    'ui.school_teams',
+    'ui.school_team_member',
+    'ui.school_team_next',
+    'ui.school_team_club',
+  ]) {
+    assert.ok(LOCALE[key], key);
+  }
 });

@@ -4,8 +4,9 @@
 import { ageAt } from '../engine/time.js';
 import { affinityBand } from './affinityColor.js';
 import { fullName } from '../systems/naming.js';
-import { describeHistory, trainingLine, trainingEventLine, enrollmentLine, clubName } from './diary.js';
-import { isAdult, availableInteractions, availableActivities, closePeople, playerOccupation, assetShop } from './gameState.js';
+import { describeHistory, trainingLine, trainingEventLine, enrollmentLine, clubName, teamName, teamEntryLine } from './diary.js';
+import { isAdult, availableInteractions, availableActivities, closePeople, playerOccupation, assetShop, clubTryouts, playerTeams } from './gameState.js';
+import { nextSeasonStart } from '../systems/teams.js';
 import { assetPrice, resalePrice } from '../systems/assets.js';
 import { avatarElement, sexIconElement, nameElement } from './avatarElement.js';
 import { lifeSummary } from '../systems/lifeEnd.js';
@@ -307,6 +308,29 @@ export function renderSchool(dom, state, locale, { onOpenProfile }) {
     clearChildren(listEl);
     if (stage) for (const id of ids) listEl.appendChild(personRow(state, locale, id, onOpenProfile));
   }
+  renderSchoolTeams(dom, state, locale, stage);
+}
+
+// Team sports the player trains or plays: the school team (whose tryout
+// comes at the start of each school year) and any club team.
+function renderSchoolTeams(dom, state, locale, stage) {
+  const sports = playerTeams(state);
+  dom.schoolTeamsTitle.textContent = locale.t('ui.school_teams');
+  dom.schoolTeamsTitle.hidden = !stage || sports.length === 0;
+  clearChildren(dom.schoolTeams);
+  if (!stage) return;
+  const nextTryout = locale.monthName(nextSeasonStart(state.currentMonthIndex, state.country.education.schoolYearStartMonth));
+  for (const { activityId, teams, onSchoolTeam } of sports) {
+    const row = el('div', { className: 'row' });
+    row.append(
+      el('strong', { text: locale.t(`activity.${activityId}.title`) }),
+      el('span', { className: 'detail', text: onSchoolTeam ? locale.t('ui.school_team_member') : locale.format('ui.school_team_next', { month: nextTryout }) }),
+    );
+    for (const team of teams.filter((t) => t.clubId)) {
+      row.append(el('span', { className: 'detail', text: locale.format('ui.school_team_club', { team: teamName(locale, team.teamLevelId, state.clubsById[team.clubId]) }) }));
+    }
+    dom.schoolTeams.appendChild(row);
+  }
 }
 
 // Same variant as the diary line it matches (see diary.js).
@@ -402,7 +426,12 @@ function competitionResultText(state, result, locale) {
     .join(' ');
 }
 
+// Why a club tryout couldn't be signed up for (teams.js, game.js).
+const TRYOUT_BLOCKERS = ['asked', 'signedUp', 'onTeam', 'otherClub', 'alreadyTried', 'age', 'noSport', 'notInSchool'];
+
 function activityResultText(state, result, locale, sexes) {
+  if (result.tryoutEntries) return result.tryoutEntries.map((entry) => teamEntryLine(state, locale, entry)).join(' ');
+  if (TRYOUT_BLOCKERS.includes(result.reason)) return locale.t(`ui.tryout_blocked.${result.reason}`);
   if (result.competitionEntries) return competitionResultText(state, result, locale);
   if ('enrollmentEntry' in result) return enrollmentResultText(state, result, locale, sexes);
   if (!result.attempted) return locale.format(ACTIVITY_BLOCKER_KEYS[result.reason], {}, sexes);
@@ -449,10 +478,11 @@ function trainingDetails({ id, skill, levelId, stripes, techniques, usesLeft, co
 function enrollmentDetail({ enrollment }, state, locale) {
   const amount = locale.money(enrollment.fee, state.country.currency.code, state.country.currency.display);
   if (enrollment.enrolled) return locale.format(`ui.enrolled_${enrollment.paidBy}`, { amount }, sexesOf(state));
+  if (enrollment.trainsWithTeam) return locale.t('ui.trains_with_team');
   return locale.format('ui.enroll_fee', { amount });
 }
 
-function enrollmentButtons({ id, enrollment, competition }, state, locale, { onEnroll, onLeave, onCompete }) {
+function enrollmentButtons({ id, enrollment, competition, teamSport }, state, locale, { onEnroll, onLeave, onCompete, onOpenClubs }) {
   const submenu = el('div', { className: 'submenu' });
   const busy = state.pendingDecisions.length > 0;
   const add = (key, onClick, disabled = false) => {
@@ -462,6 +492,8 @@ function enrollmentButtons({ id, enrollment, competition }, state, locale, { onE
     button.addEventListener('click', onClick);
     submenu.appendChild(button);
   };
+  // Team sports: the clubs and their tryouts, enrolled in the class or not.
+  if (teamSport) add('ui.clubs_open', () => onOpenClubs(id));
   if (enrollment.enrolled) {
     // The tier the skill allows; disabled after competing or while injured.
     if (competition && competition.blocker !== 'none') {
@@ -481,7 +513,7 @@ function enrollmentButtons({ id, enrollment, competition }, state, locale, { onE
   return submenu;
 }
 
-function activityRow(item, state, locale, { onDoActivity, onEnroll, onLeave, onCompete }) {
+function activityRow(item, state, locale, { onDoActivity, onEnroll, onLeave, onCompete, onOpenClubs }) {
   const { id, blocker } = item;
   const nodes = [];
   const button = el('button', { className: 'row activity' });
@@ -493,9 +525,13 @@ function activityRow(item, state, locale, { onDoActivity, onEnroll, onLeave, onC
   );
   if (item.enrollment) button.append(el('span', { className: 'detail', text: enrollmentDetail(item, state, locale) }));
   if (item.levelId && blocker !== 'notEnrolled') button.append(...trainingDetails(item, locale));
+  for (const team of item.teamSport ? (state.people[state.player.id].teams ?? []).filter((t) => t.activityId === id) : []) {
+    const club = team.clubId ? state.clubsById[team.clubId] : null;
+    button.append(el('span', { className: 'detail', text: locale.format('ui.team_on', { team: teamName(locale, team.teamLevelId, club) }) }));
+  }
   button.addEventListener('click', () => onDoActivity(id));
   nodes.push(button);
-  if (item.enrollment) nodes.push(enrollmentButtons(item, state, locale, { onEnroll, onLeave, onCompete }));
+  if (item.enrollment) nodes.push(enrollmentButtons(item, state, locale, { onEnroll, onLeave, onCompete, onOpenClubs }));
   return nodes;
 }
 
@@ -516,10 +552,71 @@ function groupRow(group, items, open, locale, onToggleGroup) {
 
 // Design doc: lists with title and a one-line description. Activities the
 // player can't do right now stay visible, disabled, with the reason.
-export function renderActivities(dom, state, locale, { onDoActivity, onEnroll, onLeave, onCompete, onToggleGroup, openGroup = null }) {
+// Atividades → modalidade → Clubes e peneiras (docs/atividades.md 7.3):
+// the clubs of the player's city, then the rest of the country, each with
+// category, tryout month and deadline, youngest age and requirement.
+function clubRow(row, state, locale, activityId, onSignUp) {
+  const nodes = [];
+  const box = el('div', { className: 'row' });
+  box.appendChild(el('strong', { text: clubName(locale, state.clubsById[row.clubId]) }));
+  const dates = row.teamLevelId
+    ? locale.format('ui.club_tryout', {
+        level: locale.t(`teamLevel.${row.teamLevelId}`),
+        month: locale.monthName(row.tryoutMonth),
+        deadline: locale.monthName(row.deadline),
+      })
+    : locale.t('ui.club_no_level');
+  const info = locale.format(row.local ? 'ui.club_info' : 'ui.club_info_city', {
+    city: locale.t(`city.${row.cityId}`),
+    age: row.minAge,
+    requirement: locale.t(`ui.requirement.${row.requirement}`),
+  });
+  box.append(el('span', { className: 'detail', text: dates }), el('span', { className: 'detail', text: info }));
+  if (row.onTeam) box.appendChild(el('span', { className: 'detail', text: locale.t('ui.club_on_team') }));
+  else if (row.blocker) box.appendChild(el('span', { className: 'detail', text: locale.t(`ui.tryout_blocked.${row.blocker}`) }));
+  nodes.push(box);
+  if (!row.onTeam && !row.blocker) {
+    const submenu = el('div', { className: 'submenu' });
+    const button = el('button', { text: locale.t('ui.club_sign_up') });
+    button.type = 'button';
+    button.disabled = state.pendingDecisions.length > 0;
+    button.addEventListener('click', () => onSignUp(activityId, row.clubId));
+    submenu.appendChild(button);
+    nodes.push(submenu);
+  }
+  return nodes;
+}
+
+function renderClubTryouts(dom, state, locale, activityId, { onCloseClubs, onSignUp }) {
+  dom.activitiesBack.hidden = false;
+  dom.activitiesBack.textContent = locale.t('ui.back');
+  dom.activitiesBack.onclick = onCloseClubs;
+  dom.activitiesTitle.textContent = locale.format('ui.clubs_title', { activity: locale.t(`activity.${activityId}.title`) });
+  dom.activitiesResult.textContent = state.lastActivityResult ? activityResultText(state, state.lastActivityResult, locale, sexesOf(state)) : '';
+  clearChildren(dom.activitiesList);
+  const rows = clubTryouts(state, activityId);
+  for (const [key, group] of [
+    ['ui.clubs_local', rows.filter((r) => r.local)],
+    ['ui.clubs_elsewhere', rows.filter((r) => !r.local)],
+  ]) {
+    if (group.length === 0) continue;
+    const section = el('div', { className: 'activities-group' });
+    section.appendChild(el('h2', { text: locale.t(key) }));
+    for (const row of group) section.append(...clubRow(row, state, locale, activityId, onSignUp));
+    dom.activitiesList.appendChild(section);
+  }
+}
+
+export function renderActivities(dom, state, locale, callbacksAndView) {
+  const { onDoActivity, onEnroll, onLeave, onCompete, onToggleGroup, onOpenClubs, openGroup = null, openClubs = null } = callbacksAndView;
+  if (openClubs) {
+    renderClubTryouts(dom, state, locale, openClubs, callbacksAndView);
+    return;
+  }
+  dom.activitiesBack.hidden = true;
   dom.activitiesTitle.textContent = locale.t('ui.activities_title');
   dom.activitiesResult.textContent = state.lastActivityResult ? activityResultText(state, state.lastActivityResult, locale, sexesOf(state)) : '';
-  const callbacks = { onDoActivity, onEnroll, onLeave, onCompete };
+  const callbacks = { onDoActivity, onEnroll, onLeave, onCompete, onOpenClubs };
 
   clearChildren(dom.activitiesList);
   for (const group of availableActivities(state)) {

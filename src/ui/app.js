@@ -9,6 +9,7 @@ import {
   enrollPlayer,
   leavePlayerEnrollment,
   competePlayer,
+  signUpPlayerForTryout,
   continueAdvance,
   playableCountries,
   buyPlayerAsset,
@@ -73,6 +74,8 @@ const dom = {
   schoolClassmates: byId('school-classmates'),
   schoolTeachersTitle: byId('school-teachers-title'),
   schoolTeachers: byId('school-teachers'),
+  schoolTeamsTitle: byId('school-teams-title'),
+  schoolTeams: byId('school-teams'),
   relationsScreen: byId('relations-screen'),
   relationsTitle: byId('relations-title'),
   relationsList: byId('relations-list'),
@@ -84,6 +87,7 @@ const dom = {
   profileInteractions: byId('profile-interactions'),
   profileResult: byId('profile-result'),
   activitiesScreen: byId('activities-screen'),
+  activitiesBack: byId('activities-back'),
   activitiesTitle: byId('activities-title'),
   activitiesResult: byId('activities-result'),
   activitiesList: byId('activities-list'),
@@ -249,6 +253,13 @@ async function main() {
         onCompete: (activityId) => update(competePlayer(state, activityId)),
         onToggleGroup: (group) => update(state, { ...view, group }),
         openGroup: view.group ?? null,
+        onOpenClubs: (activityId) => {
+          update({ ...state, lastActivityResult: null }, { ...view, clubsFor: activityId });
+          dom.screens.scrollTo({ top: 0 });
+        },
+        onCloseClubs: () => update({ ...state, lastActivityResult: null }, { ...view, clubsFor: null }),
+        onSignUp: (activityId, clubId) => update(signUpPlayerForTryout(state, activityId, clubId)),
+        openClubs: view.clubsFor ?? null,
       });
     } else {
       renderProfile(dom, state, locale, view.personId, view.category, {

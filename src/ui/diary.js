@@ -141,7 +141,7 @@ export function clubName(locale, club) {
 
 // "time da escola" or "sub-15 do Tucanos de Recife"; club is null for the
 // school team.
-function teamName(locale, teamLevelId, club) {
+export function teamName(locale, teamLevelId, club) {
   return club
     ? locale.format('tryout.team.club', { level: locale.t(`teamLevel.${teamLevelId}`), club: clubName(locale, club) })
     : locale.t('tryout.team.school');
@@ -176,6 +176,39 @@ export function teamSeasonLine(locale, entry, club, sex) {
     { activity: locale.t(`activity.${entry.activityId}.title`), team: teamName(locale, entry.teamLevelId, club) },
     { player: sex },
   );
+}
+
+// Lines about teams and tryouts (teams.js, scout.js); the Activities screen
+// shows the same ones right after acting.
+export function teamEntryLine(state, locale, entry) {
+  switch (entry.type) {
+    case 'tryout':
+      return tryoutLine(locale, entry, entry.clubId ? state.clubsById[entry.clubId] : null);
+    case 'tryoutSignup':
+      return tryoutSignupLine(locale, entry, state.clubsById[entry.clubId], entry.parentId ? who(state, locale, entry.parentId) : null);
+    case 'teamJoined':
+      return locale.format(entry.parentId ? 'diary.team_joined.allowed' : 'diary.team_joined', {
+        activity: locale.t(`activity.${entry.activityId}.title`),
+        team: teamName(locale, entry.teamLevelId, state.clubsById[entry.clubId]),
+        parent: entry.parentId ? who(state, locale, entry.parentId) : '',
+      });
+    case 'scoutRefused':
+      return locale.format('diary.scout_refused', {
+        activity: locale.t(`activity.${entry.activityId}.title`),
+        club: clubName(locale, state.clubsById[entry.clubId]),
+        parent: who(state, locale, entry.parentId),
+      });
+    case 'tryoutRefused':
+      return locale.format('diary.tryout_refused', {
+        activity: locale.t(`activity.${entry.activityId}.title`),
+        club: clubName(locale, state.clubsById[entry.clubId]),
+        parent: who(state, locale, entry.parentId),
+      });
+    case 'teamSeason':
+      return teamSeasonLine(locale, entry, entry.clubId ? state.clubsById[entry.clubId] : null, state.player.sex);
+    default:
+      return null;
+  }
 }
 
 function entryLine(entry, state, locale, block, index) {
@@ -239,29 +272,12 @@ function entryLine(entry, state, locale, block, index) {
     case 'competition':
       return trainingEventLine(locale, entry, state.player.sex);
     case 'tryout':
-      return tryoutLine(locale, entry, entry.clubId ? state.clubsById[entry.clubId] : null);
     case 'tryoutSignup':
-      return tryoutSignupLine(locale, entry, state.clubsById[entry.clubId], entry.parentId ? who(state, locale, entry.parentId) : null);
     case 'teamJoined':
-      return locale.format(entry.parentId ? 'diary.team_joined.allowed' : 'diary.team_joined', {
-        activity: locale.t(`activity.${entry.activityId}.title`),
-        team: teamName(locale, entry.teamLevelId, state.clubsById[entry.clubId]),
-        parent: entry.parentId ? who(state, locale, entry.parentId) : '',
-      });
     case 'scoutRefused':
-      return locale.format('diary.scout_refused', {
-        activity: locale.t(`activity.${entry.activityId}.title`),
-        club: clubName(locale, state.clubsById[entry.clubId]),
-        parent: who(state, locale, entry.parentId),
-      });
     case 'tryoutRefused':
-      return locale.format('diary.tryout_refused', {
-        activity: locale.t(`activity.${entry.activityId}.title`),
-        club: clubName(locale, state.clubsById[entry.clubId]),
-        parent: who(state, locale, entry.parentId),
-      });
     case 'teamSeason':
-      return teamSeasonLine(locale, entry, entry.clubId ? state.clubsById[entry.clubId] : null, state.player.sex);
+      return teamEntryLine(state, locale, entry);
     case 'interaction':
       return locale.format('diary.interaction', {
         label: text(`interaction.${entry.interactionId}.label`),
