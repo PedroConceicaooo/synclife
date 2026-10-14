@@ -151,6 +151,9 @@
       "maxAge": 20
     }
   ],
+  "teamGames": {
+    "draws": true
+  },
   "effects": [
     {
       "op": "stat",

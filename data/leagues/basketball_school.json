@@ -4,5 +4,6 @@
   "kind": "school",
   "teamLevels": [
     "school"
-  ]
+  ],
+  "gamesPerMonth": 1
 }

@@ -31,18 +31,6 @@ export function stipendsFor(person, fromMonth, toMonth, country) {
   return owed;
 }
 
-// Several payments of one advance (before and after a season review) as
-// one entry per club, where the first one was.
-export function mergeStipendEntries(entries) {
-  const merged = [];
-  for (const entry of entries) {
-    const earlier = entry.source === 'stipend' && merged.find((e) => e.source === 'stipend' && e.clubId === entry.clubId);
-    if (earlier) earlier.amount += entry.amount;
-    else merged.push(entry.source === 'stipend' ? { ...entry } : entry);
-  }
-  return merged;
-}
-
 // Pays them (clubs are outside the people, so the money just arrives).
 // Returns { person, entries } with one money entry per club.
 export function payStipends(person, fromMonth, toMonth, country) {

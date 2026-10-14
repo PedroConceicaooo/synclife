@@ -9,5 +9,6 @@
     "youth_u20"
   ],
   "requirement": "accessible",
-  "minScoreOffset": -5
+  "minScoreOffset": -5,
+  "gamesPerMonth": 2
 }

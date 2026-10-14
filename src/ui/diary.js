@@ -206,6 +206,20 @@ export function teamEntryLine(state, locale, entry) {
       });
     case 'teamSeason':
       return teamSeasonLine(locale, entry, entry.clubId ? state.clubsById[entry.clubId] : null, state.player.sex);
+    // League games of one advance (games.js).
+    case 'teamGames': {
+      const activity = locale.t(`activity.${entry.activityId}.title`);
+      const draws = state.activitiesById?.[entry.activityId]?.teamGames?.draws ?? entry.drawn > 0;
+      return locale.format(draws ? 'diary.team_games.draws' : 'diary.team_games.no_draws', {
+        activity,
+        played: locale.plural('diary.games', entry.played),
+        team: teamName(locale, entry.teamLevelId, entry.clubId ? state.clubsById[entry.clubId] : null),
+        won: locale.plural('diary.wins', entry.won),
+        drawn: locale.plural('diary.draws', entry.drawn),
+        lost: locale.plural('diary.losses', entry.lost),
+        role: locale.t(`diary.role.${entry.role}`),
+      });
+    }
     // A school tryout chosen in an event that its rules didn't allow.
     case 'tryoutBlocked': {
       const key = `diary.tryout_blocked.${entry.reason}`;
@@ -283,6 +297,7 @@ function entryLine(entry, state, locale, block, index) {
     case 'tryoutRefused':
     case 'teamSeason':
     case 'tryoutBlocked':
+    case 'teamGames':
       return teamEntryLine(state, locale, entry);
     case 'interaction':
       return locale.format('diary.interaction', {

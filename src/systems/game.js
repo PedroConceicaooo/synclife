@@ -33,7 +33,8 @@ import { requestEnrollment, leaveEnrollment, chargeEnrollments, askParentPermiss
 import { compete, competitionBlocker } from './competitions.js';
 import { tryOut, endSeason, signUpForTryout, runDueTryouts, joinClubTeam, listClubTryouts } from './teams.js';
 import { rollScoutInvites } from './scout.js';
-import { payStipends, mergeStipendEntries } from './stipend.js';
+import { payStipends } from './stipend.js';
+import { playGames, mergeSeasonEntries } from './games.js';
 
 const START_YEAR = 2000;
 export const ADULT_AGE = 18;
@@ -189,6 +190,20 @@ export function monthsUntilAdulthood(state) {
   return state.player.birth + ADULT_AGE * 12 - state.currentMonthIndex;
 }
 
+// What a stretch of the season brings to a team player: the games and,
+// for club youth players, the stipend.
+function teamSeasonMonths(state, person, fromMonth, toMonth) {
+  const games = playGames(person, fromMonth, toMonth, {
+    activitiesById: state.activitiesById,
+    clubsById: state.clubsById ?? {},
+    leaguesById: state.leaguesById ?? {},
+    country: state.country,
+    rng: state.rng,
+  });
+  const paid = payStipends(games.person, fromMonth, toMonth, state.country);
+  return { person: paid.person, entries: [...games.entries, ...paid.entries] };
+}
+
 // Fires the calendar events of each point the advance went through.
 function processCalendar(state, points, { people, relationships }) {
   const entries = [];
@@ -196,17 +211,17 @@ function processCalendar(state, points, { people, relationships }) {
   const pendingDecisions = [];
   let peopleNow = people;
   let relationshipsNow = relationships;
-  // Youth stipends are paid up to each season review with the teams held
-  // until then; advanceStep pays what is left after it.
-  let stipendsPaidUntil = state.currentMonthIndex;
+  // Games and youth stipends run up to each season review with the teams
+  // held until then; advanceStep does what is left after it.
+  let seasonUntil = state.currentMonthIndex;
 
   for (const point of points) {
     // The school year is the teams' season (teams.js).
     if (point.on === 'schoolYearEnd') {
-      const paid = payStipends(peopleNow[state.player.id], stipendsPaidUntil, point.month, state.country);
-      entries.push(...paid.entries);
-      stipendsPaidUntil = point.month;
-      const season = endSeason(paid.person, {
+      const played = teamSeasonMonths(state, peopleNow[state.player.id], seasonUntil, point.month);
+      entries.push(...played.entries);
+      seasonUntil = point.month;
+      const season = endSeason(played.person, {
         activitiesById: state.activitiesById,
         clubsById: state.clubsById ?? {},
         leaguesById: state.leaguesById ?? {},
@@ -248,7 +263,7 @@ function processCalendar(state, points, { people, relationships }) {
       else entries.push({ type: 'event', eventId: event.id, ...(result.succeeded === null ? {} : { succeeded: result.succeeded }) });
     }
   }
-  return { people: peopleNow, relationships: relationshipsNow, entries, fired, pendingDecisions, stipendsPaidUntil };
+  return { people: peopleNow, relationships: relationshipsNow, entries, fired, pendingDecisions, seasonUntil };
 }
 
 // An advance stops at the 18th birthday and at a dated decision (design
@@ -315,9 +330,9 @@ export function advanceStep(state, requestedMonths) {
   people = { ...people, [playerId]: tryouts.person };
   entries.push(...tryouts.entries);
 
-  const stipends = payStipends(people[playerId], calendar.stipendsPaidUntil, nextMonthIndex, state.country);
-  people = { ...people, [playerId]: stipends.person };
-  entries.push(...stipends.entries);
+  const season = teamSeasonMonths(state, people[playerId], calendar.seasonUntil, nextMonthIndex);
+  people = { ...people, [playerId]: season.person };
+  entries.push(...season.entries);
 
   const scoutInvites = rollScoutInvites(state.eventsById, {
     person: people[playerId],
@@ -397,7 +412,7 @@ export function advanceStep(state, requestedMonths) {
       ...calendar.fired,
       ...playerEvents.fired.map((f) => ({ ...f, playerId })),
     ],
-    history: [...state.history, { month: nextMonthIndex, entries: mergeStipendEntries(entries) }],
+    history: [...state.history, { month: nextMonthIndex, entries: mergeSeasonEntries(entries) }],
   };
 }
 
