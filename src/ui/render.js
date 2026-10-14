@@ -4,7 +4,7 @@
 import { ageAt } from '../engine/time.js';
 import { affinityBand } from './affinityColor.js';
 import { fullName } from '../systems/naming.js';
-import { describeHistory, trainingLine, levelUpLine } from './diary.js';
+import { describeHistory, trainingLine, trainingEventLine } from './diary.js';
 import { isAdult, availableInteractions, availableActivities, closePeople, playerOccupation, assetShop } from './gameState.js';
 import { assetPrice, resalePrice } from '../systems/assets.js';
 import { avatarElement, sexIconElement, nameElement } from './avatarElement.js';
@@ -371,20 +371,18 @@ export function renderProfile(dom, state, locale, personId, openCategory, { onBa
   dom.profileResult.textContent = result && result.targetId === personId ? interactionResultText(state, result, locale, sexesOf(state)) : '';
 }
 
-const ACTIVITY_BLOCKER_KEYS = { limit: 'ui.activity_limit', money: 'ui.activity_no_money' };
+const ACTIVITY_BLOCKER_KEYS = { limit: 'ui.activity_limit', money: 'ui.activity_no_money', injured: 'ui.activity_injured' };
 
 function activityResultText(state, result, locale, sexes) {
-  if (!result.attempted) return locale.t(ACTIVITY_BLOCKER_KEYS[result.reason]);
+  if (!result.attempted) return locale.format(ACTIVITY_BLOCKER_KEYS[result.reason], {}, sexes);
   // Events with options open the decision pop-up; the rest are told here.
   const eventTexts = result.triggeredEvents
     .map((eventId) => `event.${eventId}.text`)
     .filter((key) => locale.has(key))
     .map((key) => locale.format(key, {}, sexes));
   if (result.training) {
-    const { training, activityId } = result;
-    return [trainingLine(locale, activityId, training), training.levelId && levelUpLine(locale, activityId, training.levelId), ...eventTexts]
-      .filter(Boolean)
-      .join(' ');
+    const events = result.trainingEvents.map((entry) => trainingEventLine(locale, entry, state.player.sex));
+    return [trainingLine(locale, result.activityId, result.training), ...events, ...eventTexts].join(' ');
   }
   const outcome = result.succeeded === false ? 'failed' : 'done';
   return [locale.format(`activity.${result.activityId}.${outcome}`, {}, sexes, lastLineSeed(state, 'activity')), ...eventTexts].join(' ');
@@ -392,8 +390,9 @@ function activityResultText(state, result, locale, sexes) {
 
 // Skills (training.js): level and skill bar, sessions left in the period
 // and the techniques learned so far.
-function trainingDetails({ id, skill, levelId, techniques, usesLeft }, locale) {
-  const level = locale.t(`level.${id}.${levelId}`);
+function trainingDetails({ id, skill, levelId, stripes, techniques, usesLeft }, locale) {
+  const name = locale.t(`level.${id}.${levelId}`);
+  const level = stripes > 0 ? locale.plural('ui.training_stripes', stripes, { level: name }) : name;
   const nodes = [
     meter(level.charAt(0).toLocaleUpperCase(locale.language) + level.slice(1), skill),
     el('span', { className: 'detail', text: locale.plural('ui.training_uses_left', usesLeft) }),
@@ -423,7 +422,7 @@ export function renderActivities(dom, state, locale, { onDoActivity }) {
       button.disabled = blocker !== null || state.pendingDecisions.length > 0;
       button.append(
         el('strong', { text: locale.t(`activity.${id}.title`) }),
-        el('span', { className: 'detail', text: blocker ? locale.t(ACTIVITY_BLOCKER_KEYS[blocker]) : locale.t(`activity.${id}.description`) }),
+        el('span', { className: 'detail', text: blocker ? locale.format(ACTIVITY_BLOCKER_KEYS[blocker], {}, sexesOf(state)) : locale.t(`activity.${id}.description`) }),
       );
       if (item.levelId) button.append(...trainingDetails(item, locale));
       button.addEventListener('click', () => onDoActivity(id));

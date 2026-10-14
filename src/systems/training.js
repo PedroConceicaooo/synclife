@@ -5,9 +5,11 @@
 // activity it is — jiu-jitsu, gym or dance differ only in their data.
 //
 // Per-person state lives in person.skills[activityId]:
-//   { skill, peak, sessions, lastTrainedMonth, level, levelSince }
+//   { skill, peak, sessions, lastTrainedMonth, level, levelSince, stripes,
+//     examRetryMonth }
 // `level` is an index into training.levels; techniques learned are derived
-// from `sessions`, so they need no storage of their own.
+// from `sessions`, so they need no storage of their own. An injury is on
+// the person (injuredUntil), since it stops every physical training.
 
 import { ageAt } from '../engine/time.js';
 
@@ -42,7 +44,7 @@ export function trainingGain(skill, aptitude, rng, ageYears) {
 }
 
 export function newSkillEntry(monthIndex) {
-  return { skill: 0, peak: 0, sessions: 0, lastTrainedMonth: monthIndex, level: 0, levelSince: monthIndex };
+  return { skill: 0, peak: 0, sessions: 0, lastTrainedMonth: monthIndex, level: 0, levelSince: monthIndex, stripes: 0, examRetryMonth: null };
 }
 
 export function techniquesLearned(training, entry) {
@@ -51,18 +53,45 @@ export function techniquesLearned(training, entry) {
 }
 
 // The next level when the person meets all of its requirements now:
-// minimum skill, months at the current level and age.
+// minimum skill, months at the current level and age — and, after a failed
+// exam, the wait before trying again.
 export function nextLevel(training, entry, person, monthIndex) {
   const next = training.levels[entry.level + 1];
   if (!next) return null;
+  if (entry.examRetryMonth != null && monthIndex < entry.examRetryMonth) return null;
   if (entry.skill < (next.minSkill ?? 0)) return null;
   if (monthIndex - entry.levelSince < (next.minMonths ?? 0)) return null;
   if (ageAt(person.birth, monthIndex) < (next.minAge ?? 0)) return null;
   return next;
 }
 
+// Exam (docs/atividades.md, "Graduação"): the more skill above the
+// minimum, the likelier to pass. Never certain either way.
+export function examChance(exam, skill, minSkill = 0) {
+  return Math.min(0.95, Math.max(0.05, exam.chance + exam.skillWeight * (skill - minSkill)));
+}
+
+// Stripes (graus) on the current level, spaced evenly in skill and in time
+// between it and the next one: stripe k of n needs k/(n+1) of the way.
+// The last level has none.
+export function stripesEarned(training, entry, monthIndex) {
+  const count = training.stripes ?? 0;
+  const current = training.levels[entry.level];
+  const next = training.levels[entry.level + 1];
+  if (count === 0 || !next) return 0;
+  const skillFrom = current.minSkill ?? 0;
+  const skillShare = (entry.skill - skillFrom) / Math.max(1, (next.minSkill ?? 0) - skillFrom);
+  const timeShare = (monthIndex - entry.levelSince) / Math.max(1, next.minMonths ?? 0);
+  return Math.min(count, Math.floor(Math.min(skillShare, timeShare) * (count + 1)));
+}
+
+export function isInjured(person, monthIndex) {
+  return person.injuredUntil != null && monthIndex < person.injuredUntil;
+}
+
 // One session. Returns the new entry plus what to tell the diary: the
-// gain, the technique learned (if any) and the level reached (if any).
+// gain, the technique learned, the level reached or the exam failed, the
+// stripe earned and the months out with an injury (each null when none).
 export function trainSkill(training, entry, { person, monthIndex, rng }) {
   const current = entry ?? newSkillEntry(monthIndex);
   const aptitude = person.aptitudes?.[training.aptitude ?? 'physical'];
@@ -73,11 +102,29 @@ export function trainSkill(training, entry, { person, monthIndex, rng }) {
   const learned = techniquesLearned(training, { sessions });
   const technique = learned.length > before ? learned[learned.length - 1] : null;
 
-  let updated = { ...current, skill, peak: Math.max(current.peak, skill), sessions, lastTrainedMonth: monthIndex };
+  let updated = { stripes: 0, examRetryMonth: null, ...current, skill, peak: Math.max(current.peak, skill), sessions, lastTrainedMonth: monthIndex };
+  let levelId = null;
+  let failedLevelId = null;
   const level = nextLevel(training, updated, person, monthIndex);
-  if (level) updated = { ...updated, level: updated.level + 1, levelSince: monthIndex };
+  if (level && training.exam && !rng.chance(examChance(training.exam, skill, level.minSkill))) {
+    failedLevelId = level.id;
+    updated = { ...updated, examRetryMonth: monthIndex + training.exam.retryMonths };
+  } else if (level) {
+    levelId = level.id;
+    updated = { ...updated, level: updated.level + 1, levelSince: monthIndex, stripes: 0, examRetryMonth: null };
+  }
 
-  return { entry: updated, gain, technique, levelId: level ? level.id : null };
+  // One stripe per session at most, so each one gets its own diary line.
+  let stripe = null;
+  if (!levelId && stripesEarned(training, updated, monthIndex) > updated.stripes) {
+    stripe = updated.stripes + 1;
+    updated = { ...updated, stripes: stripe };
+  }
+
+  const injury = training.injury;
+  const injuredMonths = injury && rng.chance(injury.chance) ? rng.nextInt(...injury.months) : null;
+
+  return { entry: updated, gain, technique, levelId, failedLevelId, stripe, injuredMonths };
 }
 
 function decayOwed(idleMonths) {

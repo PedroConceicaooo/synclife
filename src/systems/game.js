@@ -450,6 +450,17 @@ export function availableActivities(state) {
   });
 }
 
+// Diary entries of a session besides the training line itself.
+function trainingEntries(activityId, training) {
+  if (!training) return [];
+  const entries = [];
+  if (training.levelId) entries.push({ type: 'levelUp', activityId, levelId: training.levelId });
+  if (training.failedLevelId) entries.push({ type: 'examFailed', activityId, levelId: training.failedLevelId });
+  if (training.stripe) entries.push({ type: 'stripe', activityId, stripe: training.stripe, levelId: training.currentLevelId });
+  if (training.injuredMonths) entries.push({ type: 'injury', activityId, months: training.injuredMonths });
+  return entries;
+}
+
 // Events triggered by an activity have no yearlyChance of their own: ones
 // with options become a decision, the rest apply right away.
 export function attemptPlayerActivity(state, activityId) {
@@ -478,7 +489,7 @@ export function attemptPlayerActivity(state, activityId) {
     result.training
       ? { type: 'training', activityId, gain: result.training.gain, technique: result.training.technique }
       : { type: 'activity', activityId, ...(activity.check ? { succeeded: result.succeeded } : {}) },
-    ...(result.training?.levelId ? [{ type: 'levelUp', activityId, levelId: result.training.levelId }] : []),
+    ...trainingEntries(activityId, result.training),
     ...triggered.entries,
     ...moneyEntries(playerBefore, people[playerId], { source: 'activity', activityId }),
     ...statEntries(playerBefore, people[playerId]),
@@ -498,6 +509,7 @@ export function attemptPlayerActivity(state, activityId) {
       succeeded: result.succeeded,
       triggeredEvents: triggered.fired.map((f) => f.eventId),
       training: result.training,
+      trainingEvents: trainingEntries(activityId, result.training),
     },
   };
 }

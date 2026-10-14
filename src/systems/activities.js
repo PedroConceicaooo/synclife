@@ -11,7 +11,7 @@ import { evaluateConditions } from '../engine/conditions.js';
 import { applyEffects } from '../engine/effects.js';
 import { addMoney, resolveAmount } from './money.js';
 import { resolveChance } from './interactions.js';
-import { trainSkill, techniquesLearned } from './training.js';
+import { trainSkill, techniquesLearned, isInjured } from './training.js';
 
 export function indexActivities(activities) {
   return Object.fromEntries(activities.map((activity) => [activity.id, activity]));
@@ -34,6 +34,7 @@ function cost(activity, country) {
 // Why an activity can't be done right now, or null if it can.
 export function activityBlocker(activity, { player, country, currentMonthIndex, usesThisPeriod = 0 }) {
   if (!evaluateConditions(activity.conditions, player, { currentMonthIndex, country })) return 'conditions';
+  if (activity.training?.aptitude === 'physical' && isInjured(player, currentMonthIndex)) return 'injured';
   if (usesThisPeriod >= usesPerPeriod(activity)) return 'limit';
   if (player.money < cost(activity, country)) return 'money';
   return null;
@@ -47,6 +48,7 @@ function trainingStatus(activity, player, uses) {
     usesLeft: Math.max(0, usesPerPeriod(activity) - uses),
     skill: entry?.skill ?? 0,
     levelId: activity.training.levels[entry?.level ?? 0].id,
+    stripes: entry?.stripes ?? 0,
     techniques: techniquesLearned(activity.training, entry),
   };
 }
@@ -106,6 +108,19 @@ export function attemptActivity(
     const person = peopleAfter[player.id];
     training = trainSkill(activity.training, person.skills?.[activity.id], { person, monthIndex: currentMonthIndex, rng });
     peopleAfter = { ...peopleAfter, [player.id]: { ...person, skills: { ...person.skills, [activity.id]: training.entry } } };
+    if (training.injuredMonths) {
+      const injured = { ...peopleAfter[player.id], injuredUntil: currentMonthIndex + training.injuredMonths };
+      const effect = { op: 'stat', target: 'player', stat: 'health', delta: activity.training.injury.health };
+      peopleAfter = applyEffects([effect], {
+        relationship: null,
+        relationshipsById: result.relationshipsById,
+        peopleById: { ...peopleAfter, [player.id]: injured },
+        playerId: player.id,
+        country,
+        rng,
+        currentMonthIndex,
+      }).peopleById;
+    }
   }
 
   const outcome = succeeded ? 'success' : 'failure';
@@ -120,6 +135,15 @@ export function attemptActivity(
     peopleById: peopleAfter,
     relationshipsById: result.relationshipsById,
     triggeredEvents,
-    training: training && { gain: training.gain, technique: training.technique, levelId: training.levelId, skill: training.entry.skill },
+    training: training && {
+      gain: training.gain,
+      technique: training.technique,
+      levelId: training.levelId,
+      failedLevelId: training.failedLevelId,
+      stripe: training.stripe,
+      currentLevelId: activity.training.levels[training.entry.level].id,
+      injuredMonths: training.injuredMonths,
+      skill: training.entry.skill,
+    },
   };
 }

@@ -7,20 +7,95 @@
   "training": {
     "aptitude": "physical",
     "levels": [
-      { "id": "white" },
-      { "id": "gray", "minAge": 4, "minSkill": 4, "minMonths": 6 },
-      { "id": "yellow", "minAge": 7, "minSkill": 8, "minMonths": 12 },
-      { "id": "orange", "minAge": 10, "minSkill": 12, "minMonths": 12 },
-      { "id": "green", "minAge": 13, "minSkill": 16, "minMonths": 12 },
-      { "id": "blue", "minAge": 16, "minSkill": 20, "minMonths": 12 },
-      { "id": "purple", "minAge": 16, "minSkill": 40, "minMonths": 24 },
-      { "id": "brown", "minAge": 18, "minSkill": 60, "minMonths": 18 },
-      { "id": "black", "minAge": 19, "minSkill": 80, "minMonths": 12 }
+      {
+        "id": "white"
+      },
+      {
+        "id": "gray",
+        "minAge": 4,
+        "minSkill": 4,
+        "minMonths": 6
+      },
+      {
+        "id": "yellow",
+        "minAge": 7,
+        "minSkill": 8,
+        "minMonths": 12
+      },
+      {
+        "id": "orange",
+        "minAge": 10,
+        "minSkill": 12,
+        "minMonths": 12
+      },
+      {
+        "id": "green",
+        "minAge": 13,
+        "minSkill": 16,
+        "minMonths": 12
+      },
+      {
+        "id": "blue",
+        "minAge": 16,
+        "minSkill": 20,
+        "minMonths": 12
+      },
+      {
+        "id": "purple",
+        "minAge": 16,
+        "minSkill": 40,
+        "minMonths": 24
+      },
+      {
+        "id": "brown",
+        "minAge": 18,
+        "minSkill": 60,
+        "minMonths": 18
+      },
+      {
+        "id": "black",
+        "minAge": 19,
+        "minSkill": 80,
+        "minMonths": 12
+      }
     ],
-    "techniques": ["closed_guard", "hip_escape", "scissor_sweep", "guard_pass", "mount", "armbar", "triangle", "rear_naked_choke"]
+    "stripes": 4,
+    "exam": {
+      "chance": 0.6,
+      "skillWeight": 0.03,
+      "retryMonths": 6
+    },
+    "injury": {
+      "chance": 0.03,
+      "health": -6,
+      "months": [
+        3,
+        10
+      ]
+    },
+    "techniques": [
+      "closed_guard",
+      "hip_escape",
+      "scissor_sweep",
+      "guard_pass",
+      "mount",
+      "armbar",
+      "triangle",
+      "rear_naked_choke"
+    ]
   },
   "effects": [
-    { "op": "stat", "target": "player", "stat": "health", "delta": 1 },
-    { "op": "stat", "target": "player", "stat": "happiness", "delta": 1 }
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 1
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
   ]
 }

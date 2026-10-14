@@ -87,8 +87,23 @@ export function trainingLine(locale, activityId, { gain, technique }) {
   return locale.format('diary.training_technique', { activity, gain, technique: locale.t(`technique.${activityId}.${technique}`) });
 }
 
-export function levelUpLine(locale, activityId, levelId) {
-  return locale.format('diary.level_up', { activity: locale.t(`activity.${activityId}.title`), level: locale.t(`level.${activityId}.${levelId}`) });
+// Level up, failed exam, stripe and injury: the other lines a session can
+// write. `entry` has the diary entry's shape ({ type, activityId, ... }).
+export function trainingEventLine(locale, entry, sex) {
+  const activity = locale.t(`activity.${entry.activityId}.title`);
+  const sexes = { player: sex };
+  switch (entry.type) {
+    case 'levelUp':
+      return locale.format('diary.level_up', { activity, level: locale.t(`level.${entry.activityId}.${entry.levelId}`) });
+    case 'examFailed':
+      return locale.format('diary.exam_failed', { activity, level: locale.t(`level.${entry.activityId}.${entry.levelId}`) }, sexes);
+    case 'stripe':
+      return locale.format('diary.stripe', { activity, count: entry.stripe, level: locale.t(`level.${entry.activityId}.${entry.levelId}`) });
+    case 'injury':
+      return locale.format('diary.injury', { activity }, sexes);
+    default:
+      return null;
+  }
 }
 
 function entryLine(entry, state, locale, block, index) {
@@ -138,7 +153,10 @@ function entryLine(entry, state, locale, block, index) {
     case 'training':
       return trainingLine(locale, entry.activityId, entry);
     case 'levelUp':
-      return levelUpLine(locale, entry.activityId, entry.levelId);
+    case 'examFailed':
+    case 'stripe':
+    case 'injury':
+      return trainingEventLine(locale, entry, state.player.sex);
     case 'interaction':
       return locale.format('diary.interaction', {
         label: text(`interaction.${entry.interactionId}.label`),

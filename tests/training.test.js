@@ -10,6 +10,9 @@ import {
   techniquesLearned,
   nextLevel,
   newSkillEntry,
+  examChance,
+  stripesEarned,
+  isInjured,
   decaySkill,
   decayAllSkills,
 } from '../src/systems/training.js';
@@ -28,7 +31,10 @@ const TRAINING = {
 };
 
 // rng.next() = 0.5 gives luck 1.0, so the gain is the formula without luck.
-const MID_RNG = { next: () => 0.5 };
+const MID_RNG = { next: () => 0.5, chance: () => false };
+
+// Same luck, but every chance roll comes out as `roll` (exam, injury).
+const rolls = (roll, nextInt = (min) => min) => ({ next: () => 0.5, chance: () => roll, nextInt });
 
 function person({ physical = 0.5 } = {}) {
   return { id: 'p_player', birth: 0, money: 0, aptitudes: { physical }, stats: { happiness: 50, health: 50, intelligence: 50, looks: 50 } };
@@ -163,7 +169,16 @@ test('a trainable activity can be done twice per period and trains the skill', (
 
   const first = attemptActivity(activity, { ...args, usesThisPeriod: 0 });
   assert.equal(first.attempted, true);
-  assert.deepEqual(first.training, { gain: 5, technique: null, levelId: null, skill: 5 });
+  assert.deepEqual(first.training, {
+    gain: 5,
+    technique: null,
+    levelId: null,
+    failedLevelId: null,
+    stripe: null,
+    currentLevelId: 'white',
+    injuredMonths: null,
+    skill: 5,
+  });
   assert.equal(first.peopleById.p_player.skills.bjj.skill, 5);
 
   const second = attemptActivity(activity, { ...args, peopleById: first.peopleById, usesThisPeriod: 1 });
@@ -177,10 +192,10 @@ test('listActivities shows the level, skill, techniques and sessions left of a s
   const activitiesById = indexActivities([{ id: 'bjj', category: 'physical', conditions: { minAge: 4 }, training: TRAINING }]);
   const player = { ...person(), skills: { bjj: { ...newSkillEntry(0), skill: 25, sessions: 4, level: 1 } } };
   const [group] = listActivities(activitiesById, { player, country: COUNTRY, currentMonthIndex: 16 * 12, usesById: { bjj: 1 } });
-  assert.deepEqual(group.activities[0], { id: 'bjj', blocker: null, usesLeft: 1, skill: 25, levelId: 'blue', techniques: ['a', 'b'] });
+  assert.deepEqual(group.activities[0], { id: 'bjj', blocker: null, usesLeft: 1, skill: 25, levelId: 'blue', stripes: 0, techniques: ['a', 'b'] });
 
   const beginner = listActivities(activitiesById, { player: person(), country: COUNTRY, currentMonthIndex: 16 * 12 });
-  assert.deepEqual(beginner[0].activities[0], { id: 'bjj', blocker: null, usesLeft: 2, skill: 0, levelId: 'white', techniques: [] });
+  assert.deepEqual(beginner[0].activities[0], { id: 'bjj', blocker: null, usesLeft: 2, skill: 0, levelId: 'white', stripes: 0, techniques: [] });
 });
 
 test('trainable activities in data have levels and techniques with pt-BR texts', () => {
@@ -197,7 +212,80 @@ test('trainable activities in data have levels and techniques with pt-BR texts',
     }
     for (const technique of training.techniques) assert.ok(LOCALE[`technique.${id}.${technique}`], `technique.${id}.${technique}`);
   }
-  for (const key of ['diary.training', 'diary.training_technique', 'diary.training_max', 'diary.level_up', 'ui.training_uses_left.other', 'ui.training_techniques']) {
+  for (const key of ['diary.training', 'diary.training_technique', 'diary.training_max', 'diary.exam_failed', 'diary.stripe', 'diary.injury', 'ui.activity_injured', 'ui.training_stripes.other', 'diary.level_up', 'ui.training_uses_left.other', 'ui.training_techniques']) {
     assert.ok(LOCALE[key], key);
   }
+});
+
+const EXAM_TRAINING = {
+  ...TRAINING,
+  stripes: 4,
+  exam: { chance: 0.6, skillWeight: 0.03, retryMonths: 6 },
+  injury: { chance: 0.03, health: -6, months: [3, 10] },
+};
+
+test('examChance grows with skill above the minimum, between 5% and 95%', () => {
+  const exam = EXAM_TRAINING.exam;
+  assert.equal(examChance(exam, 20, 20), 0.6);
+  assert.ok(Math.abs(examChance(exam, 30, 20) - 0.9) < 1e-9);
+  assert.equal(examChance(exam, 80, 20), 0.95);
+  assert.equal(examChance({ ...exam, chance: 0 }, 0, 20), 0.05);
+});
+
+test('passing the exam promotes and resets the stripes', () => {
+  const entry = { ...newSkillEntry(0), skill: 18, peak: 18, stripes: 4 };
+  const result = trainSkill(EXAM_TRAINING, entry, { person: person(), monthIndex: 16 * 12, rng: rolls(true) });
+  assert.equal(result.levelId, 'blue');
+  assert.equal(result.failedLevelId, null);
+  assert.equal(result.entry.stripes, 0);
+});
+
+test('failing the exam keeps the level and waits retryMonths before the next try', () => {
+  const at16 = 16 * 12;
+  const entry = { ...newSkillEntry(0), skill: 18, peak: 18 };
+  const failed = trainSkill(EXAM_TRAINING, entry, { person: person(), monthIndex: at16, rng: { ...rolls(false), chance: (p) => p > 0.9 } });
+  assert.equal(failed.levelId, null);
+  assert.equal(failed.failedLevelId, 'blue');
+  assert.equal(failed.entry.level, 0);
+  assert.equal(failed.entry.examRetryMonth, at16 + 6);
+  assert.equal(nextLevel(EXAM_TRAINING, failed.entry, person(), at16 + 5), null);
+  assert.equal(nextLevel(EXAM_TRAINING, failed.entry, person(), at16 + 6).id, 'blue');
+});
+
+test('stripesEarned spaces the stripes evenly in skill and in time, none on the last level', () => {
+  // white -> blue: 20 points and 12 months; stripe k needs k/5 of both.
+  const entry = { ...newSkillEntry(0), skill: 8 };
+  assert.equal(stripesEarned(EXAM_TRAINING, entry, 12), 2);
+  assert.equal(stripesEarned(EXAM_TRAINING, entry, 3), 1); // only a quarter of the time
+  assert.equal(stripesEarned(EXAM_TRAINING, { ...entry, skill: 100 }, 100), 4);
+  assert.equal(stripesEarned(EXAM_TRAINING, { ...entry, level: 1, skill: 100 }, 100), 0);
+  assert.equal(stripesEarned(TRAINING, entry, 12), 0);
+});
+
+test('a session gives at most one stripe', () => {
+  const entry = { ...newSkillEntry(0), skill: 14, peak: 14, stripes: 0 };
+  // Not 16 yet, so no exam: the stripes are all the progress there is.
+  const result = trainSkill(EXAM_TRAINING, entry, { person: person(), monthIndex: 15 * 12, rng: rolls(false) });
+  assert.equal(result.stripe, 1);
+  assert.equal(result.entry.stripes, 1);
+});
+
+test('an injury takes health and blocks physical training until it heals', () => {
+  const activity = { id: 'bjj', category: 'physical', conditions: { minAge: 4 }, training: EXAM_TRAINING };
+  const player = person();
+  const month = 16 * 12;
+  const args = { player, peopleById: { p_player: player }, country: COUNTRY, currentMonthIndex: month, usesThisPeriod: 0 };
+
+  const hurt = attemptActivity(activity, { ...args, rng: rolls(true, () => 4) });
+  assert.equal(hurt.training.injuredMonths, 4);
+  const injured = hurt.peopleById.p_player;
+  assert.equal(injured.injuredUntil, month + 4);
+  assert.equal(injured.stats.health, 44);
+  assert.equal(isInjured(injured, month + 3), true);
+  assert.equal(isInjured(injured, month + 4), false);
+
+  const blocked = attemptActivity(activity, { ...args, player: injured, peopleById: { p_player: injured }, currentMonthIndex: month + 3, rng: MID_RNG });
+  assert.equal(blocked.reason, 'injured');
+  const healed = attemptActivity(activity, { ...args, player: injured, peopleById: { p_player: injured }, currentMonthIndex: month + 4, rng: MID_RNG });
+  assert.equal(healed.attempted, true);
 });
