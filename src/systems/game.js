@@ -33,7 +33,7 @@ import { requestEnrollment, leaveEnrollment, chargeEnrollments, askParentPermiss
 import { compete, competitionBlocker } from './competitions.js';
 import { tryOut, endSeason, signUpForTryout, runDueTryouts, joinClubTeam, listClubTryouts } from './teams.js';
 import { rollScoutInvites } from './scout.js';
-import { payStipends } from './stipend.js';
+import { payAllowances } from './athleteAllowance.js';
 import { playGames, mergeSeasonEntries } from './games.js';
 
 const START_YEAR = 2000;
@@ -191,7 +191,7 @@ export function monthsUntilAdulthood(state) {
 }
 
 // What a stretch of the season brings to a team player: the games and,
-// for club youth players, the stipend.
+// for club youth players, the athlete allowance.
 function teamSeasonMonths(state, person, fromMonth, toMonth) {
   const games = playGames(person, fromMonth, toMonth, {
     activitiesById: state.activitiesById,
@@ -200,7 +200,7 @@ function teamSeasonMonths(state, person, fromMonth, toMonth) {
     country: state.country,
     rng: state.rng,
   });
-  const paid = payStipends(games.person, fromMonth, toMonth, state.country);
+  const paid = payAllowances(games.person, fromMonth, toMonth, state.country);
   return { person: paid.person, entries: [...games.entries, ...paid.entries] };
 }
 
@@ -211,7 +211,7 @@ function processCalendar(state, points, { people, relationships }) {
   const pendingDecisions = [];
   let peopleNow = people;
   let relationshipsNow = relationships;
-  // Games and youth stipends run up to each season review with the teams
+  // Games and athlete allowances run up to each season review with the teams
   // held until then; advanceStep does what is left after it.
   let seasonUntil = state.currentMonthIndex;
 

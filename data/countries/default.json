@@ -42,7 +42,7 @@
     "cometa",
     "maritaca"
   ],
-  "youthStipend": {
+  "athleteAllowance": {
     "minAge": 14,
     "maxAge": 19,
     "teamLevels": {

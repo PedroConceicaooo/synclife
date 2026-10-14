@@ -127,21 +127,21 @@ test('club-name city overrides (clubCity) only name real cities', () => {
   }
 });
 
-test('youth stipend: from 14 to 19 in the default country, a money scale per club category, the same everywhere', () => {
-  const stipend = COUNTRIES.default.youthStipend;
-  assert.equal(stipend.minAge, 14);
-  assert.equal(stipend.maxAge, 19);
+test('athlete allowance: from 14 to 19 in the default country, a money scale per club category, the same everywhere', () => {
+  const allowance = COUNTRIES.default.athleteAllowance;
+  assert.equal(allowance.minAge, 14);
+  assert.equal(allowance.maxAge, 19);
   const clubLevels = TEAM_SPORTS.flatMap((a) => a.teamLevels.filter((l) => l.kind === 'club').map((l) => l.id));
   let last = 0;
-  for (const [levelId, amount] of Object.entries(stipend.teamLevels)) {
+  for (const [levelId, amount] of Object.entries(allowance.teamLevels)) {
     assert.ok(clubLevels.includes(levelId), levelId);
     assert.ok(SCALES.includes(amount.scale), levelId);
     assert.ok(amount.multiplier > 0, levelId);
     const value = resolveCountry('BR', COUNTRIES).currency.scale[amount.scale] * amount.multiplier;
-    assert.ok(value > last, `${levelId}: the stipend goes up with the category`);
+    assert.ok(value > last, `${levelId}: the allowance goes up with the category`);
     last = value;
   }
-  for (const id of PLAYABLE) assert.deepEqual(resolveCountry(id, COUNTRIES).youthStipend, stipend, `${id} inherits it`);
+  for (const id of PLAYABLE) assert.deepEqual(resolveCountry(id, COUNTRIES).athleteAllowance, allowance, `${id} inherits it`);
 });
 
 test('the browser manifest lists every club and league file', () => {

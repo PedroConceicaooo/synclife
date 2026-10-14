@@ -78,24 +78,24 @@ export function playGames(person, fromMonth, toMonth, { activitiesById, clubsByI
 }
 
 // One advance may run the season in two stretches (before and after the
-// season review): their stipend payments join in one entry per club, and
+// season review): their athlete allowances join in one entry per club, and
 // the games of one team in one entry with the last playing time, where the
 // first one was.
-const sameStipend = (a, b) => a.source === 'stipend' && b.source === 'stipend' && a.clubId === b.clubId;
+const sameAllowance = (a, b) => a.source === 'athleteAllowance' && b.source === 'athleteAllowance' && a.clubId === b.clubId;
 const sameGames = (a, b) =>
   a.type === 'teamGames' && b.type === 'teamGames' && a.activityId === b.activityId && a.clubId === b.clubId && a.teamLevelId === b.teamLevelId;
 
 export function mergeSeasonEntries(entries) {
   const merged = [];
   for (const entry of entries) {
-    const earlier = merged.find((e) => sameStipend(e, entry) || sameGames(e, entry));
+    const earlier = merged.find((e) => sameAllowance(e, entry) || sameGames(e, entry));
     if (earlier && entry.type === 'teamGames') {
       for (const key of ['played', 'won', 'drawn', 'lost']) earlier[key] += entry[key];
       earlier.role = entry.role;
     } else if (earlier) {
       earlier.amount += entry.amount;
     } else {
-      merged.push(entry.source === 'stipend' || entry.type === 'teamGames' ? { ...entry } : entry);
+      merged.push(entry.source === 'athleteAllowance' || entry.type === 'teamGames' ? { ...entry } : entry);
     }
   }
   return merged;
