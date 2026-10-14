@@ -222,6 +222,7 @@
   "ui.enroll_no_parent": "Não há ninguém para autorizar a matrícula.",
   "ui.training_uses_left.one": "Resta {count} treino neste período.",
   "ui.training_uses_left.other": "Restam {count} treinos neste período.",
+  "ui.training_uses_left.zero": "Sem treinos restantes neste período.",
   "ui.training_techniques": "Aprendeu: {list}",
   "ui.training_stripes.one": "{level} · {count} grau",
   "ui.training_stripes.other": "{level} · {count} graus",

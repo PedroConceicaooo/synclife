@@ -143,3 +143,10 @@ test('a text with variants picks one per seed, always the same for that seed', (
   assert.ok(picks.size > 1);
   assert.equal(locale.t('hi'), locale.t('hi'));
 });
+
+test('counts that can be zero have a zero form (Intl puts 0 under "one" in Portuguese)', () => {
+  const entries = JSON.parse(readFileSync(UI_LOCALE_PATH, 'utf8'));
+  for (const key of ['ui.training_uses_left', 'diary.games', 'diary.wins', 'diary.draws', 'diary.losses']) {
+    assert.ok(entries[`${key}.zero`], key);
+  }
+});
