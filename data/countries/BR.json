@@ -89,7 +89,7 @@
       "reviewStatus": "ai_checked"
     },
     "youthStipend": {
-      "source": "⚠️ Não verificado na fonte primária: a página do Planalto recusou a conexão em 2026-10-14. Base: Lei 14.597/2023 (Lei Geral do Esporte), art. 99, §3º, citada em docs/atividades.md 7.5: bolsa de aprendizagem ao atleta em formação \"maior de 14 e menor de 20 anos\", sem vínculo de emprego. Conferir também se a lei diz \"maior de 14\" ou \"a partir de 14\" antes de fechar minAge.",
+      "source": "⚠️ Não verificado na fonte primária: a página do Planalto recusou a conexão em 2026-10-14. Base: Lei 14.597/2023 (Lei Geral do Esporte), art. 99, §3º, citada em docs/atividades.md 7.5: bolsa de aprendizagem ao atleta em formação \"maior de 14 e menor de 20 anos\", sem vínculo de emprego. O jogo lê como \"a partir de 14\" (14 a 19 anos), decisão do projeto em 2026-10-14; confirmar na lei.",
       "checkedUrl": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14597.htm",
       "checkedAt": null,
       "verifiedAt": null,
