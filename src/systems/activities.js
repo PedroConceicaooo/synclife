@@ -12,6 +12,7 @@ import { applyEffects } from '../engine/effects.js';
 import { addMoney, resolveAmount } from './money.js';
 import { resolveChance } from './interactions.js';
 import { trainSkill, techniquesLearned, isInjured } from './training.js';
+import { isEnrolled, payerOptions, monthlyFee } from './enrollment.js';
 
 export function indexActivities(activities) {
   return Object.fromEntries(activities.map((activity) => [activity.id, activity]));
@@ -34,6 +35,7 @@ function cost(activity, country) {
 // Why an activity can't be done right now, or null if it can.
 export function activityBlocker(activity, { player, country, currentMonthIndex, usesThisPeriod = 0 }) {
   if (!evaluateConditions(activity.conditions, player, { currentMonthIndex, country })) return 'conditions';
+  if (activity.enrollment && !isEnrolled(player, activity.id)) return 'notEnrolled';
   if (activity.training?.aptitude === 'physical' && isInjured(player, currentMonthIndex)) return 'injured';
   if (usesThisPeriod >= usesPerPeriod(activity)) return 'limit';
   if (player.money < cost(activity, country)) return 'money';
@@ -53,6 +55,14 @@ function trainingStatus(activity, player, uses) {
   };
 }
 
+// Who pays, when enrolled; otherwise who could pay.
+function enrollmentStatus(activity, player, { country, currentMonthIndex }) {
+  const fee = monthlyFee(activity, country);
+  const enrolled = player.enrollments?.[activity.id];
+  if (enrolled) return { enrolled: true, fee, paidBy: enrolled.payerId === player.id ? 'self' : 'parents' };
+  return { enrolled: false, fee, payerOptions: payerOptions(activity, player, currentMonthIndex) };
+}
+
 // Activities the player is old enough for, grouped by category in display
 // order. Ones blocked only by the limit or by money stay listed (with their
 // blocker) so the UI can show them disabled instead of making them vanish.
@@ -64,6 +74,7 @@ export function listActivities(activitiesById, { player, country, currentMonthIn
       minAge: activity.conditions.minAge,
       blocker: activityBlocker(activity, { player, country, currentMonthIndex, usesThisPeriod: usesById[activity.id] ?? 0 }),
       ...(activity.training ? trainingStatus(activity, player, usesById[activity.id] ?? 0) : {}),
+      ...(activity.enrollment ? { enrollment: enrollmentStatus(activity, player, { country, currentMonthIndex }) } : {}),
     }))
     .filter((a) => a.blocker !== 'conditions')
     .sort((a, b) => a.minAge - b.minAge || a.id.localeCompare(b.id));

@@ -29,6 +29,7 @@ import { buyAsset, sellAsset, listShop, applyAssetUpkeep } from './assets.js';
 import { isAllowanceAge, payAllowance, transferMoney } from './money.js';
 import { growStats } from './growth.js';
 import { decayAllSkills } from './training.js';
+import { requestEnrollment, leaveEnrollment, chargeEnrollments } from './enrollment.js';
 
 const START_YEAR = 2000;
 export const ADULT_AGE = 18;
@@ -73,6 +74,7 @@ export function createGameState({ seed, countriesById, eventsById, interactionsB
     pendingDecisions: [],
     firedEvents: [],
     activityUsesThisPeriod: {},
+    enrollmentAskedThisPeriod: {},
     remainingMonths: 0,
     pastLives: [],
     history: [{ month: player.birth, entries: [{ type: 'birth' }] }],
@@ -292,6 +294,12 @@ export function advanceStep(state, requestedMonths) {
     }
   }
 
+  // After the allowance, so a child can pay the month with it.
+  const fees = chargeEnrollments(people, state.activitiesById, { country: state.country, months });
+  people = fees.peopleById;
+  for (const f of fees.paid.filter((f) => f.payerId === playerId)) entries.push({ type: 'money', source: 'enrollment', activityId: f.activityId, amount: -f.amount });
+  for (const f of fees.ended.filter((f) => f.personId === playerId)) entries.push({ type: 'enrollmentEnded', activityId: f.activityId });
+
   entries.push(...statEntries(playerBefore, people[playerId]));
 
   const friendships = promoteFriendships(relationships, playerId);
@@ -308,6 +316,7 @@ export function advanceStep(state, requestedMonths) {
     pendingDecisions: [...world.pendingDecisions, ...calendar.pendingDecisions, ...playerEvents.pendingDecisions],
     remainingMonths,
     activityUsesThisPeriod: {},
+    enrollmentAskedThisPeriod: {},
     lastActivityResult: null,
     firedEvents: [
       ...state.firedEvents,
@@ -442,12 +451,59 @@ function fireTriggeredEvents(state, eventIds, { people, relationships }) {
 }
 
 export function availableActivities(state) {
+  const asked = state.enrollmentAskedThisPeriod ?? {};
   return listActivities(state.activitiesById, {
     player: state.people[state.player.id],
     country: state.country,
     currentMonthIndex: state.currentMonthIndex,
     usesById: state.activityUsesThisPeriod ?? {},
+  }).map((group) => ({
+    ...group,
+    activities: group.activities.map((a) => (a.enrollment && asked[a.id] ? { ...a, enrollment: { ...a.enrollment, askedThisPeriod: true } } : a)),
+  }));
+}
+
+// payer: 'parents' or 'self'. The parents are asked once per activity and
+// period (asking again and again annoys them — design doc).
+export function enrollPlayer(state, activityId, payer) {
+  const activity = state.activitiesById[activityId];
+  const asked = state.enrollmentAskedThisPeriod ?? {};
+  if (asked[activityId]) return { ...state, lastActivityResult: { attempted: false, reason: 'asked', activityId } };
+
+  const playerId = state.player.id;
+  const result = requestEnrollment(activity, {
+    payer,
+    playerId,
+    peopleById: state.people,
+    relationshipsById: state.relationships,
+    country: state.country,
+    currentMonthIndex: state.currentMonthIndex,
+    rng: state.rng,
   });
+  const askedParents = result.askedParentId !== null && result.reason !== 'money';
+  const entry = result.enrolled
+    ? { type: 'enrolled', activityId, payer, ...(result.askedParentId ? { parentId: result.askedParentId } : {}) }
+    : result.reason === 'refused'
+      ? { type: 'enrollmentRefused', activityId, parentId: result.askedParentId }
+      : null;
+
+  return {
+    ...state,
+    people: result.peopleById,
+    relationships: result.relationshipsById,
+    enrollmentAskedThisPeriod: askedParents ? { ...asked, [activityId]: true } : asked,
+    history: entry ? appendToCurrentBlock(state.history, [entry]) : state.history,
+    lastActivityResult: { attempted: false, activityId, reason: result.reason, parentAsked: result.askedParentId !== null, enrollmentEntry: entry },
+  };
+}
+
+export function leavePlayerEnrollment(state, activityId) {
+  return {
+    ...state,
+    people: leaveEnrollment(state.people, state.player.id, activityId),
+    history: appendToCurrentBlock(state.history, [{ type: 'enrollmentLeft', activityId }]),
+    lastActivityResult: null,
+  };
 }
 
 // Diary entries of a session besides the training line itself.

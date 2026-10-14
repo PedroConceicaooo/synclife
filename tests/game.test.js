@@ -14,6 +14,8 @@ import {
   resolveDecision,
   attemptPlayerInteraction,
   attemptPlayerActivity,
+  enrollPlayer,
+  leavePlayerEnrollment,
   availableActivities,
   availableInteractions,
   closePeople,
@@ -421,4 +423,48 @@ test('taking the blame for a sibling wins the sibling over and costs with the pa
   const after = resolveDecision(before, 'take_the_blame');
   assert.ok(relationshipWith(after).affinity[sibling] > relationshipWith(before).affinity[sibling]);
   assert.ok(after.relationships[before.motherChildId].affinity[before.mother.id] < before.relationships[before.motherChildId].affinity[before.mother.id]);
+});
+
+// A real life at 8, with only jiu-jitsu and no events, so advances are quiet.
+function bjjState(rngChance) {
+  let state = createGameState({ ...baseArgs(5), eventsById: {}, activitiesById: { bjj: ACTIVITIES_BY_ID.bjj } });
+  state = { ...state, currentMonthIndex: state.player.birth + 8 * 12 };
+  return rngChance ? { ...state, rng: { ...state.rng, chance: rngChance } } : state;
+}
+
+test('enrollPlayer: the parents are asked once per activity and period', () => {
+  const refused = enrollPlayer(bjjState(() => false), 'bjj', 'parents');
+  assert.equal(refused.history.at(-1).entries.at(-1).type, 'enrollmentRefused');
+  assert.equal(availableActivities(refused)[0].activities[0].enrollment.askedThisPeriod, true);
+
+  const again = enrollPlayer({ ...refused, rng: { ...refused.rng, chance: () => true } }, 'bjj', 'parents');
+  assert.equal(again.lastActivityResult.reason, 'asked');
+  assert.equal(again.people[again.player.id].enrollments, undefined);
+
+  const nextPeriod = enrollPlayer({ ...advanceStep(refused, 6), rng: { ...refused.rng, chance: () => true } }, 'bjj', 'parents');
+  assert.equal(nextPeriod.history.at(-1).entries.at(-1).type, 'enrolled');
+});
+
+test('an enrolled player trains, the payer is charged every advance, and leaving stops it', () => {
+  const enrolled = enrollPlayer(bjjState(() => true), 'bjj', 'parents');
+  const playerId = enrolled.player.id;
+  const payerId = enrolled.people[playerId].enrollments.bjj.payerId;
+  assert.ok([enrolled.mother.id, enrolled.father.id].includes(payerId));
+
+  const trained = attemptPlayerActivity(enrolled, 'bjj');
+  assert.ok(trained.history.at(-1).entries.some((e) => e.type === 'training'));
+
+  const fee = enrolled.country.currency.scale.small;
+  const paidBefore = enrolled.people[payerId].money;
+  const advanced = advanceStep(trained, 6);
+  // The allowance moves money too, so compare against what the payer gave as allowance.
+  const allowanceFrom = (state) =>
+    state.history.at(-1).entries.filter((e) => e.type === 'money' && e.source === 'allowance' && e.fromId === payerId).reduce((sum, e) => sum + e.amount, 0);
+  assert.equal(advanced.people[payerId].money, paidBefore - allowanceFrom(advanced) - fee * 6);
+
+  const left = leavePlayerEnrollment(advanced, 'bjj');
+  assert.equal(left.history.at(-1).entries.at(-1).type, 'enrollmentLeft');
+  assert.equal(availableActivities(left)[0].activities[0].blocker, 'notEnrolled');
+  const later = advanceStep(left, 6);
+  assert.equal(later.people[payerId].money, advanced.people[payerId].money - allowanceFrom(later));
 });

@@ -401,6 +401,7 @@ h1 {
 .bar-fill.neutral { background: var(--band-neutral); }
 .bar-fill.low { background: var(--band-low); }
 .bar-fill.very_low { background: var(--band-very_low); }
+.bar-fill.skill { background: var(--pen); }
 
 /* Lists of people and activities: full-width rows, not cards. */
 .row {

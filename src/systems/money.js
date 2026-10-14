@@ -35,7 +35,7 @@ export function isAllowanceAge(age) {
 // parent's share between roughly 0.25x and 1.5x "small" per month.
 const ALLOWANCE_FAMILY_BASE_PER_MONTH = 1; // in "small" units
 const ALLOWANCE_PAYERS = 2;
-const WEALTH_REFERENCE_IN_LARGE = 60; // parents start with 20..100x "large"
+export const WEALTH_REFERENCE_IN_LARGE = 60; // parents start with 20..100x "large"
 
 export function payAllowance({ parent, relationship, country, step }) {
   const base = (resolveAmount('small', country) * ALLOWANCE_FAMILY_BASE_PER_MONTH) / ALLOWANCE_PAYERS;

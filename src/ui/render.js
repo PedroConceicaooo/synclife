@@ -4,7 +4,7 @@
 import { ageAt } from '../engine/time.js';
 import { affinityBand } from './affinityColor.js';
 import { fullName } from '../systems/naming.js';
-import { describeHistory, trainingLine, trainingEventLine } from './diary.js';
+import { describeHistory, trainingLine, trainingEventLine, enrollmentLine } from './diary.js';
 import { isAdult, availableInteractions, availableActivities, closePeople, playerOccupation, assetShop } from './gameState.js';
 import { assetPrice, resalePrice } from '../systems/assets.js';
 import { avatarElement, sexIconElement, nameElement } from './avatarElement.js';
@@ -26,13 +26,15 @@ function el(tag, { className, text } = {}) {
   return node;
 }
 
-// Label and percentage on one line, a thin bar under it.
-function meter(label, value) {
+// Label and percentage on one line, a thin bar under it. The bar is coloured
+// by how good the value is, unless a fixed band is given (a skill at 3% is
+// just a beginning, not bad news).
+function meter(label, value, band = affinityBand(value)) {
   const wrapper = el('div', { className: 'meter' });
   const head = el('div', { className: 'meter-head' });
   head.append(el('span', { text: label }), el('span', { text: `${Math.round(value)}%` }));
   const track = el('div', { className: 'bar-track' });
-  const fill = el('div', { className: `bar-fill ${affinityBand(value)}` });
+  const fill = el('div', { className: `bar-fill ${band}` });
   fill.style.width = `${value}%`;
   track.appendChild(fill);
   wrapper.append(head, track);
@@ -371,9 +373,24 @@ export function renderProfile(dom, state, locale, personId, openCategory, { onBa
   dom.profileResult.textContent = result && result.targetId === personId ? interactionResultText(state, result, locale, sexesOf(state)) : '';
 }
 
-const ACTIVITY_BLOCKER_KEYS = { limit: 'ui.activity_limit', money: 'ui.activity_no_money', injured: 'ui.activity_injured' };
+const ACTIVITY_BLOCKER_KEYS = {
+  limit: 'ui.activity_limit',
+  money: 'ui.activity_no_money',
+  injured: 'ui.activity_injured',
+  notEnrolled: 'ui.activity_notEnrolled',
+};
+
+// Why asking for an enrollment did nothing (enrollPlayer).
+const ENROLLMENT_REASON_KEYS = { asked: 'ui.enroll_asked', noParent: 'ui.enroll_no_parent' };
+
+function enrollmentResultText(state, result, locale, sexes) {
+  if (result.enrollmentEntry) return enrollmentLine(state, locale, result.enrollmentEntry);
+  if (result.reason === 'money') return locale.t(result.parentAsked ? 'ui.enroll_parents_no_money' : 'ui.enroll_no_money');
+  return locale.format(ENROLLMENT_REASON_KEYS[result.reason], {}, sexes);
+}
 
 function activityResultText(state, result, locale, sexes) {
+  if ('enrollmentEntry' in result) return enrollmentResultText(state, result, locale, sexes);
   if (!result.attempted) return locale.format(ACTIVITY_BLOCKER_KEYS[result.reason], {}, sexes);
   // Events with options open the decision pop-up; the rest are told here.
   const eventTexts = result.triggeredEvents
@@ -394,7 +411,7 @@ function trainingDetails({ id, skill, levelId, stripes, techniques, usesLeft }, 
   const name = locale.t(`level.${id}.${levelId}`);
   const level = stripes > 0 ? locale.plural('ui.training_stripes', stripes, { level: name }) : name;
   const nodes = [
-    meter(level.charAt(0).toLocaleUpperCase(locale.language) + level.slice(1), skill),
+    meter(level.charAt(0).toLocaleUpperCase(locale.language) + level.slice(1), skill, 'skill'),
     el('span', { className: 'detail', text: locale.plural('ui.training_uses_left', usesLeft) }),
   ];
   if (techniques.length > 0) {
@@ -406,7 +423,34 @@ function trainingDetails({ id, skill, levelId, stripes, techniques, usesLeft }, 
 
 // Design doc: lists with title and a one-line description. Activities the
 // player can't do right now stay visible, disabled, with the reason.
-export function renderActivities(dom, state, locale, { onDoActivity }) {
+// Enrollment line inside the row, and the buttons to ask or leave under it.
+function enrollmentDetail({ enrollment }, state, locale) {
+  const amount = locale.money(enrollment.fee, state.country.currency.code, state.country.currency.display);
+  if (enrollment.enrolled) return locale.format(`ui.enrolled_${enrollment.paidBy}`, { amount }, sexesOf(state));
+  return locale.format('ui.enroll_fee', { amount });
+}
+
+function enrollmentButtons({ id, enrollment }, state, locale, { onEnroll, onLeave }) {
+  const submenu = el('div', { className: 'submenu' });
+  const busy = state.pendingDecisions.length > 0;
+  const add = (key, onClick, disabled = false) => {
+    const button = el('button', { text: locale.format(key, {}, sexesOf(state)) });
+    button.type = 'button';
+    button.disabled = busy || disabled;
+    button.addEventListener('click', onClick);
+    submenu.appendChild(button);
+  };
+  if (enrollment.enrolled) {
+    add('ui.enroll_leave', () => onLeave(id));
+  } else {
+    for (const payer of enrollment.payerOptions) {
+      add(payer === 'parents' ? 'ui.enroll_ask_parents' : 'ui.enroll_self', () => onEnroll(id, payer), enrollment.askedThisPeriod);
+    }
+  }
+  return submenu;
+}
+
+export function renderActivities(dom, state, locale, { onDoActivity, onEnroll, onLeave }) {
   dom.activitiesTitle.textContent = locale.t('ui.activities_title');
   dom.activitiesResult.textContent = state.lastActivityResult ? activityResultText(state, state.lastActivityResult, locale, sexesOf(state)) : '';
 
@@ -424,9 +468,11 @@ export function renderActivities(dom, state, locale, { onDoActivity }) {
         el('strong', { text: locale.t(`activity.${id}.title`) }),
         el('span', { className: 'detail', text: blocker ? locale.format(ACTIVITY_BLOCKER_KEYS[blocker], {}, sexesOf(state)) : locale.t(`activity.${id}.description`) }),
       );
-      if (item.levelId) button.append(...trainingDetails(item, locale));
+      if (item.enrollment) button.append(el('span', { className: 'detail', text: enrollmentDetail(item, state, locale) }));
+      if (item.levelId && blocker !== 'notEnrolled') button.append(...trainingDetails(item, locale));
       button.addEventListener('click', () => onDoActivity(id));
       section.appendChild(button);
+      if (item.enrollment) section.appendChild(enrollmentButtons(item, state, locale, { onEnroll, onLeave }));
     }
     dom.activitiesList.appendChild(section);
   }

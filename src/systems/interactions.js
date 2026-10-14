@@ -3,6 +3,7 @@
 
 import { evaluateConditions } from '../engine/conditions.js';
 import { applyEffects } from '../engine/effects.js';
+import { resolveAmount, WEALTH_REFERENCE_IN_LARGE } from './money.js';
 
 export function indexInteractions(interactions) {
   return Object.fromEntries(interactions.map((interaction) => [interaction.id, interaction]));
@@ -29,7 +30,10 @@ function parentsOf(playerId, relationshipsById, peopleById) {
     .filter(Boolean);
 }
 
-export function resolveChance(chance, { relationship, targetPersonId, target, player, relationshipsById, peopleById, playerId, country }) {
+export function resolveChance(
+  chance,
+  { relationship, targetPersonId, target, player, relationshipsById, peopleById, playerId, country, parentPays = false },
+) {
   let p = chance.base;
 
   for (const modifier of chance.modifiers) {
@@ -73,6 +77,17 @@ export function resolveChance(chance, { relationship, targetPersonId, target, pl
         if (value !== null) p += ((value - 50) / 100) * modifier.weight;
         break;
       }
+      // Richer than average (the allowance's reference) says yes more
+      // often, poorer less: -1..+1 × weight.
+      case 'targetWealth': {
+        const wealth = target.money / (resolveAmount('large', country) * WEALTH_REFERENCE_IN_LARGE);
+        p += (Math.min(2, wealth) - 1) * modifier.weight;
+        break;
+      }
+      // Requests where the parents would pay (enrollment.js).
+      case 'parentPays':
+        if (parentPays) p += modifier.adjust;
+        break;
       default:
         throw new Error(`Unknown chance factor: ${modifier.factor}`);
     }

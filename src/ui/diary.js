@@ -75,7 +75,7 @@ function babyBornLine(state, locale, month) {
 function moneyLine(entry, state, locale) {
   const amount = locale.money(Math.abs(entry.amount), state.country.currency.code, state.country.currency.display);
   if (entry.amount > 0) return locale.format('diary.money.gain', { amount });
-  const spent = entry.source === 'activity' || entry.source === 'asset';
+  const spent = entry.source === 'activity' || entry.source === 'asset' || entry.source === 'enrollment';
   return locale.format(spent ? 'diary.money.spent' : 'diary.money.lost', { amount });
 }
 
@@ -101,6 +101,25 @@ export function trainingEventLine(locale, entry, sex) {
       return locale.format('diary.stripe', { activity, count: entry.stripe, level: locale.t(`level.${entry.activityId}.${entry.levelId}`) });
     case 'injury':
       return locale.format('diary.injury', { activity }, sexes);
+    default:
+      return null;
+  }
+}
+
+// Enrollment entries (enrollment.js); the Activities screen shows the same
+// line right after asking.
+export function enrollmentLine(state, locale, entry) {
+  const activity = locale.t(`activity.${entry.activityId}.title`);
+  switch (entry.type) {
+    case 'enrolled':
+      if (!entry.parentId) return locale.format('diary.enrolled.alone', { activity });
+      return locale.format(`diary.enrolled.${entry.payer}`, { activity, parent: who(state, locale, entry.parentId) });
+    case 'enrollmentRefused':
+      return locale.format('diary.enrollment_refused', { activity, parent: who(state, locale, entry.parentId) });
+    case 'enrollmentLeft':
+      return locale.format('diary.enrollment_left', { activity });
+    case 'enrollmentEnded':
+      return locale.format('diary.enrollment_ended', { activity });
     default:
       return null;
   }
@@ -152,6 +171,11 @@ function entryLine(entry, state, locale, block, index) {
       return text(`activity.${entry.activityId}.${entry.succeeded === false ? 'failed' : 'done'}`);
     case 'training':
       return trainingLine(locale, entry.activityId, entry);
+    case 'enrolled':
+    case 'enrollmentRefused':
+    case 'enrollmentLeft':
+    case 'enrollmentEnded':
+      return enrollmentLine(state, locale, entry);
     case 'levelUp':
     case 'examFailed':
     case 'stripe':

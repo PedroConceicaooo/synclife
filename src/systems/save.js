@@ -23,6 +23,7 @@ export function toSave(state) {
     history: state.history,
     pendingDecisions: state.pendingDecisions,
     activityUsesThisPeriod: state.activityUsesThisPeriod,
+    enrollmentAskedThisPeriod: state.enrollmentAskedThisPeriod,
     remainingMonths: state.remainingMonths,
   };
 }
@@ -49,6 +50,7 @@ export function fromSave(rawSave, { countriesById, eventsById, interactionsById,
     pendingDecisions: save.pendingDecisions,
     firedEvents: save.firedEvents,
     activityUsesThisPeriod: save.activityUsesThisPeriod,
+    enrollmentAskedThisPeriod: save.enrollmentAskedThisPeriod ?? {},
     remainingMonths: save.remainingMonths ?? 0,
     pastLives: save.pastLives,
     history: save.history,

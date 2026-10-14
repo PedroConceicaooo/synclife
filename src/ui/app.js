@@ -6,6 +6,8 @@ import {
   resolveDecision,
   attemptPlayerInteraction,
   attemptPlayerActivity,
+  enrollPlayer,
+  leavePlayerEnrollment,
   continueAdvance,
   playableCountries,
   buyPlayerAsset,
@@ -241,6 +243,8 @@ async function main() {
     } else if (view.screen === 'activities') {
       renderActivities(dom, state, locale, {
         onDoActivity: (activityId) => update(attemptPlayerActivity(state, activityId)),
+        onEnroll: (activityId, payer) => update(enrollPlayer(state, activityId, payer)),
+        onLeave: (activityId) => update(leavePlayerEnrollment(state, activityId)),
       });
     } else {
       renderProfile(dom, state, locale, view.personId, view.category, {
