@@ -29,6 +29,8 @@ export function calendarEventsAt(eventsById, point) {
 }
 
 // The first point that asks the player something: the advance stops there.
-export function firstDecisionPoint(eventsById, points) {
-  return points.find((point) => calendarEventsAt(eventsById, point).some((event) => event.options)) ?? null;
+// applies(event, point) tells whether the event's conditions hold then, so
+// an event that won't happen doesn't cut the advance short.
+export function firstDecisionPoint(eventsById, points, applies = () => true) {
+  return points.find((point) => calendarEventsAt(eventsById, point).some((event) => event.options && applies(event, point))) ?? null;
 }

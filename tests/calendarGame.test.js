@@ -116,3 +116,24 @@ test('school events and school jobs never happen before the child starts school'
     }
   }
 });
+
+test('a dated decision whose conditions fail does not cut the advance short', () => {
+  const state = newLifeIn('BR');
+  const yearly = (conditions) => ({
+    id: 'yearly_question',
+    subject: 'player',
+    calendar: { on: 'schoolYearStart' },
+    conditions,
+    options: [{ id: 'yes', effects: [] }],
+  });
+  const atSchool = { ...state, currentMonthIndex: schoolEntryMonth(state.player.birth, state.country.education) + 1 };
+
+  const never = advanceStep({ ...atSchool, eventsById: { yearly_question: yearly({ minAge: 99 }) } }, 12);
+  assert.equal(never.currentMonthIndex, atSchool.currentMonthIndex + 12);
+  assert.equal(never.remainingMonths, 0);
+  assert.deepEqual(never.pendingDecisions, []);
+
+  const always = advanceStep({ ...atSchool, eventsById: { yearly_question: yearly({ minAge: 0 }) } }, 12);
+  assert.ok(always.currentMonthIndex < atSchool.currentMonthIndex + 12);
+  assert.deepEqual(always.pendingDecisions.map((d) => d.trigger), ['yearly_question']);
+});

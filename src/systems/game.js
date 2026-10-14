@@ -223,9 +223,16 @@ export function advanceStep(state, requestedMonths) {
   const untilAdult = monthsUntilAdulthood(state);
   let months = untilAdult > 0 ? Math.min(requestedMonths, untilAdult) : requestedMonths;
   const education = state.country.education;
+  const applies = (event, point) =>
+    evaluateConditions(event.conditions, state.people[state.player.id], {
+      currentMonthIndex: point.month,
+      country: state.country,
+      relationshipsById: state.relationships,
+    });
   const stop = firstDecisionPoint(
     state.eventsById,
     calendarPoints(state.player.birth, state.currentMonthIndex, state.currentMonthIndex + months, education),
+    applies,
   );
   if (stop) months = stop.month - state.currentMonthIndex;
   const reachesAdulthood = untilAdult > 0 && months >= untilAdult;
