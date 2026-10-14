@@ -15,6 +15,7 @@ import { resolveChance } from './interactions.js';
 import { trainSkill, techniquesLearned, isInjured } from './training.js';
 import { isEnrolled, payerOptions, monthlyFee } from './enrollment.js';
 import { competitionBlocker, competitionTier, medalCounts } from './competitions.js';
+import { isOnAnyTeam } from './teams.js';
 
 export function indexActivities(activities) {
   return Object.fromEntries(activities.map((activity) => [activity.id, activity]));
@@ -37,7 +38,7 @@ function cost(activity, country) {
 // Why an activity can't be done right now, or null if it can.
 export function activityBlocker(activity, { player, country, currentMonthIndex, usesThisPeriod = 0 }) {
   if (!evaluateConditions(activity.conditions, player, { currentMonthIndex, country })) return 'conditions';
-  if (activity.enrollment && !isEnrolled(player, activity.id)) return 'notEnrolled';
+  if (activity.enrollment && !isEnrolled(player, activity.id) && !isOnAnyTeam(player, activity.id)) return 'notEnrolled';
   if (activity.training?.aptitude === 'physical' && isInjured(player, currentMonthIndex)) return 'injured';
   if (usesThisPeriod >= usesPerPeriod(activity)) return 'limit';
   if (player.money < cost(activity, country)) return 'money';
@@ -62,7 +63,9 @@ function enrollmentStatus(activity, player, { country, currentMonthIndex }) {
   const fee = monthlyFee(activity, country);
   const enrolled = player.enrollments?.[activity.id];
   if (enrolled) return { enrolled: true, fee, paidBy: enrolled.payerId === player.id ? 'self' : 'parents' };
-  return { enrolled: false, fee, payerOptions: payerOptions(activity, player, currentMonthIndex) };
+  // On a team: trains with it, no class needed (the class stays possible).
+  const onTeam = isOnAnyTeam(player, activity.id) ? { trainsWithTeam: true } : {};
+  return { enrolled: false, fee, payerOptions: payerOptions(activity, player, currentMonthIndex), ...onTeam };
 }
 
 // Whether the player can sign up now, for which tier, and the medals won.

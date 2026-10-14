@@ -34,6 +34,12 @@ export function isOnTeam(person, activityId, key) {
   return (person.teams ?? []).some((team) => team.activityId === activityId && team.teamKey === key);
 }
 
+// On any team of this sport: its training comes with the team, free
+// (docs/atividades.md 7.5: the club charges no fee for team training).
+export function isOnAnyTeam(person, activityId) {
+  return (person.teams ?? []).some((team) => team.activityId === activityId);
+}
+
 // Why this person can't try out now, or null (tryoutBlocker, plus being on
 // that team already).
 export function teamTryoutBlocker(activity, target, { person, monthIndex, country }) {

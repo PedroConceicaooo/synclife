@@ -13,6 +13,7 @@ import {
   KEEP_MARGIN,
 } from '../src/systems/teams.js';
 import { loadActivities } from '../src/systems/activitiesLoader.js';
+import { activityBlocker, listActivities } from '../src/systems/activities.js';
 import { loadLeagues } from '../src/systems/clubsLoader.js';
 
 const dir = (path) => fileURLToPath(new URL(`../data/${path}/`, import.meta.url));
@@ -170,4 +171,17 @@ test('runDueTryouts runs only the sign-ups whose month came, at their month', ()
   const lapsed = runDueTryouts(onTeam, 13 * 12 + 11, { ...CONTEXT, rng: passes });
   assert.deepEqual(lapsed.entries, []);
   assert.deepEqual(lapsed.person.tryoutSignups, []);
+});
+
+test('a team player trains the sport without a class fee', () => {
+  const country = { currency: { scale: { small: 10, medium: 50, large: 200 } } };
+  const kid = { ...person(), money: 0 };
+  const args = { player: kid, country, currentMonthIndex: march(12) };
+  assert.equal(activityBlocker(FOOTBALL, args), 'notEnrolled');
+
+  const onTeam = { ...kid, teams: [{ activityId: 'football', teamKey: 'school', teamLevelId: 'school', since: 0 }] };
+  assert.equal(activityBlocker(FOOTBALL, { ...args, player: onTeam }), null);
+  const listed = listActivities({ football: FOOTBALL }, { ...args, player: onTeam })[0].activities[0];
+  assert.equal(listed.enrollment.trainsWithTeam, true);
+  assert.equal(listed.blocker, null);
 });
