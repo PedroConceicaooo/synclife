@@ -125,6 +125,8 @@ const MANIFEST = {
     'buy_clothes.json',
     'gym.json',
     'bjj.json',
+    'football.json',
+    'basketball.json',
     'ballet.json',
     'boxing.json',
     'breakdance.json',
