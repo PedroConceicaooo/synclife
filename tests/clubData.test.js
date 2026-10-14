@@ -52,7 +52,12 @@ test('leagues: known kind and activity, team levels that exist, names in pt-BR',
       assert.ok(['accessible', 'demanding'].includes(league.requirement), league.id);
       assert.equal(typeof league.minScoreOffset, 'number', league.id);
     }
-    if (league.kind === 'pro') assert.ok(Number.isInteger(league.division) && league.division >= 1, league.id);
+    if (league.kind === 'pro') {
+      assert.ok(Number.isInteger(league.division) && league.division >= 1, league.id);
+      assert.ok(PLAYABLE.includes(league.countryId), `${league.id}: a pro league belongs to a country`);
+    } else {
+      assert.equal(league.countryId, undefined, `${league.id}: school and youth leagues are the same everywhere`);
+    }
     assert.ok(LOCALE[`league.${league.id}`], `league.${league.id}`);
   }
 });
@@ -68,6 +73,7 @@ test('clubs: ids and attributes only, in a real city of their country, pointing 
       const clubLevels = ACTIVITIES[activityId].teamLevels.filter((l) => l.kind === 'club').map((l) => l.id);
       assert.equal(LEAGUES[sport.proLeague]?.kind, 'pro', `${club.id}: ${sport.proLeague}`);
       assert.equal(LEAGUES[sport.proLeague].activity, activityId);
+      assert.equal(LEAGUES[sport.proLeague].countryId, club.countryId, `${club.id}: plays in its own country`);
       const youth = LEAGUES[sport.youthLeague];
       assert.equal(youth?.kind, 'youth', `${club.id}: ${sport.youthLeague}`);
       assert.equal(youth.activity, activityId);
@@ -77,6 +83,18 @@ test('clubs: ids and attributes only, in a real city of their country, pointing 
       }
       assert.equal(sport.tryoutMonths.length, 2, club.id);
       for (const month of sport.tryoutMonths) assert.ok(Number.isInteger(month) && month >= 1 && month <= 12, club.id);
+    }
+  }
+});
+
+test('every playable country has its own Série A to D in each team sport', () => {
+  for (const id of PLAYABLE) {
+    for (const activity of TEAM_SPORTS) {
+      const divisions = Object.values(LEAGUES)
+        .filter((l) => l.kind === 'pro' && l.countryId === id && l.activity === activity.id)
+        .map((l) => l.division)
+        .sort();
+      assert.deepEqual(divisions, [1, 2, 3, 4], `${id} ${activity.id}`);
     }
   }
 });

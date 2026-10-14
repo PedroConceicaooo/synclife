@@ -1,5 +1,6 @@
 {
-  "id": "football_pro_2",
+  "id": "us_football_pro_2",
+  "countryId": "US",
   "activity": "football",
   "kind": "pro",
   "division": 2

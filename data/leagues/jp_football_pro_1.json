@@ -1,5 +1,6 @@
 {
-  "id": "football_pro_1",
+  "id": "jp_football_pro_1",
+  "countryId": "JP",
   "activity": "football",
   "kind": "pro",
   "division": 1
