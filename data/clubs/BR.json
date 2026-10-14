@@ -1,0 +1,605 @@
+{
+  "countryId": "BR",
+  "clubs": [
+    {
+      "id": "cl_br_sao_paulo_1",
+      "countryId": "BR",
+      "cityId": "sao_paulo",
+      "namePattern": "aurora",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_br_sao_paulo_2",
+      "countryId": "BR",
+      "cityId": "sao_paulo",
+      "namePattern": "cometa",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_br_sao_paulo_3",
+      "countryId": "BR",
+      "cityId": "sao_paulo",
+      "namePattern": "garcas",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_3",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            10,
+            1
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_br_rio_de_janeiro_1",
+      "countryId": "BR",
+      "cityId": "rio_de_janeiro",
+      "namePattern": "maritaca",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_br_rio_de_janeiro_2",
+      "countryId": "BR",
+      "cityId": "rio_de_janeiro",
+      "namePattern": "tucanos",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_br_rio_de_janeiro_3",
+      "countryId": "BR",
+      "cityId": "rio_de_janeiro",
+      "namePattern": "aurora",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_3",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            10,
+            1
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_br_belo_horizonte_1",
+      "countryId": "BR",
+      "cityId": "belo_horizonte",
+      "namePattern": "cometa",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_br_belo_horizonte_2",
+      "countryId": "BR",
+      "cityId": "belo_horizonte",
+      "namePattern": "aurora",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            10,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_br_salvador_1",
+      "countryId": "BR",
+      "cityId": "salvador",
+      "namePattern": "aurora",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_br_salvador_2",
+      "countryId": "BR",
+      "cityId": "salvador",
+      "namePattern": "tucanos",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            10,
+            1
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_br_recife_1",
+      "countryId": "BR",
+      "cityId": "recife",
+      "namePattern": "aurora",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            10,
+            1
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_br_recife_2",
+      "countryId": "BR",
+      "cityId": "recife",
+      "namePattern": "ipe_roxo",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_3",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            10,
+            1
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_br_porto_alegre_1",
+      "countryId": "BR",
+      "cityId": "porto_alegre",
+      "namePattern": "ipe_roxo",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_br_porto_alegre_2",
+      "countryId": "BR",
+      "cityId": "porto_alegre",
+      "namePattern": "garcas",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_3",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            10,
+            1
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_br_curitiba_1",
+      "countryId": "BR",
+      "cityId": "curitiba",
+      "namePattern": "garcas",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            10,
+            1
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_br_curitiba_2",
+      "countryId": "BR",
+      "cityId": "curitiba",
+      "namePattern": "aurora",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            10,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_br_fortaleza_1",
+      "countryId": "BR",
+      "cityId": "fortaleza",
+      "namePattern": "maritaca",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            10,
+            1
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_br_fortaleza_2",
+      "countryId": "BR",
+      "cityId": "fortaleza",
+      "namePattern": "tucanos",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            11,
+            12
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,424 @@
+{
+  "countryId": "GB",
+  "clubs": [
+    {
+      "id": "cl_gb_london_1",
+      "countryId": "GB",
+      "cityId": "london",
+      "namePattern": "heron_park",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_gb_london_2",
+      "countryId": "GB",
+      "cityId": "london",
+      "namePattern": "lanterns",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_gb_london_3",
+      "countryId": "GB",
+      "cityId": "london",
+      "namePattern": "kestrels",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_gb_manchester_1",
+      "countryId": "GB",
+      "cityId": "manchester",
+      "namePattern": "ferrymen",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_gb_manchester_2",
+      "countryId": "GB",
+      "cityId": "manchester",
+      "namePattern": "skylarks",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_gb_manchester_3",
+      "countryId": "GB",
+      "cityId": "manchester",
+      "namePattern": "oakmoor",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_3",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            5,
+            8
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_gb_birmingham_1",
+      "countryId": "GB",
+      "cityId": "birmingham",
+      "namePattern": "skylarks",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_gb_birmingham_2",
+      "countryId": "GB",
+      "cityId": "birmingham",
+      "namePattern": "heron_park",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            5,
+            8
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_gb_leeds_1",
+      "countryId": "GB",
+      "cityId": "leeds",
+      "namePattern": "lanterns",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_gb_leeds_2",
+      "countryId": "GB",
+      "cityId": "leeds",
+      "namePattern": "skylarks",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_3",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            5,
+            8
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_gb_liverpool_1",
+      "countryId": "GB",
+      "cityId": "liverpool",
+      "namePattern": "lanterns",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            5,
+            8
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_gb_liverpool_2",
+      "countryId": "GB",
+      "cityId": "liverpool",
+      "namePattern": "kestrels",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            5,
+            8
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_gb_bristol_1",
+      "countryId": "GB",
+      "cityId": "bristol",
+      "namePattern": "oakmoor",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_gb_bristol_2",
+      "countryId": "GB",
+      "cityId": "bristol",
+      "namePattern": "heron_park",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    }
+  ]
+}

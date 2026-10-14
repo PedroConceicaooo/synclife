@@ -1,0 +1,8 @@
+{
+  "id": "basketball_college",
+  "activity": "basketball",
+  "kind": "college",
+  "teamLevels": [
+    "college"
+  ]
+}

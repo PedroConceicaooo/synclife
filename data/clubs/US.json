@@ -1,0 +1,563 @@
+{
+  "countryId": "US",
+  "clubs": [
+    {
+      "id": "cl_us_chicago_1",
+      "countryId": "US",
+      "cityId": "chicago",
+      "namePattern": "lanterns",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_us_chicago_2",
+      "countryId": "US",
+      "cityId": "chicago",
+      "namePattern": "ironwood",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_us_chicago_3",
+      "countryId": "US",
+      "cityId": "chicago",
+      "namePattern": "harbor_lights",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_us_new_york_1",
+      "countryId": "US",
+      "cityId": "new_york",
+      "namePattern": "otters",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_us_new_york_2",
+      "countryId": "US",
+      "cityId": "new_york",
+      "namePattern": "kestrels",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            5,
+            8
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_us_new_york_3",
+      "countryId": "US",
+      "cityId": "new_york",
+      "namePattern": "lanterns",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_us_los_angeles_1",
+      "countryId": "US",
+      "cityId": "los_angeles",
+      "namePattern": "kestrels",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_us_los_angeles_2",
+      "countryId": "US",
+      "cityId": "los_angeles",
+      "namePattern": "otters",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            5,
+            8
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_us_houston_1",
+      "countryId": "US",
+      "cityId": "houston",
+      "namePattern": "ironwood",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_us_houston_2",
+      "countryId": "US",
+      "cityId": "houston",
+      "namePattern": "harbor_lights",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_us_phoenix_1",
+      "countryId": "US",
+      "cityId": "phoenix",
+      "namePattern": "kestrels",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            5,
+            8
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_us_phoenix_2",
+      "countryId": "US",
+      "cityId": "phoenix",
+      "namePattern": "lanterns",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_3",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            5,
+            8
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_us_seattle_1",
+      "countryId": "US",
+      "cityId": "seattle",
+      "namePattern": "kestrels",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_us_seattle_2",
+      "countryId": "US",
+      "cityId": "seattle",
+      "namePattern": "junipers",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_3",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            5,
+            8
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_us_boston_1",
+      "countryId": "US",
+      "cityId": "boston",
+      "namePattern": "junipers",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_3",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            5,
+            8
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_us_boston_2",
+      "countryId": "US",
+      "cityId": "boston",
+      "namePattern": "harbor_lights",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            5,
+            8
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_us_atlanta_1",
+      "countryId": "US",
+      "cityId": "atlanta",
+      "namePattern": "otters",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            5,
+            8
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_us_atlanta_2",
+      "countryId": "US",
+      "cityId": "atlanta",
+      "namePattern": "ironwood",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    }
+  ]
+}

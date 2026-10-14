@@ -1,0 +1,452 @@
+{
+  "countryId": "RU",
+  "clubs": [
+    {
+      "id": "cl_ru_moscow_1",
+      "countryId": "RU",
+      "cityId": "moscow",
+      "namePattern": "kedr",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_ru_moscow_2",
+      "countryId": "RU",
+      "cityId": "moscow",
+      "namePattern": "sinitsa",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_ru_moscow_3",
+      "countryId": "RU",
+      "cityId": "moscow",
+      "namePattern": "yantar",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_3",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            5,
+            8
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_ru_saint_petersburg_1",
+      "countryId": "RU",
+      "cityId": "saint_petersburg",
+      "namePattern": "yantar",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_ru_saint_petersburg_2",
+      "countryId": "RU",
+      "cityId": "saint_petersburg",
+      "namePattern": "topol",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            5,
+            8
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_ru_saint_petersburg_3",
+      "countryId": "RU",
+      "cityId": "saint_petersburg",
+      "namePattern": "severyanka",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_ru_novosibirsk_1",
+      "countryId": "RU",
+      "cityId": "novosibirsk",
+      "namePattern": "severyanka",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_ru_novosibirsk_2",
+      "countryId": "RU",
+      "cityId": "novosibirsk",
+      "namePattern": "ryabina",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            5,
+            8
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_ru_yekaterinburg_1",
+      "countryId": "RU",
+      "cityId": "yekaterinburg",
+      "namePattern": "sinitsa",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_ru_yekaterinburg_2",
+      "countryId": "RU",
+      "cityId": "yekaterinburg",
+      "namePattern": "severyanka",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_ru_kazan_1",
+      "countryId": "RU",
+      "cityId": "kazan",
+      "namePattern": "ryabina",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_3",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            5,
+            8
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_ru_kazan_2",
+      "countryId": "RU",
+      "cityId": "kazan",
+      "namePattern": "topol",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_ru_nizhny_novgorod_1",
+      "countryId": "RU",
+      "cityId": "nizhny_novgorod",
+      "namePattern": "topol",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_ru_nizhny_novgorod_2",
+      "countryId": "RU",
+      "cityId": "nizhny_novgorod",
+      "namePattern": "sinitsa",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            6,
+            7
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "basketball_youth_elite",
+  "activity": "basketball",
+  "kind": "youth",
+  "teamLevels": [
+    "youth_u11",
+    "youth_u15",
+    "youth_u17",
+    "youth_u20"
+  ],
+  "requirement": "demanding",
+  "minScoreOffset": 10
+}

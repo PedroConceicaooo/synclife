@@ -1,0 +1,8 @@
+{
+  "id": "football_college",
+  "activity": "football",
+  "kind": "college",
+  "teamLevels": [
+    "college"
+  ]
+}

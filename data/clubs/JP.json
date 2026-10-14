@@ -1,0 +1,518 @@
+{
+  "countryId": "JP",
+  "clubs": [
+    {
+      "id": "cl_jp_tokyo_1",
+      "countryId": "JP",
+      "cityId": "tokyo",
+      "namePattern": "tsubame",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_jp_tokyo_2",
+      "countryId": "JP",
+      "cityId": "tokyo",
+      "namePattern": "hotaru",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_3",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            12,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_jp_tokyo_3",
+      "countryId": "JP",
+      "cityId": "tokyo",
+      "namePattern": "nagisa",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_jp_osaka_1",
+      "countryId": "JP",
+      "cityId": "osaka",
+      "namePattern": "kaede",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_jp_osaka_2",
+      "countryId": "JP",
+      "cityId": "osaka",
+      "namePattern": "momiji",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            12,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_jp_osaka_3",
+      "countryId": "JP",
+      "cityId": "osaka",
+      "namePattern": "shirakaba",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_jp_yokohama_1",
+      "countryId": "JP",
+      "cityId": "yokohama",
+      "namePattern": "kaede",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_3",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            12,
+            3
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_jp_yokohama_2",
+      "countryId": "JP",
+      "cityId": "yokohama",
+      "namePattern": "tsubame",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            12,
+            3
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_jp_nagoya_1",
+      "countryId": "JP",
+      "cityId": "nagoya",
+      "namePattern": "kaede",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_3",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            12,
+            3
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_jp_nagoya_2",
+      "countryId": "JP",
+      "cityId": "nagoya",
+      "namePattern": "momiji",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_3",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            12,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_jp_sapporo_1",
+      "countryId": "JP",
+      "cityId": "sapporo",
+      "namePattern": "shirakaba",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_jp_sapporo_2",
+      "countryId": "JP",
+      "cityId": "sapporo",
+      "namePattern": "kaede",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_3",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            12,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_jp_fukuoka_1",
+      "countryId": "JP",
+      "cityId": "fukuoka",
+      "namePattern": "shirakaba",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_4",
+          "youthLeague": "football_youth_regional",
+          "teamLevels": [
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            12,
+            3
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_2",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_jp_fukuoka_2",
+      "countryId": "JP",
+      "cityId": "fukuoka",
+      "namePattern": "momiji",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_jp_kyoto_1",
+      "countryId": "JP",
+      "cityId": "kyoto",
+      "namePattern": "kaede",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_1",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        }
+      }
+    },
+    {
+      "id": "cl_jp_kyoto_2",
+      "countryId": "JP",
+      "cityId": "kyoto",
+      "namePattern": "shirakaba",
+      "sports": {
+        "football": {
+          "proLeague": "football_pro_2",
+          "youthLeague": "football_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        },
+        "basketball": {
+          "proLeague": "basketball_pro_1",
+          "youthLeague": "basketball_youth_elite",
+          "teamLevels": [
+            "youth_u11",
+            "youth_u15",
+            "youth_u17",
+            "youth_u20"
+          ],
+          "tryoutMonths": [
+            1,
+            2
+          ]
+        }
+      }
+    }
+  ]
+}
