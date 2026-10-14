@@ -100,13 +100,6 @@
       "checkedAt": "2026-10-10",
       "verifiedAt": null,
       "reviewStatus": "ai_checked"
-    },
-    "youthStipend": {
-      "source": "Simplificação do jogo: a bolsa de formação é uma regra do jogo, igual em todos os países, inspirada na Lei 14.597/2023 do Brasil (art. 99, §3º). O país não tem lei equivalente pesquisada.",
-      "checkedUrl": null,
-      "checkedAt": null,
-      "verifiedAt": null,
-      "reviewStatus": "simplified"
     }
   },
   "topics": {

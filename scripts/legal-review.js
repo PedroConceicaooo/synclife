@@ -17,15 +17,9 @@ const FIELDS = {
   'ages.driving': 'Idade para dirigir',
   'ages.criminalResponsibility': 'Responsabilidade penal (justiça juvenil)',
   education: 'Sistema escolar',
-  youthStipend: 'Bolsa de formação (base de clube)',
 };
 
 function valueOf(country, field) {
-  if (field === 'youthStipend') {
-    const { minAge, maxAge, teamLevels } = country.youthStipend;
-    const amounts = Object.entries(teamLevels).map(([level, a]) => `${level} ${a.multiplier}× ${a.scale} (${country.currency.code} ${country.currency.scale[a.scale] * a.multiplier}/mês)`);
-    return `${minAge} a ${maxAge} anos; ${amounts.join('; ')}`;
-  }
   if (field === 'education') {
     const { schoolYearStartMonth, stages } = country.education;
     const list = stages.map((s) => `${s.id} ${s.startAge}+ (${s.years} anos${s.entranceExam ? ', exame' : ''})`).join('; ');
@@ -42,7 +36,7 @@ const lines = [
   'Situação de cada item:',
   '',
   '- `ai_checked`: o texto da lei foi lido por IA na fonte indicada (link e data abaixo). Falta só a sua confirmação.',
-  '- `simplified`: a regra real varia por estado ou região; o jogo usa um valor nacional representativo, explicado na fonte (regiões estão previstas no design para o futuro). Também marca regras do jogo sem lei equivalente no país (a bolsa de formação fora do Brasil): não há o que conferir.',
+  '- `simplified`: a regra real varia por estado ou região; o jogo usa um valor nacional representativo, explicado na fonte (regiões estão previstas no design para o futuro).',
   '- `needs_primary_check`: ⚠️ a fonte primária ainda não foi conferida; o motivo está no texto da fonte.',
   '- `Reconferir após`: o valor depende de uma decisão pendente; confira de novo depois dessa data.',
   '- `verified`: conferido por uma pessoa.',

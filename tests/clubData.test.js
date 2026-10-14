@@ -127,7 +127,7 @@ test('club-name city overrides (clubCity) only name real cities', () => {
   }
 });
 
-test('youth stipend: from 14 to 19 in the default country, a money scale per club category, a source for Brazil', () => {
+test('youth stipend: from 14 to 19 in the default country, a money scale per club category, the same everywhere', () => {
   const stipend = COUNTRIES.default.youthStipend;
   assert.equal(stipend.minAge, 14);
   assert.equal(stipend.maxAge, 19);
@@ -142,7 +142,6 @@ test('youth stipend: from 14 to 19 in the default country, a money scale per clu
     last = value;
   }
   for (const id of PLAYABLE) assert.deepEqual(resolveCountry(id, COUNTRIES).youthStipend, stipend, `${id} inherits it`);
-  assert.ok(resolveCountry('BR', COUNTRIES).legalSources.youthStipend?.source);
 });
 
 test('the browser manifest lists every club and league file', () => {

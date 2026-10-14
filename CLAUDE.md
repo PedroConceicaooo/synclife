@@ -48,6 +48,5 @@ Pendências conhecidas:
 - Ao publicar mudanças, aumentar `CACHE` em `sw.js` para os jogadores receberem a versão nova.
 - Vida adulta (18+) fora da versão 1.
 - Time da faculdade (`college`): já existe nos `teamLevels` de futebol e basquete e nas ligas `*_college`, mas sem conteúdo. Fazer junto com a vida adulta (peneira no início do ano letivo da faculdade, nota mínima ~40).
-- Bolsa de formação (`youthStipend`): é regra do jogo, igual em todos os países (decisão de 2026-10-14). Os outros 4 países estão como `simplified` (regra do jogo, sem lei equivalente). Só o Brasil cita lei (Lei 14.597/2023, art. 99, §3º), ainda `needs_primary_check` porque o texto não abriu na consulta; a idade "a partir de 14" é decisão do projeto.
 - Clubes ainda sem história simulada (posição na liga por temporada, `docs/atividades.md` 7.6).
 - `sibling_mischief` ("Seu irmão ou sua irmã quebrou a janela") não diz qual irmão: com dois ou mais, o efeito de assumir a culpa vai para um deles sem que o texto diga qual.
