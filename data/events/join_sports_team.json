@@ -4,33 +4,50 @@
   "conditions": {
     "minAge": 12,
     "maxAge": 17,
-    "inSchool": true
+    "inSchool": true,
+    "notOnTeam": [
+      {
+        "activity": "football",
+        "team": "school"
+      },
+      {
+        "activity": "basketball",
+        "team": "school"
+      }
+    ]
   },
   "yearlyChance": 0.4,
   "cooldownMonths": 24,
   "options": [
     {
-      "id": "join",
+      "id": "try_football",
       "effects": [
         {
           "op": "stat",
           "target": "player",
-          "stat": "health",
-          "delta": 4
-        },
+          "stat": "happiness",
+          "delta": 1
+        }
+      ],
+      "tryout": {
+        "activity": "football",
+        "team": "school"
+      }
+    },
+    {
+      "id": "try_basketball",
+      "effects": [
         {
           "op": "stat",
           "target": "player",
           "stat": "happiness",
-          "delta": 2
-        },
-        {
-          "op": "stat",
-          "target": "player",
-          "stat": "intelligence",
-          "delta": -1
+          "delta": 1
         }
-      ]
+      ],
+      "tryout": {
+        "activity": "basketball",
+        "team": "school"
+      }
     },
     {
       "id": "stay_home",

@@ -243,3 +243,21 @@ test('clubTryouts lists the clubs of the player country, their city first; playe
   const teams = playerTeams({ ...base, people: { ...base.people, [playerId]: player } });
   assert.deepEqual(teams.map((t) => [t.activityId, t.onSchoolTeam, t.teams.length]).sort(), [['basketball', false, 0], ['football', true, 1]]);
 });
+
+test('the school team tests event runs a real tryout, and says so when this year\'s was already done', () => {
+  const base = newLifeIn('BR');
+  const playerId = base.player.id;
+  const month = schoolEntryMonth(base.player.birth, base.country.education) + 7 * 12 + 3; // mid school year, about 13
+  const state = { ...base, currentMonthIndex: month, pendingDecisions: [{ trigger: 'join_sports_team', firingRelationship: null }], rng: { ...base.rng, chance: () => true } };
+
+  const tried = resolveDecision(state, 'try_basketball');
+  const tryout = tried.history.at(-1).entries.find((e) => e.type === 'tryout');
+  assert.equal(tryout.activityId, 'basketball');
+  assert.ok(tried.people[playerId].teams.some((t) => t.activityId === 'basketball' && t.teamKey === 'school'));
+
+  const season = Math.floor((month - (base.country.education.schoolYearStartMonth - 1)) / 12);
+  const alreadyTried = { ...state, people: { ...state.people, [playerId]: { ...state.people[playerId], tryouts: [{ activityId: 'football', teamKey: 'school', season }] } } };
+  const blocked = resolveDecision(alreadyTried, 'try_football');
+  const entry = blocked.history.at(-1).entries.find((e) => e.type === 'tryoutBlocked');
+  assert.deepEqual(entry, { type: 'tryoutBlocked', activityId: 'football', reason: 'alreadyTried' });
+});

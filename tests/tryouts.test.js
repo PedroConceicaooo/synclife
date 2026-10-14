@@ -19,7 +19,7 @@ import { loadActivities } from '../src/systems/activitiesLoader.js';
 import { loadLeagues } from '../src/systems/clubsLoader.js';
 import { createRng } from '../src/engine/random.js';
 import { createLocale } from '../src/i18n/locale.js';
-import { tryoutLine, clubName, teamSeasonLine, tryoutSignupLine } from '../src/ui/diary.js';
+import { tryoutLine, clubName, teamSeasonLine, tryoutSignupLine, teamEntryLine } from '../src/ui/diary.js';
 
 const dir = (path) => fileURLToPath(new URL(`../data/${path}/`, import.meta.url));
 const FOOTBALL = loadActivities(dir('activities')).football;
@@ -181,4 +181,10 @@ test('the diary tells a club sign-up with the tryout month', () => {
     tryoutSignupLine(LOCALE, entry, CLUB, 'minha mãe'),
     'Futebol: minha mãe deixou, e me inscrevi na peneira do sub-15 do Tucanos de Recife, em outubro.',
   );
+});
+
+test('the diary says when a school tryout had already been done this school year', () => {
+  const entry = { type: 'tryoutBlocked', activityId: 'football', reason: 'alreadyTried' };
+  assert.equal(teamEntryLine({}, LOCALE, entry), 'Futebol: já fiz a peneira do time da escola neste ano letivo.');
+  assert.equal(teamEntryLine({}, LOCALE, { ...entry, reason: 'age' }), null);
 });

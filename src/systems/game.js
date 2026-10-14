@@ -438,6 +438,7 @@ export function resolveDecision(state, optionId) {
     });
     people = { ...people, [state.player.id]: tried.person };
     if (tried.entry) tryoutEntries.push(tried.entry);
+    else tryoutEntries.push({ type: 'tryoutBlocked', activityId: option.tryout.activity, reason: tried.blocker });
   }
   // A scout's invitation accepted: the parents of a minor have the last word.
   let relationships = result.relationshipsById;

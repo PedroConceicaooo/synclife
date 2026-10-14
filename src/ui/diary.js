@@ -206,6 +206,11 @@ export function teamEntryLine(state, locale, entry) {
       });
     case 'teamSeason':
       return teamSeasonLine(locale, entry, entry.clubId ? state.clubsById[entry.clubId] : null, state.player.sex);
+    // A school tryout chosen in an event that its rules didn't allow.
+    case 'tryoutBlocked': {
+      const key = `diary.tryout_blocked.${entry.reason}`;
+      return locale.has(key) ? locale.format(key, { activity: locale.t(`activity.${entry.activityId}.title`) }) : null;
+    }
     default:
       return null;
   }
@@ -277,6 +282,7 @@ function entryLine(entry, state, locale, block, index) {
     case 'scoutRefused':
     case 'tryoutRefused':
     case 'teamSeason':
+    case 'tryoutBlocked':
       return teamEntryLine(state, locale, entry);
     case 'interaction':
       return locale.format('diary.interaction', {

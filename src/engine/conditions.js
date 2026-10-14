@@ -64,9 +64,10 @@ function evaluateCondition(key, expected, target, context) {
     // Has trained this activity at least once (has a skill in it).
     case 'trainsActivity':
       return Boolean(target.skills?.[expected]);
-    // Not on that team yet: { "activity": "football", "team": "school" }.
+    // Not on that team yet: { "activity": "football", "team": "school" },
+    // or a list of them (on none of those teams).
     case 'notOnTeam':
-      return !isOnTeam(target, expected.activity, expected.team);
+      return [].concat(expected).every((team) => !isOnTeam(target, team.activity, team.team));
     // Not on any club's team of this sport ("football").
     case 'notOnClubTeam':
       return !isOnClubTeam(target, expected);

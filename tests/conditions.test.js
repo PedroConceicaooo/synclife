@@ -74,3 +74,10 @@ test('trainsActivity and notOnTeam look at the person\'s skills and teams', () =
   assert.equal(evaluateConditions({ notOnTeam: { activity: 'basketball', team: 'school' } }, person), true);
   assert.equal(evaluateConditions({ notOnTeam: { activity: 'football', team: 'school' } }, {}), true);
 });
+
+test('notOnTeam takes a list: on none of those teams', () => {
+  const both = [{ activity: 'football', team: 'school' }, { activity: 'basketball', team: 'school' }];
+  assert.equal(evaluateConditions({ notOnTeam: both }, {}), true);
+  const onOne = { teams: [{ activityId: 'basketball', teamKey: 'school' }] };
+  assert.equal(evaluateConditions({ notOnTeam: both }, onOne), false);
+});
