@@ -102,6 +102,13 @@ test('every club name pattern has a pt-BR text with the city in it', () => {
   }
 });
 
+test('club-name city overrides (clubCity) only name real cities', () => {
+  const cities = PLAYABLE.flatMap((id) => resolveCountry(id, COUNTRIES).cities);
+  for (const key of Object.keys(LOCALE).filter((k) => k.startsWith('clubCity.'))) {
+    assert.ok(cities.includes(key.slice('clubCity.'.length)), key);
+  }
+});
+
 test('youth stipend: from 14 to 19 in the default country, a money scale per club category, a source for Brazil', () => {
   const stipend = COUNTRIES.default.youthStipend;
   assert.equal(stipend.minAge, 14);

@@ -63,7 +63,7 @@
       "id": "cl_ru_moscow_3",
       "countryId": "RU",
       "cityId": "moscow",
-      "namePattern": "yantar",
+      "namePattern": "veresk",
       "sports": {
         "football": {
           "proLeague": "football_pro_3",
@@ -99,7 +99,7 @@
       "id": "cl_ru_saint_petersburg_1",
       "countryId": "RU",
       "cityId": "saint_petersburg",
-      "namePattern": "yantar",
+      "namePattern": "veresk",
       "sports": {
         "football": {
           "proLeague": "football_pro_2",
@@ -171,7 +171,7 @@
       "id": "cl_ru_saint_petersburg_3",
       "countryId": "RU",
       "cityId": "saint_petersburg",
-      "namePattern": "severyanka",
+      "namePattern": "klyukva",
       "sports": {
         "football": {
           "proLeague": "football_pro_1",
@@ -207,7 +207,7 @@
       "id": "cl_ru_novosibirsk_1",
       "countryId": "RU",
       "cityId": "novosibirsk",
-      "namePattern": "severyanka",
+      "namePattern": "klyukva",
       "sports": {
         "football": {
           "proLeague": "football_pro_1",
@@ -315,7 +315,7 @@
       "id": "cl_ru_yekaterinburg_2",
       "countryId": "RU",
       "cityId": "yekaterinburg",
-      "namePattern": "severyanka",
+      "namePattern": "klyukva",
       "sports": {
         "football": {
           "proLeague": "football_pro_1",

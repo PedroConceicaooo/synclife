@@ -5,7 +5,7 @@
       "id": "cl_jp_tokyo_1",
       "countryId": "JP",
       "cityId": "tokyo",
-      "namePattern": "tsubame",
+      "namePattern": "hibari",
       "sports": {
         "football": {
           "proLeague": "football_pro_2",
@@ -226,7 +226,7 @@
       "id": "cl_jp_yokohama_2",
       "countryId": "JP",
       "cityId": "yokohama",
-      "namePattern": "tsubame",
+      "namePattern": "hibari",
       "sports": {
         "football": {
           "proLeague": "football_pro_4",
