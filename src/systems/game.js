@@ -32,6 +32,7 @@ import { decayAllSkills } from './training.js';
 import { requestEnrollment, leaveEnrollment, chargeEnrollments } from './enrollment.js';
 import { compete, competitionBlocker } from './competitions.js';
 import { tryOut, endSeason, signUpForTryout, runDueTryouts } from './teams.js';
+import { payStipends } from './stipend.js';
 
 const START_YEAR = 2000;
 export const ADULT_AGE = 18;
@@ -193,11 +194,17 @@ function processCalendar(state, points, { people, relationships }) {
   const pendingDecisions = [];
   let peopleNow = people;
   let relationshipsNow = relationships;
+  // Youth stipends are paid up to each season review with the teams held
+  // until then; advanceStep pays what is left after it.
+  let stipendsPaidUntil = state.currentMonthIndex;
 
   for (const point of points) {
     // The school year is the teams' season (teams.js).
     if (point.on === 'schoolYearEnd') {
-      const season = endSeason(peopleNow[state.player.id], {
+      const paid = payStipends(peopleNow[state.player.id], stipendsPaidUntil, point.month, state.country);
+      entries.push(...paid.entries);
+      stipendsPaidUntil = point.month;
+      const season = endSeason(paid.person, {
         activitiesById: state.activitiesById,
         clubsById: state.clubsById ?? {},
         leaguesById: state.leaguesById ?? {},
@@ -239,7 +246,7 @@ function processCalendar(state, points, { people, relationships }) {
       else entries.push({ type: 'event', eventId: event.id, ...(result.succeeded === null ? {} : { succeeded: result.succeeded }) });
     }
   }
-  return { people: peopleNow, relationships: relationshipsNow, entries, fired, pendingDecisions };
+  return { people: peopleNow, relationships: relationshipsNow, entries, fired, pendingDecisions, stipendsPaidUntil };
 }
 
 // An advance stops at the 18th birthday and at a dated decision (design
@@ -305,6 +312,10 @@ export function advanceStep(state, requestedMonths) {
   });
   people = { ...people, [playerId]: tryouts.person };
   entries.push(...tryouts.entries);
+
+  const stipends = payStipends(people[playerId], calendar.stipendsPaidUntil, nextMonthIndex, state.country);
+  people = { ...people, [playerId]: stipends.person };
+  entries.push(...stipends.entries);
 
   const playerEvents = processPlayerEvents(state.eventsById, {
     player: people[playerId],

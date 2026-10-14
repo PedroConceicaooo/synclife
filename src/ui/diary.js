@@ -246,6 +246,10 @@ function entryLine(entry, state, locale, block, index) {
         result: text(`interaction.${entry.interactionId}.${entry.succeeded ? 'success' : 'failure'}`),
       });
     case 'money':
+      if (entry.source === 'stipend') {
+        const amount = locale.money(entry.amount, state.country.currency.code, state.country.currency.display);
+        return locale.format('diary.stipend', { club: clubName(locale, state.clubsById[entry.clubId]), amount });
+      }
       return entry.source === 'allowance' ? null : moneyLine(entry, state, locale);
     default:
       return null; // birth (intro), stat and allowance are summarized per block

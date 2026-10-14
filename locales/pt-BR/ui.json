@@ -787,6 +787,7 @@
   "diary.money.gain": "Ganhei {amount}.",
   "diary.money.spent": "Gastei {amount}.",
   "diary.money.lost": "Perdi {amount}.",
+  "diary.stipend": "Bolsa do {club}: {amount}.",
   "diary.new_baby": "Nasceu {baby|meu irmão|minha irmã} {name}.",
   "diary.who.mother": "minha mãe",
   "diary.who.father": "meu pai",
