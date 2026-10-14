@@ -378,6 +378,7 @@ const ACTIVITY_BLOCKER_KEYS = {
   money: 'ui.activity_no_money',
   injured: 'ui.activity_injured',
   notEnrolled: 'ui.activity_notEnrolled',
+  competed: 'ui.activity_competed',
 };
 
 // Why asking for an enrollment did nothing (enrollPlayer).
@@ -389,7 +390,20 @@ function enrollmentResultText(state, result, locale, sexes) {
   return locale.format(ENROLLMENT_REASON_KEYS[result.reason], {}, sexes);
 }
 
+// A competition's lines: the result, an injury, the prize.
+function competitionResultText(state, result, locale) {
+  const { code, display } = state.country.currency;
+  return result.competitionEntries
+    .map((entry) =>
+      entry.type === 'money'
+        ? locale.format('diary.money.gain', { amount: locale.money(entry.amount, code, display) })
+        : trainingEventLine(locale, entry, state.player.sex),
+    )
+    .join(' ');
+}
+
 function activityResultText(state, result, locale, sexes) {
+  if (result.competitionEntries) return competitionResultText(state, result, locale);
   if ('enrollmentEntry' in result) return enrollmentResultText(state, result, locale, sexes);
   if (!result.attempted) return locale.format(ACTIVITY_BLOCKER_KEYS[result.reason], {}, sexes);
   // Events with options open the decision pop-up; the rest are told here.
@@ -407,7 +421,13 @@ function activityResultText(state, result, locale, sexes) {
 
 // Skills (training.js): level and skill bar, sessions left in the period
 // and the techniques learned so far.
-function trainingDetails({ id, skill, levelId, stripes, techniques, usesLeft }, locale) {
+// The trophy shelf of one activity: "Medalhas: 2 ouros e 1 bronze".
+function medalsLine(medals, locale) {
+  const parts = ['gold', 'silver', 'bronze'].filter((place) => medals[place] > 0).map((place) => locale.plural(`ui.medal.${place}`, medals[place]));
+  return parts.length > 0 ? locale.format('ui.medals', { list: locale.list(parts) }) : null;
+}
+
+function trainingDetails({ id, skill, levelId, stripes, techniques, usesLeft, competition }, locale) {
   const name = locale.t(`level.${id}.${levelId}`);
   const level = stripes > 0 ? locale.plural('ui.training_stripes', stripes, { level: name }) : name;
   const nodes = [
@@ -418,6 +438,8 @@ function trainingDetails({ id, skill, levelId, stripes, techniques, usesLeft }, 
     const list = locale.list(techniques.map((t) => locale.t(`technique.${id}.${t}`)));
     nodes.push(el('span', { className: 'detail', text: locale.format('ui.training_techniques', { list }) }));
   }
+  const medals = competition && medalsLine(competition.medals, locale);
+  if (medals) nodes.push(el('span', { className: 'detail', text: medals }));
   return nodes;
 }
 
@@ -430,7 +452,7 @@ function enrollmentDetail({ enrollment }, state, locale) {
   return locale.format('ui.enroll_fee', { amount });
 }
 
-function enrollmentButtons({ id, enrollment }, state, locale, { onEnroll, onLeave }) {
+function enrollmentButtons({ id, enrollment, competition }, state, locale, { onEnroll, onLeave, onCompete }) {
   const submenu = el('div', { className: 'submenu' });
   const busy = state.pendingDecisions.length > 0;
   const add = (key, onClick, disabled = false) => {
@@ -441,6 +463,15 @@ function enrollmentButtons({ id, enrollment }, state, locale, { onEnroll, onLeav
     submenu.appendChild(button);
   };
   if (enrollment.enrolled) {
+    // The tier the skill allows; disabled after competing or while injured.
+    if (competition && competition.blocker !== 'none') {
+      const tier = locale.t(`competitionTier.${competition.tier}`);
+      const button = el('button', { text: locale.format('ui.compete', { tier }) });
+      button.type = 'button';
+      button.disabled = busy || competition.blocker !== null;
+      button.addEventListener('click', () => onCompete(id));
+      submenu.appendChild(button);
+    }
     add('ui.enroll_leave', () => onLeave(id));
   } else {
     for (const payer of enrollment.payerOptions) {
@@ -450,7 +481,7 @@ function enrollmentButtons({ id, enrollment }, state, locale, { onEnroll, onLeav
   return submenu;
 }
 
-function activityRow(item, state, locale, { onDoActivity, onEnroll, onLeave }) {
+function activityRow(item, state, locale, { onDoActivity, onEnroll, onLeave, onCompete }) {
   const { id, blocker } = item;
   const nodes = [];
   const button = el('button', { className: 'row activity' });
@@ -464,7 +495,7 @@ function activityRow(item, state, locale, { onDoActivity, onEnroll, onLeave }) {
   if (item.levelId && blocker !== 'notEnrolled') button.append(...trainingDetails(item, locale));
   button.addEventListener('click', () => onDoActivity(id));
   nodes.push(button);
-  if (item.enrollment) nodes.push(enrollmentButtons(item, state, locale, { onEnroll, onLeave }));
+  if (item.enrollment) nodes.push(enrollmentButtons(item, state, locale, { onEnroll, onLeave, onCompete }));
   return nodes;
 }
 
@@ -485,10 +516,10 @@ function groupRow(group, items, open, locale, onToggleGroup) {
 
 // Design doc: lists with title and a one-line description. Activities the
 // player can't do right now stay visible, disabled, with the reason.
-export function renderActivities(dom, state, locale, { onDoActivity, onEnroll, onLeave, onToggleGroup, openGroup = null }) {
+export function renderActivities(dom, state, locale, { onDoActivity, onEnroll, onLeave, onCompete, onToggleGroup, openGroup = null }) {
   dom.activitiesTitle.textContent = locale.t('ui.activities_title');
   dom.activitiesResult.textContent = state.lastActivityResult ? activityResultText(state, state.lastActivityResult, locale, sexesOf(state)) : '';
-  const callbacks = { onDoActivity, onEnroll, onLeave };
+  const callbacks = { onDoActivity, onEnroll, onLeave, onCompete };
 
   clearChildren(dom.activitiesList);
   for (const group of availableActivities(state)) {

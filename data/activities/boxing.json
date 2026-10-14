@@ -103,6 +103,7 @@
       "slip"
     ]
   },
+  "competitions": true,
   "effects": [
     {
       "op": "stat",

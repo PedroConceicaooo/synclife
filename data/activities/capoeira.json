@@ -157,6 +157,7 @@
       "queixada"
     ]
   },
+  "competitions": true,
   "effects": [
     {
       "op": "stat",

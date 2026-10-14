@@ -106,6 +106,8 @@ export function trainingEventLine(locale, entry, sex) {
       return locale.format('diary.stripe', { activity, count: entry.stripe, level: locale.t(`level.${entry.activityId}.${entry.levelId}`) });
     case 'injury':
       return locale.format('diary.injury', { activity }, sexes);
+    case 'competition':
+      return locale.format(`diary.competition.${entry.place}`, { activity, tier: locale.t(`competitionTier.${entry.tier}`) }, sexes);
     default:
       return null;
   }
@@ -185,6 +187,7 @@ function entryLine(entry, state, locale, block, index) {
     case 'examFailed':
     case 'stripe':
     case 'injury':
+    case 'competition':
       return trainingEventLine(locale, entry, state.player.sex);
     case 'interaction':
       return locale.format('diary.interaction', {
@@ -219,6 +222,7 @@ function entryKind(entry) {
   if (entry.type === 'event' && entry.optionId) return 'choice';
   if (entry.type === 'money') return 'money';
   if (entry.type === 'levelUp') return 'choice';
+  if (entry.type === 'competition' && entry.place !== 'out') return 'choice';
   return 'text';
 }
 

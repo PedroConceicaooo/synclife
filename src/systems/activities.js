@@ -14,6 +14,7 @@ import { addMoney, resolveAmount } from './money.js';
 import { resolveChance } from './interactions.js';
 import { trainSkill, techniquesLearned, isInjured } from './training.js';
 import { isEnrolled, payerOptions, monthlyFee } from './enrollment.js';
+import { competitionBlocker, competitionTier, medalCounts } from './competitions.js';
 
 export function indexActivities(activities) {
   return Object.fromEntries(activities.map((activity) => [activity.id, activity]));
@@ -64,10 +65,17 @@ function enrollmentStatus(activity, player, { country, currentMonthIndex }) {
   return { enrolled: false, fee, payerOptions: payerOptions(activity, player, currentMonthIndex) };
 }
 
+// Whether the player can sign up now, for which tier, and the medals won.
+function competitionStatus(activity, player, currentMonthIndex, competed) {
+  const blocker = competitionBlocker(activity, player, currentMonthIndex, competed);
+  const skill = player.skills?.[activity.id]?.skill ?? 0;
+  return { blocker, tier: competitionTier(skill).id, medals: medalCounts(player, activity.id) };
+}
+
 // Activities the player is old enough for, grouped by category in display
 // order. Ones blocked only by the limit or by money stay listed (with their
 // blocker) so the UI can show them disabled instead of making them vanish.
-export function listActivities(activitiesById, { player, country, currentMonthIndex, usesById = {} }) {
+export function listActivities(activitiesById, { player, country, currentMonthIndex, usesById = {}, competedById = {} }) {
   const visible = Object.values(activitiesById)
     .map((activity) => ({
       id: activity.id,
@@ -77,6 +85,7 @@ export function listActivities(activitiesById, { player, country, currentMonthIn
       blocker: activityBlocker(activity, { player, country, currentMonthIndex, usesThisPeriod: usesById[activity.id] ?? 0 }),
       ...(activity.training ? trainingStatus(activity, player, usesById[activity.id] ?? 0, currentMonthIndex) : {}),
       ...(activity.enrollment ? { enrollment: enrollmentStatus(activity, player, { country, currentMonthIndex }) } : {}),
+      ...(activity.competitions ? { competition: competitionStatus(activity, player, currentMonthIndex, competedById[activity.id]) } : {}),
     }))
     .filter((a) => a.blocker !== 'conditions')
     .sort((a, b) => a.minAge - b.minAge || a.id.localeCompare(b.id));

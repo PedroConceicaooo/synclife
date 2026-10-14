@@ -94,6 +94,7 @@
       "snatch"
     ]
   },
+  "competitions": true,
   "effects": [
     {
       "op": "stat",

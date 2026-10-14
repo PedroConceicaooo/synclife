@@ -16,6 +16,7 @@ import {
   attemptPlayerActivity,
   enrollPlayer,
   leavePlayerEnrollment,
+  competePlayer,
   availableActivities,
   availableInteractions,
   closePeople,
@@ -467,4 +468,23 @@ test('an enrolled player trains, the payer is charged every advance, and leaving
   assert.equal(availableActivities(left)[0].activities[0].blocker, 'notEnrolled');
   const later = advanceStep(left, 6);
   assert.equal(later.people[payerId].money, advanced.people[payerId].money - allowanceFrom(later));
+});
+
+test('competePlayer: once per activity and period, logged in the diary, free again after an advance', () => {
+  // Parents always agree; no injury, in training or competing (tested in competitions.test.js).
+  const enrolled = enrollPlayer(bjjState(() => true), 'bjj', 'parents');
+  const trained = attemptPlayerActivity({ ...enrolled, rng: { ...createRng(1), chance: () => false } }, 'bjj');
+  const before = availableActivities(trained)[0].activities[0].competition;
+  assert.equal(before.blocker, null);
+  assert.equal(before.tier, 'school');
+
+  const competed = competePlayer(trained, 'bjj');
+  const entry = competed.history.at(-1).entries.find((e) => e.type === 'competition');
+  assert.equal(entry.tier, 'school');
+  assert.ok(['gold', 'silver', 'bronze', 'out'].includes(entry.place));
+  assert.equal(availableActivities(competed)[0].activities[0].competition.blocker, 'competed');
+  assert.equal(competePlayer(competed, 'bjj').lastActivityResult.reason, 'competed');
+
+  const advanced = advanceStep(competed, 6);
+  assert.equal(availableActivities(advanced)[0].activities[0].competition.blocker, null);
 });

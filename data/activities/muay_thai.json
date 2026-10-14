@@ -151,6 +151,7 @@
       "clinch"
     ]
   },
+  "competitions": true,
   "effects": [
     {
       "op": "stat",

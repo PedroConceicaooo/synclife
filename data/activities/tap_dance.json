@@ -109,6 +109,7 @@
       "time_step"
     ]
   },
+  "competitions": true,
   "effects": [
     {
       "op": "stat",

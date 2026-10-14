@@ -132,6 +132,7 @@
       "heian_shodan"
     ]
   },
+  "competitions": true,
   "effects": [
     {
       "op": "stat",

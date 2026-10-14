@@ -109,6 +109,7 @@
       "walk"
     ]
   },
+  "competitions": true,
   "effects": [
     {
       "op": "stat",

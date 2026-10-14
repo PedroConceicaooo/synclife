@@ -109,6 +109,7 @@
       "jazz_square"
     ]
   },
+  "competitions": true,
   "effects": [
     {
       "op": "stat",

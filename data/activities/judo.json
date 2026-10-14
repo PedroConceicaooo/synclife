@@ -138,6 +138,7 @@
       "kesa_gatame"
     ]
   },
+  "competitions": true,
   "effects": [
     {
       "op": "stat",

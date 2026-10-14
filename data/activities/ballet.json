@@ -103,6 +103,7 @@
       "grand_jete"
     ]
   },
+  "competitions": true,
   "effects": [
     {
       "op": "stat",

@@ -142,6 +142,7 @@
       "rear_naked_choke"
     ]
   },
+  "competitions": true,
   "effects": [
     {
       "op": "stat",

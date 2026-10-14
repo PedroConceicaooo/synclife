@@ -8,6 +8,7 @@ import {
   attemptPlayerActivity,
   enrollPlayer,
   leavePlayerEnrollment,
+  competePlayer,
   continueAdvance,
   playableCountries,
   buyPlayerAsset,
@@ -245,6 +246,7 @@ async function main() {
         onDoActivity: (activityId) => update(attemptPlayerActivity(state, activityId)),
         onEnroll: (activityId, payer) => update(enrollPlayer(state, activityId, payer)),
         onLeave: (activityId) => update(leavePlayerEnrollment(state, activityId)),
+        onCompete: (activityId) => update(competePlayer(state, activityId)),
         onToggleGroup: (group) => update(state, { ...view, group }),
         openGroup: view.group ?? null,
       });

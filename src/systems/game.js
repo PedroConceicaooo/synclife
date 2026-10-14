@@ -30,6 +30,7 @@ import { isAllowanceAge, payAllowance, transferMoney } from './money.js';
 import { growStats } from './growth.js';
 import { decayAllSkills } from './training.js';
 import { requestEnrollment, leaveEnrollment, chargeEnrollments } from './enrollment.js';
+import { compete, competitionBlocker } from './competitions.js';
 
 const START_YEAR = 2000;
 export const ADULT_AGE = 18;
@@ -75,6 +76,7 @@ export function createGameState({ seed, countriesById, eventsById, interactionsB
     firedEvents: [],
     activityUsesThisPeriod: {},
     enrollmentAskedThisPeriod: {},
+    competedThisPeriod: {},
     remainingMonths: 0,
     pastLives: [],
     history: [{ month: player.birth, entries: [{ type: 'birth' }] }],
@@ -317,6 +319,7 @@ export function advanceStep(state, requestedMonths) {
     remainingMonths,
     activityUsesThisPeriod: {},
     enrollmentAskedThisPeriod: {},
+    competedThisPeriod: {},
     lastActivityResult: null,
     firedEvents: [
       ...state.firedEvents,
@@ -457,6 +460,7 @@ export function availableActivities(state) {
     country: state.country,
     currentMonthIndex: state.currentMonthIndex,
     usesById: state.activityUsesThisPeriod ?? {},
+    competedById: state.competedThisPeriod ?? {},
   }).map((group) => ({
     ...group,
     activities: group.activities.map((a) => (a.enrollment && asked[a.id] ? { ...a, enrollment: { ...a.enrollment, askedThisPeriod: true } } : a)),
@@ -494,6 +498,38 @@ export function enrollPlayer(state, activityId, payer) {
     enrollmentAskedThisPeriod: askedParents ? { ...asked, [activityId]: true } : asked,
     history: entry ? appendToCurrentBlock(state.history, [entry]) : state.history,
     lastActivityResult: { attempted: false, activityId, reason: result.reason, parentAsked: result.askedParentId !== null, enrollmentEntry: entry },
+  };
+}
+
+// One competition per activity and period (competitions.js).
+export function competePlayer(state, activityId) {
+  const activity = state.activitiesById[activityId];
+  const playerId = state.player.id;
+  const competed = state.competedThisPeriod ?? {};
+  const blocker = competitionBlocker(activity, state.people[playerId], state.currentMonthIndex, competed[activityId]);
+  if (blocker) return { ...state, lastActivityResult: { attempted: false, activityId, reason: blocker } };
+
+  const playerBefore = state.people[playerId];
+  const result = compete(activity, {
+    playerId,
+    peopleById: state.people,
+    relationshipsById: state.relationships,
+    country: state.country,
+    currentMonthIndex: state.currentMonthIndex,
+    rng: state.rng,
+  });
+  const entries = [
+    { type: 'competition', activityId, tier: result.tier, place: result.place },
+    ...(result.injuredMonths ? [{ type: 'injury', activityId, months: result.injuredMonths }] : []),
+    ...moneyEntries(playerBefore, result.peopleById[playerId], { source: 'competition', activityId }),
+    ...statEntries(playerBefore, result.peopleById[playerId]),
+  ];
+  return {
+    ...state,
+    people: result.peopleById,
+    competedThisPeriod: { ...competed, [activityId]: true },
+    history: appendToCurrentBlock(state.history, entries),
+    lastActivityResult: { attempted: false, activityId, competitionEntries: entries.filter((e) => e.type !== 'stat') },
   };
 }
 

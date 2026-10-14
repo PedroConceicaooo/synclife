@@ -127,6 +127,7 @@
       "taegeuk_il_jang"
     ]
   },
+  "competitions": true,
   "effects": [
     {
       "op": "stat",

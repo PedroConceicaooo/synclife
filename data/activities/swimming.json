@@ -102,6 +102,7 @@
       "flip_turn"
     ]
   },
+  "competitions": true,
   "effects": [
     {
       "op": "stat",

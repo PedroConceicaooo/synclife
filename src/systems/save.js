@@ -24,6 +24,7 @@ export function toSave(state) {
     pendingDecisions: state.pendingDecisions,
     activityUsesThisPeriod: state.activityUsesThisPeriod,
     enrollmentAskedThisPeriod: state.enrollmentAskedThisPeriod,
+    competedThisPeriod: state.competedThisPeriod,
     remainingMonths: state.remainingMonths,
   };
 }
@@ -51,6 +52,7 @@ export function fromSave(rawSave, { countriesById, eventsById, interactionsById,
     firedEvents: save.firedEvents,
     activityUsesThisPeriod: save.activityUsesThisPeriod,
     enrollmentAskedThisPeriod: save.enrollmentAskedThisPeriod ?? {},
+    competedThisPeriod: save.competedThisPeriod ?? {},
     remainingMonths: save.remainingMonths ?? 0,
     pastLives: save.pastLives,
     history: save.history,

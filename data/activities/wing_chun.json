@@ -115,6 +115,7 @@
       "chi_sao"
     ]
   },
+  "competitions": true,
   "effects": [
     {
       "op": "stat",

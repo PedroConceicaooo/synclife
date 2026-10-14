@@ -109,6 +109,7 @@
       "headspin"
     ]
   },
+  "competitions": true,
   "effects": [
     {
       "op": "stat",
