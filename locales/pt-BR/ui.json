@@ -210,6 +210,7 @@
   "diary.competition.out": "{activity}: campeonato {tier}, fui eliminad{player|o|a}.",
   "diary.tryout.passed": "{activity}, peneira do {team}: o técnico gostou {praise}. Passei!",
   "diary.tryout.failed": "{activity}, peneira do {team}: o técnico gostou {praise}, mas pediu {critique}. Não passei desta vez.",
+  "diary.tryout_signup": "{activity}: me inscrevi na peneira do {team}, em {month}.",
   "tryout.team.school": "time da escola",
   "tryout.team.club": "{level} do {club}",
   "tryout.praise.skill": "da minha técnica",

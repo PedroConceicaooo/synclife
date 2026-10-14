@@ -1,7 +1,17 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
-import { isOnTeam, teamTryoutBlocker, tryOut, endSeason, nextSeasonStart, KEEP_MARGIN } from '../src/systems/teams.js';
+import {
+  isOnTeam,
+  teamTryoutBlocker,
+  tryOut,
+  endSeason,
+  nextSeasonStart,
+  nextTryoutMonth,
+  signUpForTryout,
+  runDueTryouts,
+  KEEP_MARGIN,
+} from '../src/systems/teams.js';
 import { loadActivities } from '../src/systems/activitiesLoader.js';
 import { loadLeagues } from '../src/systems/clubsLoader.js';
 
@@ -123,4 +133,41 @@ test('nextSeasonStart is the first month of the next school year', () => {
   assert.equal(nextSeasonStart(december(13), 2), march(14) - 1); // Brazil: December, then February
   assert.equal(nextSeasonStart(13 * 12 + 1, 2), march(14) - 1); // February itself: the following one
   assert.equal(nextSeasonStart(13 * 12 + 6, 9), 13 * 12 + 8); // July, start in September
+});
+
+test('nextTryoutMonth finds the first month inside the club window, wrapping the new year', () => {
+  assert.equal(nextTryoutMonth([10, 1], 13 * 12 + 2), 13 * 12 + 9); // March -> October
+  assert.equal(nextTryoutMonth([10, 1], 13 * 12 + 11), 13 * 12 + 11); // December is inside
+  assert.equal(nextTryoutMonth([10, 1], 14 * 12 + 0), 14 * 12 + 0); // so is January
+  assert.equal(nextTryoutMonth([10, 1], 14 * 12 + 1), 14 * 12 + 9); // February waits for October
+});
+
+test('signUpForTryout books the next window, checked for that month, once per club', () => {
+  const kid = person();
+  const signed = signUpForTryout(kid, FOOTBALL, CLUB, { monthIndex: march(13), country: COUNTRY });
+  assert.equal(signed.blocker, null);
+  assert.deepEqual(signed.signup, { activityId: 'football', clubId: CLUB.id, month: 13 * 12 + 9, teamLevelId: 'youth_u15' });
+  assert.deepEqual(signed.person.tryoutSignups, [{ activityId: 'football', clubId: CLUB.id, month: 13 * 12 + 9 }]);
+  assert.equal(signUpForTryout(signed.person, FOOTBALL, CLUB, { monthIndex: march(13), country: COUNTRY }).blocker, 'signedUp');
+  // January at 5 is inside the window, and no category takes a 5-year-old.
+  assert.equal(signUpForTryout(kid, FOOTBALL, CLUB, { monthIndex: march(5) - 2, country: COUNTRY }).blocker, 'age');
+  assert.equal(signUpForTryout(kid, ACTIVITIES.basketball, CLUB, { monthIndex: march(13), country: COUNTRY }).blocker, 'noSport');
+});
+
+test('runDueTryouts runs only the sign-ups whose month came, at their month', () => {
+  const signed = signUpForTryout(person(), FOOTBALL, CLUB, { monthIndex: march(13), country: COUNTRY }).person;
+  const early = runDueTryouts(signed, 13 * 12 + 8, { ...CONTEXT, rng: passes });
+  assert.equal(early.person, signed);
+  assert.deepEqual(early.entries, []);
+
+  const due = runDueTryouts(signed, 13 * 12 + 11, { ...CONTEXT, rng: passes });
+  assert.deepEqual(due.person.tryoutSignups, []);
+  assert.deepEqual(due.person.teams, [{ activityId: 'football', teamKey: CLUB.id, clubId: CLUB.id, teamLevelId: 'youth_u15', since: 13 * 12 + 9 }]);
+  assert.equal(due.entries[0].type, 'tryout');
+
+  // Already on the team when the window comes: the sign-up lapses.
+  const onTeam = { ...signed, teams: due.person.teams };
+  const lapsed = runDueTryouts(onTeam, 13 * 12 + 11, { ...CONTEXT, rng: passes });
+  assert.deepEqual(lapsed.entries, []);
+  assert.deepEqual(lapsed.person.tryoutSignups, []);
 });

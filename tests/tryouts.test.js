@@ -19,7 +19,7 @@ import { loadActivities } from '../src/systems/activitiesLoader.js';
 import { loadLeagues } from '../src/systems/clubsLoader.js';
 import { createRng } from '../src/engine/random.js';
 import { createLocale } from '../src/i18n/locale.js';
-import { tryoutLine, clubName, teamSeasonLine } from '../src/ui/diary.js';
+import { tryoutLine, clubName, teamSeasonLine, tryoutSignupLine } from '../src/ui/diary.js';
 
 const dir = (path) => fileURLToPath(new URL(`../data/${path}/`, import.meta.url));
 const FOOTBALL = loadActivities(dir('activities')).football;
@@ -172,4 +172,9 @@ test('the diary tells each end-of-year team review', () => {
   assert.equal(teamSeasonLine(LOCALE, entry('promoted', 'youth_u17'), CLUB, 'F'), 'Futebol: fui promovida para o sub-17 do Tucanos de Recife!');
   assert.equal(teamSeasonLine(LOCALE, entry('released', 'youth_u15'), CLUB, 'M'), 'Futebol: fui dispensado do sub-15 do Tucanos de Recife.');
   assert.equal(teamSeasonLine(LOCALE, entry('left', 'school'), null, 'F'), 'Futebol: terminei a escola e me despedi do time da escola.');
+});
+
+test('the diary tells a club sign-up with the tryout month', () => {
+  const entry = { type: 'tryoutSignup', activityId: 'football', clubId: CLUB.id, teamLevelId: 'youth_u15', month: 13 * 12 + 9 };
+  assert.equal(tryoutSignupLine(LOCALE, entry, CLUB), 'Futebol: me inscrevi na peneira do sub-15 do Tucanos de Recife, em outubro.');
 });

@@ -31,7 +31,7 @@ import { growStats } from './growth.js';
 import { decayAllSkills } from './training.js';
 import { requestEnrollment, leaveEnrollment, chargeEnrollments } from './enrollment.js';
 import { compete, competitionBlocker } from './competitions.js';
-import { tryOut, endSeason } from './teams.js';
+import { tryOut, endSeason, signUpForTryout, runDueTryouts } from './teams.js';
 
 const START_YEAR = 2000;
 export const ADULT_AGE = 18;
@@ -293,6 +293,18 @@ export function advanceStep(state, requestedMonths) {
   people = calendar.people;
   relationships = calendar.relationships;
   entries.push(...calendar.entries);
+
+  // Club tryouts signed up for whose window came in this advance (after the
+  // season review, so a newcomer isn't reviewed the month they join).
+  const tryouts = runDueTryouts(people[playerId], nextMonthIndex, {
+    activitiesById: state.activitiesById,
+    clubsById: state.clubsById ?? {},
+    leaguesById: state.leaguesById ?? {},
+    country: state.country,
+    rng: state.rng,
+  });
+  people = { ...people, [playerId]: tryouts.person };
+  entries.push(...tryouts.entries);
 
   const playerEvents = processPlayerEvents(state.eventsById, {
     player: people[playerId],
@@ -578,6 +590,33 @@ export function competePlayer(state, activityId) {
     competedThisPeriod: { ...competed, [activityId]: true },
     history: appendToCurrentBlock(state.history, entries),
     lastActivityResult: { attempted: false, activityId, competitionEntries: entries.filter((e) => e.type !== 'stat') },
+  };
+}
+
+// Signs the player up for a club's next tryout (Atividades → modalidade →
+// Clubes e peneiras). Inside the club's window it runs right away;
+// otherwise when an advance reaches it.
+export function signUpPlayerForTryout(state, activityId, clubId) {
+  const playerId = state.player.id;
+  const signed = signUpForTryout(state.people[playerId], state.activitiesById[activityId], state.clubsById[clubId], {
+    monthIndex: state.currentMonthIndex,
+    country: state.country,
+  });
+  if (signed.blocker) return { ...state, lastActivityResult: { attempted: false, activityId, reason: signed.blocker } };
+
+  const now = runDueTryouts(signed.person, state.currentMonthIndex, {
+    activitiesById: state.activitiesById,
+    clubsById: state.clubsById,
+    leaguesById: state.leaguesById ?? {},
+    country: state.country,
+    rng: state.rng,
+  });
+  const entries = [{ type: 'tryoutSignup', ...signed.signup }, ...now.entries];
+  return {
+    ...state,
+    people: { ...state.people, [playerId]: now.person },
+    history: appendToCurrentBlock(state.history, entries),
+    lastActivityResult: { attempted: false, activityId, tryoutEntries: entries },
   };
 }
 

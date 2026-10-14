@@ -157,6 +157,15 @@ export function tryoutLine(locale, entry, club) {
   });
 }
 
+// A club tryout signed up for ahead of its window.
+export function tryoutSignupLine(locale, entry, club) {
+  return locale.format('diary.tryout_signup', {
+    activity: locale.t(`activity.${entry.activityId}.title`),
+    team: teamName(locale, entry.teamLevelId, club),
+    month: locale.monthName(entry.month),
+  });
+}
+
 // The end-of-year review of a team (teams.js): kept, promoted, released
 // or left with school.
 export function teamSeasonLine(locale, entry, club, sex) {
@@ -226,6 +235,8 @@ function entryLine(entry, state, locale, block, index) {
       return trainingEventLine(locale, entry, state.player.sex);
     case 'tryout':
       return tryoutLine(locale, entry, entry.clubId ? state.clubsById[entry.clubId] : null);
+    case 'tryoutSignup':
+      return tryoutSignupLine(locale, entry, state.clubsById[entry.clubId]);
     case 'teamSeason':
       return teamSeasonLine(locale, entry, entry.clubId ? state.clubsById[entry.clubId] : null, state.player.sex);
     case 'interaction':

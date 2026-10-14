@@ -6,7 +6,8 @@ import { loadCountries } from '../src/engine/countriesLoader.js';
 import { loadEvents } from '../src/systems/eventsLoader.js';
 import { loadInteractions } from '../src/systems/interactionsLoader.js';
 import { loadActivities } from '../src/systems/activitiesLoader.js';
-import { createGameState, advanceStep, resolveDecision, continueAdvance, canContinueAdvance, isAdult } from '../src/systems/game.js';
+import { createGameState, advanceStep, resolveDecision, continueAdvance, canContinueAdvance, isAdult, signUpPlayerForTryout } from '../src/systems/game.js';
+import { loadClubs, loadLeagues } from '../src/systems/clubsLoader.js';
 import { schoolEntryMonth } from '../src/systems/school.js';
 import { toSave, fromSave } from '../src/systems/save.js';
 
@@ -16,6 +17,8 @@ const DATA = {
   eventsById: loadEvents(dir('events')),
   interactionsById: loadInteractions(dir('interactions')),
   activitiesById: loadActivities(dir('activities')),
+  clubsById: loadClubs(dir('clubs')),
+  leaguesById: loadLeagues(dir('leagues')),
 };
 
 function newLifeIn(countryId) {
@@ -169,4 +172,27 @@ test('a player who trains football is asked about the school team each school ye
   // Without football, nobody asks.
   const quiet = advanceStep({ ...state, people: base.people }, 6);
   assert.equal(quiet.pendingDecisions.some((d) => d.trigger === 'school_tryout_football'), false);
+});
+
+test('a club tryout signed up for runs when an advance reaches its window', () => {
+  const base = newLifeIn('BR');
+  const playerId = base.player.id;
+  const month = base.player.birth + 13 * 12 + 1;
+  const trained = { ...base.people[playerId], skills: { football: { skill: 70, peak: 70, sessions: 20, lastTrainedMonth: month, level: 0, levelSince: month } } };
+  const state = { ...base, eventsById: {}, currentMonthIndex: month, people: { ...base.people, [playerId]: trained } };
+  const club = Object.values(DATA.clubsById).find((c) => c.countryId === 'BR' && c.sports.football?.teamLevels.includes('youth_u15'));
+
+  const signed = signUpPlayerForTryout(state, 'football', club.id);
+  const signup = signed.history.at(-1).entries.find((e) => e.type === 'tryoutSignup');
+  assert.equal(signup.clubId, club.id);
+  assert.equal(signUpPlayerForTryout(signed, 'football', club.id).lastActivityResult.reason, 'signedUp');
+
+  let played = signed;
+  if (signup.month > month) {
+    while (played.currentMonthIndex < signup.month) played = advanceStep(played, 6);
+  }
+  const tryout = played.history.flatMap((b) => b.entries).find((e) => e.type === 'tryout' && e.clubId === club.id);
+  assert.ok(tryout, 'the tryout happened');
+  assert.deepEqual(played.people[playerId].tryoutSignups, []);
+  assert.equal(played.people[playerId].teams.some((t) => t.clubId === club.id), tryout.passed);
 });

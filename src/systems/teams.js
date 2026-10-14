@@ -2,6 +2,7 @@
 // is part of the person, kept in the save:
 //   person.teams   = [{ activityId, teamKey, clubId?, teamLevelId, since }]
 //   person.tryouts = [{ activityId, teamKey, season }]   (one try per season)
+//   person.tryoutSignups = [{ activityId, clubId, month }] (club tryouts ahead)
 // teamKey is 'school' or the club id. One can be on several teams of the
 // same sport at once (the school team and a club academy).
 //
@@ -15,6 +16,8 @@ import { ageAt } from '../engine/time.js';
 import { schoolStageAt } from './school.js';
 import {
   tryoutBlocker,
+  tryoutTeamLevel,
+  inMonthWindow,
   runTryout,
   teamKey,
   seasonOf,
@@ -72,6 +75,52 @@ export function tryOut(person, activity, target, { monthIndex, country, rng, lea
 export function nextSeasonStart(monthIndex, schoolYearStartMonth) {
   const offset = (((schoolYearStartMonth - 1 - (monthIndex % 12)) % 12) + 12) % 12;
   return monthIndex + (offset === 0 ? 12 : offset);
+}
+
+// Club tryouts happen in the club's window (tryoutMonths); the player signs
+// up before, and the tryout runs when time reaches it. The first month at
+// or after fromMonth inside the window.
+export function nextTryoutMonth(window, fromMonth) {
+  for (let month = fromMonth; month < fromMonth + 12; month++) {
+    if (inMonthWindow(window, (month % 12) + 1)) return month;
+  }
+  return null;
+}
+
+export function isSignedUp(person, activityId, clubId) {
+  return (person.tryoutSignups ?? []).some((s) => s.activityId === activityId && s.clubId === clubId);
+}
+
+// Signs up for a club's next tryout. Returns { person, blocker, signup };
+// the blocker is checked for the tryout's month (age and season then).
+export function signUpForTryout(person, activity, club, { monthIndex, country }) {
+  const clubSport = club.sports[activity.id];
+  if (!clubSport) return { person, blocker: 'noSport', signup: null };
+  if (isSignedUp(person, activity.id, club.id)) return { person, blocker: 'signedUp', signup: null };
+  const month = nextTryoutMonth(clubSport.tryoutMonths, monthIndex);
+  const blocker = teamTryoutBlocker(activity, { kind: 'club', club }, { person, monthIndex: month, country });
+  if (blocker) return { person, blocker, signup: null };
+  const teamLevelId = tryoutTeamLevel(activity, { kind: 'club', club }, person, month).id;
+  const signup = { activityId: activity.id, clubId: club.id, month };
+  return { person: { ...person, tryoutSignups: [...(person.tryoutSignups ?? []), signup] }, blocker: null, signup: { ...signup, teamLevelId } };
+}
+
+// Runs the sign-ups whose month has come (month <= untilMonth), each at its
+// own month, in time order. A sign-up that no longer applies (the person
+// got on the team meanwhile) just lapses. Returns { person, entries }.
+export function runDueTryouts(person, untilMonth, { activitiesById, clubsById, leaguesById = {}, country, rng }) {
+  const due = (person.tryoutSignups ?? []).filter((s) => s.month <= untilMonth).sort((a, b) => a.month - b.month);
+  if (due.length === 0) return { person, entries: [] };
+  let current = { ...person, tryoutSignups: (person.tryoutSignups ?? []).filter((s) => s.month > untilMonth) };
+  const entries = [];
+  for (const signup of due) {
+    const club = clubsById[signup.clubId];
+    if (!club) continue;
+    const result = tryOut(current, activitiesById[signup.activityId], { kind: 'club', club }, { monthIndex: signup.month, country, rng, leaguesById });
+    current = result.person;
+    if (result.entry) entries.push(result.entry);
+  }
+  return { person: current, entries };
 }
 
 // What happens to one team at the end of a school year: { outcome, team }.
