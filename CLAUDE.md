@@ -33,8 +33,10 @@ Simulador de vida em texto, mobile-first. O mundo é feito de pessoas: todo NPC 
 M1 a M7 do design estão feitos, e o M8 (conteúdo) está em andamento. O jogo cobre a vida inteira até os 18:
 
 - **Motor:** relógio em meses, semente, família com irmãos, eventos sorteados e de calendário escolar por país, decisões que interrompem o avanço, interações, atividades (bicos, lazer, pequenos delitos), bens, escola com turma e professores, amizade, namoro, pets, emoções, traços formados pelas escolhas, estresse dos pais, save e fim aos 18 com continuação como irmão.
-- **Interface:** tela de início (vida aleatória ou personalizada), diário com régua de crescimento, abas Escola, Bens, Relações e Atividades em volta do botão de avançar, PWA instalável e offline.
-- **Comandos:** `npm test`, `npm start -- --seed=42` (vida no console), `npm run ui` (servidor em http://localhost:4000), `npm run legal-review` (gera `docs/legal-review.md`).
+- **Atividades físicas** (`docs/atividades.md`): 23 modalidades com habilidade, golpes, níveis e faixas com exame e graus, lesões, matrícula com autorização dos pais e mensalidade, e competições com medalhas.
+- **Esportes coletivos** (futebol e basquete, `docs/atividades.md` seção 7): aula paga sem time, peneira com nota escondida e frase do técnico, time da escola (peneira no início do ano letivo), clubes fictícios com base por categoria (`data/clubs/`, gerados por `npm run generate-clubs`), ligas por país Série A a D (`data/leagues/`), inscrição em peneira de clube, convite de olheiro, promoção, manutenção ou dispensa no fim do ano letivo, e bolsa de formação dos 14 aos 19 (`youthStipend`). Save na versão 2.
+- **Interface:** tela de início (vida aleatória ou personalizada), diário com régua de crescimento, abas Escola, Bens, Relações e Atividades em volta do botão de avançar, PWA instalável e offline. Atividades tem grupos (artes marciais, dança) e, nos esportes coletivos, "Clubes e peneiras"; a aba Escola mostra os times.
+- **Comandos:** `npm test`, `npm start -- --seed=42` (vida no console), `npm run ui` (servidor em http://localhost:4000), `npm run legal-review` (gera `docs/legal-review.md`), `npm run generate-clubs` (clubes e ligas profissionais).
 
 Pendências conhecidas:
 
@@ -46,3 +48,6 @@ Pendências conhecidas:
 - Ao publicar mudanças, aumentar `CACHE` em `sw.js` para os jogadores receberem a versão nova.
 - Vida adulta (18+) fora da versão 1.
 - Time da faculdade (`college`): já existe nos `teamLevels` de futebol e basquete e nas ligas `*_college`, mas sem conteúdo. Fazer junto com a vida adulta (peneira no início do ano letivo da faculdade, nota mínima ~40).
+- Bolsa de formação (`youthStipend`): o Brasil cita a Lei 14.597/2023, art. 99, §3º, mas o texto da lei não abriu na consulta (Planalto recusou a conexão); os outros 4 países herdam o padrão sem pesquisa. Todos estão como `needs_primary_check` em `docs/legal-review.md`. A idade lida como "a partir de 14" é decisão do projeto.
+- Esportes coletivos ainda sem jogos da liga nem tempo de jogo (`docs/atividades.md` 7.4) e sem história simulada dos clubes (posição por temporada, 7.6).
+- O evento antigo `join_sports_team` ("O time da escola está fazendo testes") é anterior às peneiras e não põe ninguém em time; decidir se vira uma peneira, sai ou fica como lembrança genérica.
