@@ -83,7 +83,7 @@ test('in the game: seasons pile up, survive a save, show in the clubs list, and 
   const told = after.history.flatMap((b) => b.entries).filter((e) => e.type === 'clubSeason');
   assert.ok(told.length >= 1 && told.every((e) => e.clubId === club.id));
   const line = teamEntryLine(after, LOCALE, told[0]);
-  assert.match(line, /terminou a temporada \d{4} em \d+º lugar na /);
+  assert.match(line, /: \d+º lugar na temporada \d{4} \(.+ – Série [A-D]\)\.$/);
 
   const reloaded = fromSave(JSON.parse(JSON.stringify(toSave(after))), DATA);
   assert.deepEqual(reloaded.clubSeasons, after.clubSeasons);
