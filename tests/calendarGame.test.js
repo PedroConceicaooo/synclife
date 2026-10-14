@@ -182,10 +182,14 @@ test('a club tryout signed up for runs when an advance reaches its window', () =
   const state = { ...base, eventsById: {}, currentMonthIndex: month, people: { ...base.people, [playerId]: trained } };
   const club = Object.values(DATA.clubsById).find((c) => c.countryId === 'BR' && c.sports.football?.teamLevels.includes('youth_u15'));
 
-  const signed = signUpPlayerForTryout(state, 'football', club.id);
+  // The parents let them (the rng says yes once), then the seeded rng goes on.
+  const allowed = signUpPlayerForTryout({ ...state, rng: { ...state.rng, chance: () => true } }, 'football', club.id);
+  const signed = { ...allowed, rng: state.rng };
   const signup = signed.history.at(-1).entries.find((e) => e.type === 'tryoutSignup');
   assert.equal(signup.clubId, club.id);
-  assert.equal(signUpPlayerForTryout(signed, 'football', club.id).lastActivityResult.reason, 'signedUp');
+  assert.ok(signup.parentId, 'a 13-year-old asked a parent');
+  assert.equal(signUpPlayerForTryout(signed, 'football', club.id).lastActivityResult.reason, 'asked');
+  assert.equal(signUpPlayerForTryout({ ...signed, tryoutAskedThisPeriod: {} }, 'football', club.id).lastActivityResult.reason, 'signedUp');
 
   let played = signed;
   if (signup.month > month) {
@@ -195,4 +199,22 @@ test('a club tryout signed up for runs when an advance reaches its window', () =
   assert.ok(tryout, 'the tryout happened');
   assert.deepEqual(played.people[playerId].tryoutSignups, []);
   assert.equal(played.people[playerId].teams.some((t) => t.clubId === club.id), tryout.passed);
+});
+
+test('a minor whose parents say no is not signed up and can ask again next period', () => {
+  const base = newLifeIn('BR');
+  const playerId = base.player.id;
+  const month = base.player.birth + 13 * 12 + 1;
+  const trained = { ...base.people[playerId], skills: { football: { skill: 70, peak: 70, sessions: 20, lastTrainedMonth: month, level: 0, levelSince: month } } };
+  const state = { ...base, eventsById: {}, currentMonthIndex: month, people: { ...base.people, [playerId]: trained }, rng: { ...base.rng, chance: () => false } };
+  const club = Object.values(DATA.clubsById).find((c) => c.countryId === 'BR' && c.sports.football?.teamLevels.includes('youth_u15'));
+
+  const refused = signUpPlayerForTryout(state, 'football', club.id);
+  const entry = refused.history.at(-1).entries.at(-1);
+  assert.equal(entry.type, 'tryoutRefused');
+  assert.ok(entry.parentId);
+  assert.deepEqual(refused.people[playerId].tryoutSignups ?? [], []);
+  assert.equal(signUpPlayerForTryout(refused, 'football', club.id).lastActivityResult.reason, 'asked');
+  const later = advanceStep(refused, 6);
+  assert.deepEqual(later.tryoutAskedThisPeriod, {});
 });

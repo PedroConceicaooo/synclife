@@ -211,6 +211,8 @@
   "diary.tryout.passed": "{activity}, peneira do {team}: o técnico gostou {praise}. Passei!",
   "diary.tryout.failed": "{activity}, peneira do {team}: o técnico gostou {praise}, mas pediu {critique}. Não passei desta vez.",
   "diary.tryout_signup": "{activity}: me inscrevi na peneira do {team}, em {month}.",
+  "diary.tryout_signup.allowed": "{activity}: {parent} deixou, e me inscrevi na peneira do {team}, em {month}.",
+  "diary.tryout_refused": "{activity}: pedi para fazer a peneira do {club}, mas {parent} não deixou.",
   "tryout.team.school": "time da escola",
   "tryout.team.club": "{level} do {club}",
   "tryout.praise.skill": "da minha técnica",

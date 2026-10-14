@@ -98,6 +98,43 @@ export function requestEnrollment(activity, { payer, playerId, peopleById, relat
   };
 }
 
+// Asks the parents to let a minor do something with this activity that
+// costs them nothing (a club tryout, a scout's invitation), with the
+// activity's permission chance. A refusal applies its failure effects.
+// Returns { allowed, parentId, peopleById, relationshipsById }; parentId is
+// null when nobody had to be asked.
+export function askParentPermission(activity, { playerId, peopleById, relationshipsById, country, currentMonthIndex, rng }) {
+  const player = peopleById[playerId];
+  if (!needsPermission(activity, player, currentMonthIndex)) return { allowed: true, parentId: null, peopleById, relationshipsById };
+  const asked = parentToAsk(playerId, relationshipsById);
+  if (!asked) return { allowed: false, parentId: null, peopleById, relationshipsById };
+  const parent = peopleById[asked.parentId];
+  const allowed = rng.chance(
+    resolveChance(activity.enrollment.permission, {
+      relationship: asked.relationship,
+      targetPersonId: parent.id,
+      target: parent,
+      player,
+      relationshipsById,
+      peopleById,
+      playerId,
+      country,
+      parentPays: false,
+    }),
+  );
+  if (allowed) return { allowed, parentId: parent.id, peopleById, relationshipsById };
+  const result = applyEffects(activity.enrollment.failure ?? [], {
+    relationship: asked.relationship,
+    relationshipsById,
+    peopleById,
+    playerId,
+    country,
+    rng,
+    currentMonthIndex,
+  });
+  return { allowed, parentId: parent.id, peopleById: result.peopleById, relationshipsById: result.relationshipsById };
+}
+
 export function leaveEnrollment(peopleById, personId, activityId) {
   const person = peopleById[personId];
   const { [activityId]: _left, ...enrollments } = person.enrollments ?? {};

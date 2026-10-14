@@ -10,6 +10,7 @@ import {
   requestEnrollment,
   leaveEnrollment,
   chargeEnrollments,
+  askParentPermission,
 } from '../src/systems/enrollment.js';
 import { activityBlocker } from '../src/systems/activities.js';
 import { resolveChance } from '../src/systems/interactions.js';
@@ -176,4 +177,14 @@ test('enrollment data: fee scale, ages, chance factors and texts', () => {
   ]) {
     assert.ok(LOCALE[key], key);
   }
+});
+
+test('askParentPermission: minors ask the parent who likes them most; adults need nobody', () => {
+  const yes = askParentPermission(ACTIVITY, { ...family(), rng: always });
+  assert.deepEqual([yes.allowed, yes.parentId], [true, 'p_mom']);
+  const no = askParentPermission(ACTIVITY, { ...family(), rng: never });
+  assert.deepEqual([no.allowed, no.parentId], [false, 'p_mom']);
+  assert.equal(no.relationshipsById.r_1.affinity.p_kid, 58, 'the failure effects apply');
+  const adult = askParentPermission(ACTIVITY, { ...family({ ageYears: 18 }), rng: never });
+  assert.deepEqual([adult.allowed, adult.parentId], [true, null]);
 });

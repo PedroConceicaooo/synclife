@@ -29,7 +29,7 @@ import { buyAsset, sellAsset, listShop, applyAssetUpkeep } from './assets.js';
 import { isAllowanceAge, payAllowance, transferMoney } from './money.js';
 import { growStats } from './growth.js';
 import { decayAllSkills } from './training.js';
-import { requestEnrollment, leaveEnrollment, chargeEnrollments } from './enrollment.js';
+import { requestEnrollment, leaveEnrollment, chargeEnrollments, askParentPermission } from './enrollment.js';
 import { compete, competitionBlocker } from './competitions.js';
 import { tryOut, endSeason, signUpForTryout, runDueTryouts } from './teams.js';
 import { payStipends, mergeStipendEntries } from './stipend.js';
@@ -90,6 +90,7 @@ export function createGameState({
     firedEvents: [],
     activityUsesThisPeriod: {},
     enrollmentAskedThisPeriod: {},
+    tryoutAskedThisPeriod: {},
     competedThisPeriod: {},
     remainingMonths: 0,
     pastLives: [],
@@ -375,6 +376,7 @@ export function advanceStep(state, requestedMonths) {
     remainingMonths,
     activityUsesThisPeriod: {},
     enrollmentAskedThisPeriod: {},
+    tryoutAskedThisPeriod: {},
     competedThisPeriod: {},
     lastActivityResult: null,
     firedEvents: [
@@ -605,15 +607,40 @@ export function competePlayer(state, activityId) {
 }
 
 // Signs the player up for a club's next tryout (Atividades → modalidade →
-// Clubes e peneiras). Inside the club's window it runs right away;
-// otherwise when an advance reaches it.
+// Clubes e peneiras). A minor asks the parents first, once per club and
+// period. Inside the club's window it runs right away; otherwise when an
+// advance reaches it.
 export function signUpPlayerForTryout(state, activityId, clubId) {
   const playerId = state.player.id;
-  const signed = signUpForTryout(state.people[playerId], state.activitiesById[activityId], state.clubsById[clubId], {
+  const activity = state.activitiesById[activityId];
+  const askedKey = `${activityId}:${clubId}`;
+  const asked = state.tryoutAskedThisPeriod ?? {};
+  if (asked[askedKey]) return { ...state, lastActivityResult: { attempted: false, activityId, reason: 'asked' } };
+  const signed = signUpForTryout(state.people[playerId], activity, state.clubsById[clubId], {
     monthIndex: state.currentMonthIndex,
     country: state.country,
   });
   if (signed.blocker) return { ...state, lastActivityResult: { attempted: false, activityId, reason: signed.blocker } };
+
+  const permission = askParentPermission(activity, {
+    playerId,
+    peopleById: state.people,
+    relationshipsById: state.relationships,
+    country: state.country,
+    currentMonthIndex: state.currentMonthIndex,
+    rng: state.rng,
+  });
+  if (!permission.allowed) {
+    const entry = { type: 'tryoutRefused', activityId, clubId, parentId: permission.parentId };
+    return {
+      ...state,
+      people: permission.peopleById,
+      relationships: permission.relationshipsById,
+      tryoutAskedThisPeriod: { ...asked, [askedKey]: true },
+      history: appendToCurrentBlock(state.history, [entry]),
+      lastActivityResult: { attempted: false, activityId, tryoutEntries: [entry] },
+    };
+  }
 
   const now = runDueTryouts(signed.person, state.currentMonthIndex, {
     activitiesById: state.activitiesById,
@@ -622,10 +649,11 @@ export function signUpPlayerForTryout(state, activityId, clubId) {
     country: state.country,
     rng: state.rng,
   });
-  const entries = [{ type: 'tryoutSignup', ...signed.signup }, ...now.entries];
+  const entries = [{ type: 'tryoutSignup', ...signed.signup, ...(permission.parentId ? { parentId: permission.parentId } : {}) }, ...now.entries];
   return {
     ...state,
     people: { ...state.people, [playerId]: now.person },
+    tryoutAskedThisPeriod: { ...asked, [askedKey]: true },
     history: appendToCurrentBlock(state.history, entries),
     lastActivityResult: { attempted: false, activityId, tryoutEntries: entries },
   };

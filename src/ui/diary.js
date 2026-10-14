@@ -157,12 +157,14 @@ export function tryoutLine(locale, entry, club) {
   });
 }
 
-// A club tryout signed up for ahead of its window.
-export function tryoutSignupLine(locale, entry, club) {
-  return locale.format('diary.tryout_signup', {
+// A club tryout signed up for ahead of its window; parent is who allowed
+// it ("minha mãe"), when a minor had to ask.
+export function tryoutSignupLine(locale, entry, club, parent = null) {
+  return locale.format(parent ? 'diary.tryout_signup.allowed' : 'diary.tryout_signup', {
     activity: locale.t(`activity.${entry.activityId}.title`),
     team: teamName(locale, entry.teamLevelId, club),
     month: locale.monthName(entry.month),
+    parent,
   });
 }
 
@@ -236,7 +238,13 @@ function entryLine(entry, state, locale, block, index) {
     case 'tryout':
       return tryoutLine(locale, entry, entry.clubId ? state.clubsById[entry.clubId] : null);
     case 'tryoutSignup':
-      return tryoutSignupLine(locale, entry, state.clubsById[entry.clubId]);
+      return tryoutSignupLine(locale, entry, state.clubsById[entry.clubId], entry.parentId ? who(state, locale, entry.parentId) : null);
+    case 'tryoutRefused':
+      return locale.format('diary.tryout_refused', {
+        activity: locale.t(`activity.${entry.activityId}.title`),
+        club: clubName(locale, state.clubsById[entry.clubId]),
+        parent: who(state, locale, entry.parentId),
+      });
     case 'teamSeason':
       return teamSeasonLine(locale, entry, entry.clubId ? state.clubsById[entry.clubId] : null, state.player.sex);
     case 'interaction':

@@ -177,4 +177,8 @@ test('the diary tells each end-of-year team review', () => {
 test('the diary tells a club sign-up with the tryout month', () => {
   const entry = { type: 'tryoutSignup', activityId: 'football', clubId: CLUB.id, teamLevelId: 'youth_u15', month: 13 * 12 + 9 };
   assert.equal(tryoutSignupLine(LOCALE, entry, CLUB), 'Futebol: me inscrevi na peneira do sub-15 do Tucanos de Recife, em outubro.');
+  assert.equal(
+    tryoutSignupLine(LOCALE, entry, CLUB, 'minha mãe'),
+    'Futebol: minha mãe deixou, e me inscrevi na peneira do sub-15 do Tucanos de Recife, em outubro.',
+  );
 });
