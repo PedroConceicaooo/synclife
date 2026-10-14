@@ -14,6 +14,7 @@
 
 import { ageAt } from '../engine/time.js';
 import { schoolStageAt } from './school.js';
+import { lastStanding } from './clubSeasons.js';
 import {
   tryoutBlocker,
   tryoutTeamLevel,
@@ -161,7 +162,7 @@ export function windowEnd(window, month) {
 // country that plays it, their city first, with what the screen shows —
 // category at the tryout, tryout month and deadline, youngest age, the
 // requirement as a word, and why signing up is not possible (or null).
-export function listClubTryouts(person, activity, { clubsById, leaguesById, monthIndex, country }) {
+export function listClubTryouts(person, activity, { clubsById, leaguesById, monthIndex, country, clubSeasons = {} }) {
   const rows = Object.values(clubsById)
     .filter((club) => club.countryId === person.countryId && club.sports[activity.id])
     .map((club) => {
@@ -181,6 +182,7 @@ export function listClubTryouts(person, activity, { clubsById, leaguesById, mont
         minAge: Math.min(...activity.teamLevels.filter((l) => clubSport.teamLevels.includes(l.id)).map((l) => l.minAge)),
         requirement: leaguesById[clubSport.youthLeague]?.requirement ?? null,
         onTeam: isOnTeam(person, activity.id, club.id),
+        lastSeason: lastStanding(clubSeasons, club, activity.id),
         blocker,
       };
     });

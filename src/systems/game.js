@@ -35,6 +35,7 @@ import { tryOut, endSeason, signUpForTryout, runDueTryouts, joinClubTeam, listCl
 import { rollScoutInvites } from './scout.js';
 import { payAllowances } from './athleteAllowance.js';
 import { playGames, mergeSeasonEntries } from './games.js';
+import { playClubSeasons } from './clubSeasons.js';
 
 const START_YEAR = 2000;
 export const ADULT_AGE = 18;
@@ -94,6 +95,7 @@ export function createGameState({
     enrollmentAskedThisPeriod: {},
     tryoutAskedThisPeriod: {},
     competedThisPeriod: {},
+    clubSeasons: {},
     remainingMonths: 0,
     pastLives: [],
     history: [{ month: player.birth, entries: [{ type: 'birth' }] }],
@@ -334,6 +336,23 @@ export function advanceStep(state, requestedMonths) {
   people = { ...people, [playerId]: season.person };
   entries.push(...season.entries);
 
+  // The pro leagues' seasons; the diary tells those of the player's clubs.
+  const clubSeasons = playClubSeasons(state.clubSeasons ?? {}, {
+    leaguesById: state.leaguesById ?? {},
+    clubsById: state.clubsById ?? {},
+    country: state.country,
+    fromMonth: state.currentMonthIndex,
+    toMonth: nextMonthIndex,
+    rng: state.rng,
+  });
+  const playerClubs = new Set((people[playerId].teams ?? []).filter((t) => t.clubId).map((t) => `${t.activityId}:${t.clubId}`));
+  for (const { leagueId, season, table } of clubSeasons.ended) {
+    const activityId = state.leaguesById[leagueId].activity;
+    table.forEach((clubId, index) => {
+      if (playerClubs.has(`${activityId}:${clubId}`)) entries.push({ type: 'clubSeason', clubId, activityId, leagueId, season, position: index + 1 });
+    });
+  }
+
   const scoutInvites = rollScoutInvites(state.eventsById, {
     person: people[playerId],
     activitiesById: state.activitiesById,
@@ -401,6 +420,7 @@ export function advanceStep(state, requestedMonths) {
     fired: world.fired,
     pendingDecisions: [...world.pendingDecisions, ...calendar.pendingDecisions, ...playerEvents.pendingDecisions, ...scoutInvites],
     remainingMonths,
+    clubSeasons: clubSeasons.clubSeasons,
     activityUsesThisPeriod: {},
     enrollmentAskedThisPeriod: {},
     tryoutAskedThisPeriod: {},
@@ -663,6 +683,7 @@ export function clubTryouts(state, activityId) {
     leaguesById: state.leaguesById ?? {},
     monthIndex: state.currentMonthIndex,
     country: state.country,
+    clubSeasons: state.clubSeasons ?? {},
   });
 }
 

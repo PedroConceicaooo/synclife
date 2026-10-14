@@ -222,6 +222,7 @@ test('listClubTryouts: the city first, accessible first, with category, dates, y
     minAge: 6,
     requirement: 'accessible',
     onTeam: false,
+    lastSeason: null,
     blocker: null,
   });
   assert.equal(rows[1].requirement, 'demanding');

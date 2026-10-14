@@ -572,6 +572,10 @@ function clubRow(row, state, locale, activityId, onSignUp) {
     requirement: locale.t(`ui.requirement.${row.requirement}`),
   });
   box.append(el('span', { className: 'detail', text: dates }), el('span', { className: 'detail', text: info }));
+  if (row.lastSeason) {
+    const { season, position, leagueId } = row.lastSeason;
+    box.appendChild(el('span', { className: 'detail', text: locale.format('ui.club_last_season', { season, position, league: locale.t(`league.${leagueId}`) }) }));
+  }
   if (row.onTeam) box.appendChild(el('span', { className: 'detail', text: locale.t('ui.club_on_team') }));
   else if (row.blocker) box.appendChild(el('span', { className: 'detail', text: locale.t(`ui.tryout_blocked.${row.blocker}`) }));
   nodes.push(box);

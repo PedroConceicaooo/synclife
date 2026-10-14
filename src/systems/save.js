@@ -27,6 +27,7 @@ export function toSave(state) {
     enrollmentAskedThisPeriod: state.enrollmentAskedThisPeriod,
     tryoutAskedThisPeriod: state.tryoutAskedThisPeriod,
     competedThisPeriod: state.competedThisPeriod,
+    clubSeasons: state.clubSeasons,
     remainingMonths: state.remainingMonths,
   };
 }
@@ -74,6 +75,7 @@ export function fromSave(rawSave, { countriesById, eventsById, interactionsById,
     enrollmentAskedThisPeriod: save.enrollmentAskedThisPeriod ?? {},
     tryoutAskedThisPeriod: save.tryoutAskedThisPeriod ?? {},
     competedThisPeriod: save.competedThisPeriod ?? {},
+    clubSeasons: save.clubSeasons ?? {},
     remainingMonths: save.remainingMonths ?? 0,
     pastLives: save.pastLives,
     history: save.history,

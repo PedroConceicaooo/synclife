@@ -220,6 +220,14 @@ export function teamEntryLine(state, locale, entry) {
         role: locale.t(`diary.role.${entry.role}`),
       });
     }
+    // A season of a club the player plays for (clubSeasons.js).
+    case 'clubSeason':
+      return locale.format('diary.club_season', {
+        club: clubName(locale, state.clubsById[entry.clubId]),
+        season: entry.season,
+        position: entry.position,
+        league: locale.t(`league.${entry.leagueId}`),
+      });
     // A school tryout chosen in an event that its rules didn't allow.
     case 'tryoutBlocked': {
       const key = `diary.tryout_blocked.${entry.reason}`;
@@ -298,6 +306,7 @@ function entryLine(entry, state, locale, block, index) {
     case 'teamSeason':
     case 'tryoutBlocked':
     case 'teamGames':
+    case 'clubSeason':
       return teamEntryLine(state, locale, entry);
     case 'interaction':
       return locale.format('diary.interaction', {
