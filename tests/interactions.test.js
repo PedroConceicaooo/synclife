@@ -237,3 +237,32 @@ test('listAvailableInteractions orders each category by minimum age', () => {
   const [talk] = listAvailableInteractions(fixture, listingArgs({ ageYears: 10 }));
   assert.deepEqual(talk.interactionIds, ['z_early', 'a_late']);
 });
+
+test('resolveChance: the parents\' wealth and stress, and an age from which the chance jumps', () => {
+  const country = { currency: { scale: { small: 10, medium: 50, large: 200 } } };
+  const family = (money, stress) => {
+    const parent = (id) => ({ id, traits: [], money, stress });
+    const link = (id, rid) => ({ id: rid, roles: { [id]: 'mother', p_player: 'son' }, affinity: { [id]: 50, p_player: 50 } });
+    return {
+      peopleById: { p_a: parent('p_a'), p_b: parent('p_b') },
+      relationshipsById: { r_a: link('p_a', 'r_a'), r_b: link('p_b', 'r_b') },
+    };
+  };
+  const chance = (modifiers, money, stress, ageMonths = 0) =>
+    resolveChance(
+      { base: 0.5, modifiers },
+      { ...family(money, stress), player: { id: 'p_player', birth: 0 }, playerId: 'p_player', country, currentMonthIndex: ageMonths },
+    );
+
+  // 60x "large" is the reference: no change; twice that or more adds the whole weight.
+  assert.equal(chance([{ factor: 'parentsWealth', weight: 0.2 }], 60 * 200, 50), 0.5);
+  assert.equal(chance([{ factor: 'parentsWealth', weight: 0.2 }], 1_000_000, 50), 0.7);
+  assert.ok(chance([{ factor: 'parentsWealth', weight: 0.2 }], 0, 50) < 0.5);
+
+  assert.equal(chance([{ factor: 'parentsStress', weight: -0.2 }], 0, 50), 0.5);
+  assert.equal(chance([{ factor: 'parentsStress', weight: -0.2 }], 0, 100), 0.4);
+
+  const fromTwelve = [{ factor: 'fromAge', age: 12, adjust: 0.3 }];
+  assert.equal(chance(fromTwelve, 0, 50, 11 * 12 + 11), 0.5);
+  assert.equal(chance(fromTwelve, 0, 50, 12 * 12), 0.8);
+});

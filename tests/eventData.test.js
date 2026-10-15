@@ -11,7 +11,7 @@ const UI_DATA = readFileSync(new URL('../src/ui/data.js', import.meta.url), 'utf
 
 const EVENTS = Object.values(loadEvents(EVENTS_DIR));
 const ROLLED_PLAYER_EVENTS = EVENTS.filter((e) => e.subject === 'player' && e.yearlyChance !== undefined);
-const KNOWN_OPS = ['stat', 'affinity', 'transferMoney', 'relationshipState', 'money', 'roles', 'haveChild', 'emotion', 'tendency', 'stress'];
+const KNOWN_OPS = ['stat', 'affinity', 'transferMoney', 'relationshipState', 'money', 'roles', 'haveChild', 'emotion', 'tendency', 'stress', 'allowance'];
 
 test('every rolled player event declares minAge (CLAUDE.md rule 8)', () => {
   for (const event of ROLLED_PLAYER_EVENTS) {
@@ -23,7 +23,7 @@ test('every player event effect uses a known op', () => {
   for (const event of EVENTS.filter((e) => e.subject === 'player')) {
     const effects = [
       ...(event.effects ?? []),
-      ...(event.options ?? []).flatMap((o) => o.effects),
+      ...(event.options ?? []).flatMap((o) => [...(o.effects ?? []), ...(o.success ?? []), ...(o.failure ?? [])]),
       ...(event.success ?? []),
       ...(event.failure ?? []),
     ];
@@ -37,7 +37,12 @@ test('every player event has its texts in pt-BR', () => {
       assert.ok(LOCALE[`event.${event.id}.success`] && LOCALE[`event.${event.id}.failure`], `${event.id} outcomes`);
     } else if (event.options) {
       assert.ok(LOCALE[`event.${event.id}.prompt`], `${event.id}.prompt`);
-      for (const option of event.options) assert.ok(LOCALE[`event.${event.id}.option.${option.id}`], `${event.id}.${option.id}`);
+      for (const option of event.options) {
+        assert.ok(LOCALE[`event.${event.id}.option.${option.id}`], `${event.id}.${option.id}`);
+        if (option.check) {
+          for (const outcome of ['success', 'failure']) assert.ok(LOCALE[`event.${event.id}.option.${option.id}.${outcome}`], `${event.id}.${option.id}.${outcome}`);
+        }
+      }
     } else {
       assert.ok(LOCALE[`event.${event.id}.text`], `${event.id}.text`);
     }

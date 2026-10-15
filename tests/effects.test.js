@@ -221,3 +221,17 @@ test('money with targetRole charges the person in that role, even from a player 
   assert.equal(result.peopleById.p_mother.money, 950);
   assert.equal(result.peopleById.p_player.money, 0);
 });
+
+test('allowance: start sets since and factor; decline waits until an age and some months', () => {
+  const { relationshipsById, country } = setup();
+  const peopleById = { p_player: { id: 'p_player', birth: 0, money: 0 } };
+  const run = (effect, currentMonthIndex) =>
+    applyEffects([effect], { relationship: null, relationshipsById, peopleById, playerId: 'p_player', country, currentMonthIndex }).peopleById.p_player.allowance;
+
+  assert.deepEqual(run({ op: 'allowance', value: 'start' }, 80), { since: 80, factor: 1 });
+  assert.deepEqual(run({ op: 'allowance', value: 'start', factor: 1.25 }, 80), { since: 80, factor: 1.25 });
+  const decline = { op: 'allowance', value: 'decline', offerAgainAge: 12, offerAgainAfterMonths: 12 };
+  assert.deepEqual(run(decline, 80), { offerAgainFrom: 144 }, 'at 6 years and 8 months: back at 12');
+  assert.deepEqual(run(decline, 150), { offerAgainFrom: 162 }, 'already past 12: a year later');
+  assert.throws(() => run({ op: 'allowance', value: 'double' }, 80), /Unknown allowance value/);
+});

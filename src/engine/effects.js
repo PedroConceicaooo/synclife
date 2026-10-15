@@ -192,6 +192,21 @@ function applyStressEffect(effect, context) {
   return result;
 }
 
+// The player's allowance (money.js). { op: "allowance", value: "start",
+// factor: 1.25 } starts it, factor scaling the amount; { value: "decline",
+// offerAgainAge: 12, offerAgainAfterMonths: 12 } lets the parents offer it
+// again from that age, and never sooner than that many months.
+function applyAllowanceEffect(effect, context) {
+  return updatePerson(context, context.playerId, (person) => {
+    if (effect.value === 'start') return { ...person, allowance: { since: context.currentMonthIndex, factor: effect.factor ?? 1 } };
+    if (effect.value === 'decline') {
+      const offerAgainFrom = Math.max(person.birth + effect.offerAgainAge * 12, context.currentMonthIndex + (effect.offerAgainAfterMonths ?? 0));
+      return { ...person, allowance: { offerAgainFrom } };
+    }
+    throw new Error(`Unknown allowance value: ${effect.value}`);
+  });
+}
+
 function applyEffect(effect, context) {
   switch (effect.op) {
     case 'relationshipState':
@@ -222,6 +237,8 @@ function applyEffect(effect, context) {
       return applyTendencyEffect(effect, context);
     case 'stress':
       return applyStressEffect(effect, context);
+    case 'allowance':
+      return applyAllowanceEffect(effect, context);
     // Braces on for some months (braces.js takes them off): { months,
     // activity } — the activity whose finishEffects apply at the end.
     case 'braces':

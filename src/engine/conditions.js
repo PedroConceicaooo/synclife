@@ -77,6 +77,12 @@ function evaluateCondition(key, expected, target, context) {
     // Not on any club's team of this sport ("football").
     case 'notOnClubTeam':
       return !isOnClubTeam(target, expected);
+    // No allowance yet and the parents may offer it now (not before the
+    // month a refusal set in offerAgainFrom).
+    case 'awaitsAllowanceOffer': {
+      const waiting = target.allowance?.since === undefined && !(context.currentMonthIndex < (target.allowance?.offerAgainFrom ?? -Infinity));
+      return waiting === expected;
+    }
     case 'minMoney':
       return target.money >= resolveAmount(expected, context.country);
     case 'targetRole':

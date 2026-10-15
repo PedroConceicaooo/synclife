@@ -84,7 +84,9 @@ export function processRelationshipEvents(
 
 // optionId lets a real player choice override the rng pick (M5); omitting it
 // keeps the old auto-resolve behavior (M3's console demo, still used there).
-// firingRelationship is null for player events.
+// firingRelationship is null for player events. An option with a check
+// rolls it (e.g. asking the parents for more) and applies success or
+// failure; succeeded is null for options without one.
 export function resolveDecision(
   decisionEvent,
   firingRelationship,
@@ -96,7 +98,15 @@ export function resolveDecision(
 
   if (!option) throw new Error(`Unknown option: ${optionId}`);
 
-  const result = applyEffects(option.effects, {
+  let effects = option.effects ?? [];
+  let succeeded = null;
+  if (option.check) {
+    const player = peopleById[playerId];
+    succeeded = rng.chance(resolveChance(option.check, { player, relationshipsById, peopleById, playerId, country, currentMonthIndex }));
+    effects = succeeded ? option.success : option.failure;
+  }
+
+  const result = applyEffects(effects, {
     relationship: firingRelationship,
     relationshipsById,
     peopleById,
@@ -106,7 +116,23 @@ export function resolveDecision(
     currentMonthIndex,
   });
 
-  return { optionId: option.id, relationshipsById: result.relationshipsById, peopleById: result.peopleById };
+  return { optionId: option.id, succeeded, relationshipsById: result.relationshipsById, peopleById: result.peopleById };
+}
+
+// Who says an event's lines: "speaker": { "roles": ["mother", "father"],
+// "traitVariants": ["generous", "rigid"] } picks one of the people holding
+// those roles toward the player, and the first of those traits they have
+// names the text variant (event.<id>.prompt.<variant>; none -> .prompt).
+export function pickSpeaker(speaker, { player, peopleById, relationshipsById, rng }) {
+  const candidates = Object.values(relationshipsById)
+    .filter((r) => player.id in r.roles)
+    .map((r) => Object.keys(r.roles).find((id) => id !== player.id && speaker.roles.includes(r.roles[id])))
+    .filter((id) => id && peopleById[id])
+    .sort();
+  if (candidates.length === 0) return {};
+  const speakerId = candidates[rng.nextInt(0, candidates.length)];
+  const variant = (speaker.traitVariants ?? []).find((trait) => peopleById[speakerId].traits?.includes(trait));
+  return { speakerId, ...(variant ? { variant } : {}) };
 }
 
 // One player event, however it was triggered: with options it becomes a
@@ -114,7 +140,8 @@ export function resolveDecision(
 // otherwise its effects apply.
 export function firePlayerEvent(event, { player, peopleById, relationshipsById, country, rng, currentMonthIndex }) {
   if (event.options) {
-    return { peopleById, relationshipsById, decision: { trigger: event.id, firingRelationship: null }, succeeded: null };
+    const speaker = event.speaker ? pickSpeaker(event.speaker, { player, peopleById, relationshipsById, rng }) : {};
+    return { peopleById, relationshipsById, decision: { trigger: event.id, firingRelationship: null, ...speaker }, succeeded: null };
   }
   let effects = event.effects ?? [];
   let succeeded = null;
@@ -128,6 +155,9 @@ export function firePlayerEvent(event, { player, peopleById, relationshipsById, 
 
 // Player events: subject "player" with a yearlyChance. Decision events that
 // are only triggered by world events (no yearlyChance) are never rolled here.
+// "chanceModifiers" on a player event move its yearly chance with the
+// chance factors of interactions (resolveChance), e.g. the parents'
+// affinity or wealth; it never goes over MAX_YEARLY_CHANCE.
 export const MAX_PLAYER_EVENTS_PER_PERIOD = 3;
 
 function isOnCooldown(event, firedEvents, currentMonthIndex) {
@@ -182,10 +212,19 @@ export function processPlayerEvents(
     fired.push({ eventId: event.id, month: currentMonthIndex, ...(result.succeeded === null ? {} : { succeeded: result.succeeded }) });
   }
 
+  function yearlyChance(event) {
+    if (!event.chanceModifiers) return event.yearlyChance;
+    const chance = resolveChance(
+      { base: event.yearlyChance, modifiers: event.chanceModifiers },
+      { player: people[player.id], peopleById: people, relationshipsById: relationships, playerId: player.id, country, currentMonthIndex },
+    );
+    return Math.min(MAX_YEARLY_CHANCE, chance);
+  }
+
   for (const event of shuffle(available, rng)) {
     // alreadyFired: dated events of this period count toward the same cap.
     if (fired.length + alreadyFired >= MAX_PLAYER_EVENTS_PER_PERIOD) break;
-    if (rng.chance(yearlyChanceToPeriod(event.yearlyChance, step))) fire(event);
+    if (rng.chance(yearlyChanceToPeriod(yearlyChance(event), step))) fire(event);
   }
 
   if (!hasDecision && pendingDecisions.length === 0) {

@@ -4,6 +4,7 @@
 import { evaluateConditions } from '../engine/conditions.js';
 import { applyEffects } from '../engine/effects.js';
 import { resolveAmount, WEALTH_REFERENCE_IN_LARGE } from './money.js';
+import { ageAt } from '../engine/time.js';
 
 // A price this share of someone's money counts as a big ask (priceVsWealth).
 export const PRICE_SHARE_REFERENCE = 0.02;
@@ -35,7 +36,7 @@ export function parentsOf(playerId, relationshipsById, peopleById) {
 
 export function resolveChance(
   chance,
-  { relationship, targetPersonId, target, player, relationshipsById, peopleById, playerId, country, parentPays = false, price = 0, recentRequests = 0 },
+  { relationship, targetPersonId, target, player, relationshipsById, peopleById, playerId, country, currentMonthIndex, parentPays = false, price = 0, recentRequests = 0 },
 ) {
   let p = chance.base;
 
@@ -87,6 +88,27 @@ export function resolveChance(
         p += (Math.min(2, wealth) - 1) * modifier.weight;
         break;
       }
+      // The same for the player's parents, on average (allowance_offer).
+      case 'parentsWealth': {
+        const parents = parentsOf(playerId, relationshipsById, peopleById);
+        if (parents.length === 0) break;
+        const reference = resolveAmount('large', country) * WEALTH_REFERENCE_IN_LARGE;
+        const average = parents.reduce((sum, parent) => sum + Math.min(2, parent.money / reference), 0) / parents.length;
+        p += (average - 1) * modifier.weight;
+        break;
+      }
+      // Stressed parents, on average: a negative weight makes them say no.
+      case 'parentsStress': {
+        const parents = parentsOf(playerId, relationshipsById, peopleById);
+        if (parents.length === 0) break;
+        const average = parents.reduce((sum, parent) => sum + (parent.stress ?? 50), 0) / parents.length;
+        p += ((average - 50) / 100) * modifier.weight;
+        break;
+      }
+      // From this age on (needs currentMonthIndex): { age: 12, adjust: 0.8 }.
+      case 'fromAge':
+        if (ageAt(player.birth, currentMonthIndex) >= modifier.age) p += modifier.adjust;
+        break;
       // Requests where the parents would pay (enrollment.js).
       case 'parentPays':
         if (parentPays) p += modifier.adjust;

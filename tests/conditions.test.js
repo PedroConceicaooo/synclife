@@ -81,3 +81,13 @@ test('notOnTeam takes a list: on none of those teams', () => {
   const onOne = { teams: [{ activityId: 'basketball', teamKey: 'school' }] };
   assert.equal(evaluateConditions({ notOnTeam: both }, onOne), false);
 });
+
+test('awaitsAllowanceOffer: no allowance yet, and not before a refusal lets the offer come back', () => {
+  const ctx = { currentMonthIndex: 100 };
+  const awaits = (allowance) => evaluateConditions({ awaitsAllowanceOffer: true }, { allowance }, ctx);
+  assert.equal(awaits(undefined), true);
+  assert.equal(awaits({ since: 90, factor: 1 }), false);
+  assert.equal(awaits({ offerAgainFrom: 144 }), false);
+  assert.equal(awaits({ offerAgainFrom: 100 }), true);
+  assert.equal(evaluateConditions({ awaitsAllowanceOffer: false }, { allowance: { since: 90 } }, ctx), true);
+});
