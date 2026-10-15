@@ -266,3 +266,15 @@ test('resolveChance: the parents\' wealth and stress, and an age from which the 
   assert.equal(chance(fromTwelve, 0, 50, 11 * 12 + 11), 0.5);
   assert.equal(chance(fromTwelve, 0, 50, 12 * 12), 0.8);
 });
+
+test('resolveChance: each ask for an allowance raise in the last year lowers the chance', () => {
+  const chance = (raiseAsks) =>
+    resolveChance(
+      { base: 0.5, modifiers: [{ factor: 'recentAllowanceRaiseAsks', adjust: -0.15 }] },
+      { player: { id: 'p', allowance: { since: 0, raiseAsks } }, currentMonthIndex: 100 },
+    );
+  assert.equal(chance([]), 0.5);
+  assert.equal(chance([94]), 0.35);
+  assert.ok(Math.abs(chance([90, 94, 98]) - 0.05) < 1e-9);
+  assert.equal(chance([70]), 0.5, 'more than a year ago');
+});

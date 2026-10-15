@@ -35,6 +35,21 @@ export function receivesAllowance(person) {
   return person.allowance?.since !== undefined;
 }
 
+// A cut as a punishment (allowance.cut = { from, until }) holds back the
+// months after `from` up to `until`.
+export function isAllowanceCut(person, month) {
+  const cut = person.allowance?.cut;
+  return Boolean(cut) && month > cut.from && month <= cut.until;
+}
+
+// Asking for a raise annoys when done again and again: the asks of the
+// last year count (person.allowance.raiseAsks = [month, ...]).
+export const RAISE_ASKS_MEMORY_MONTHS = 12;
+
+export function recentRaiseAsks(person, monthIndex) {
+  return (person.allowance?.raiseAsks ?? []).filter((month) => monthIndex - month < RAISE_ASKS_MEMORY_MONTHS);
+}
+
 // The family's monthly amount at an age. Younger than the first band only
 // happens in old saves (allowance from 3 on), which keep the first band.
 export function familyAllowanceAt(age, country) {
@@ -44,7 +59,7 @@ export function familyAllowanceAt(age, country) {
 }
 
 // What one parent pays the child for months in (fromMonth, toMonth], only
-// the months after the allowance started.
+// the months after the allowance started and outside a cut.
 export function payAllowance({ parent, relationship, child, country, fromMonth, toMonth }) {
   if (!receivesAllowance(child)) return 0;
   const affinityFactor = Math.min(1.5, Math.max(0.5, relationship.affinity[parent.id] / 50));
@@ -55,6 +70,7 @@ export function payAllowance({ parent, relationship, child, country, fromMonth, 
   const factor = affinityFactor * traitFactor * wealthFactor * stressFactor * (child.allowance.factor ?? 1);
   let total = 0;
   for (let month = Math.max(fromMonth, child.allowance.since) + 1; month <= toMonth; month++) {
+    if (isAllowanceCut(child, month)) continue;
     total += Math.round((familyAllowanceAt(ageAt(child.birth, month), country) / ALLOWANCE_PAYERS) * factor);
   }
   return total;

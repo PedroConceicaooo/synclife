@@ -3,7 +3,7 @@
 
 import { evaluateConditions } from '../engine/conditions.js';
 import { applyEffects } from '../engine/effects.js';
-import { resolveAmount, WEALTH_REFERENCE_IN_LARGE } from './money.js';
+import { resolveAmount, recentRaiseAsks, WEALTH_REFERENCE_IN_LARGE } from './money.js';
 import { ageAt } from '../engine/time.js';
 
 // A price this share of someone's money counts as a big ask (priceVsWealth).
@@ -109,6 +109,10 @@ export function resolveChance(
       case 'fromAge':
         if (ageAt(player.birth, currentMonthIndex) >= modifier.age) p += modifier.adjust;
         break;
+      // Asks for an allowance raise in the last year (money.js): adjust per ask.
+      case 'recentAllowanceRaiseAsks':
+        p += recentRaiseAsks(player, currentMonthIndex).length * modifier.adjust;
+        break;
       // Requests where the parents would pay (enrollment.js).
       case 'parentPays':
         if (parentPays) p += modifier.adjust;
@@ -164,6 +168,7 @@ export function attemptInteraction(
     peopleById,
     playerId: player.id,
     country,
+    currentMonthIndex,
   });
   const succeeded = rng.chance(chance);
 

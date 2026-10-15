@@ -91,3 +91,18 @@ test('awaitsAllowanceOffer: no allowance yet, and not before a refusal lets the 
   assert.equal(awaits({ offerAgainFrom: 100 }), true);
   assert.equal(evaluateConditions({ awaitsAllowanceOffer: false }, { allowance: { since: 90 } }, ctx), true);
 });
+
+test('receivesAllowance: started and not cut now; askedAllowanceRaiseThisPeriod: an ask dated this month', () => {
+  const ctx = { currentMonthIndex: 100 };
+  const receives = (allowance) => evaluateConditions({ receivesAllowance: true }, { allowance }, ctx);
+  assert.equal(receives(undefined), false);
+  assert.equal(receives({ offerAgainFrom: 144 }), false);
+  assert.equal(receives({ since: 80 }), true);
+  assert.equal(receives({ since: 80, cut: { from: 98, until: 104 } }), false);
+  assert.equal(receives({ since: 80, cut: { from: 94, until: 100 } }), true, 'the cut is over');
+
+  const asked = (raiseAsks) => evaluateConditions({ askedAllowanceRaiseThisPeriod: false }, { allowance: { since: 80, raiseAsks } }, ctx);
+  assert.equal(asked(undefined), true);
+  assert.equal(asked([94]), true);
+  assert.equal(asked([94, 100]), false);
+});

@@ -2,7 +2,7 @@
 // key is interpreted by the engine; an implicit AND holds over present keys.
 
 import { ageAt } from './time.js';
-import { resolveAmount } from '../systems/money.js';
+import { resolveAmount, receivesAllowance } from '../systems/money.js';
 import { childrenOf } from '../systems/birth.js';
 import { schoolStageAt } from '../systems/school.js';
 import { isOnTeam, isOnClubTeam } from '../systems/teams.js';
@@ -83,6 +83,16 @@ function evaluateCondition(key, expected, target, context) {
       const waiting = target.allowance?.since === undefined && !(context.currentMonthIndex < (target.allowance?.offerAgainFrom ?? -Infinity));
       return waiting === expected;
     }
+    // Gets the allowance and no cut is running now.
+    case 'receivesAllowance': {
+      const cut = target.allowance?.cut;
+      const receiving = receivesAllowance(target) && !(cut && context.currentMonthIndex < cut.until);
+      return receiving === expected;
+    }
+    // Already asked for a raise in this period (the asks are dated by the
+    // period's month).
+    case 'askedAllowanceRaiseThisPeriod':
+      return (target.allowance?.raiseAsks ?? []).includes(context.currentMonthIndex) === expected;
     case 'minMoney':
       return target.money >= resolveAmount(expected, context.country);
     case 'targetRole':

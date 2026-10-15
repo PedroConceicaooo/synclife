@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveAmount, transferMoney, addMoney, receivesAllowance, familyAllowanceAt, payAllowance } from '../src/systems/money.js';
+import { resolveAmount, transferMoney, addMoney, receivesAllowance, familyAllowanceAt, payAllowance, isAllowanceCut, recentRaiseAsks } from '../src/systems/money.js';
 
 const COUNTRY = { currency: { scale: { small: 10, medium: 50, large: 200 } } };
 
@@ -106,4 +106,20 @@ test('payAllowance per parent never exceeds 1.5x the family amount even for the 
   const parent = { id: 'p_mother', traits: ['generous'], money: 1_000_000_000 };
   const relationship = { affinity: { p_mother: 100 } };
   assert.ok(pay({ parent, relationship, fromMonth: 16 * 12, toMonth: 17 * 12 }) <= 1.5 * 20 * 12);
+});
+
+test('payAllowance holds back the months of a cut, and pays again after it', () => {
+  const cut = child({ since: 0, factor: 1, cut: { from: 16 * 12, until: 16 * 12 + 4 } });
+  // A year at 16 (10 a month from this parent): four months held back.
+  assert.equal(pay({ child: cut, fromMonth: 16 * 12, toMonth: 17 * 12 }), 8 * 10);
+  assert.equal(isAllowanceCut(cut, 16 * 12), false, 'the month of the punishment was already paid');
+  assert.equal(isAllowanceCut(cut, 16 * 12 + 4), true);
+  assert.equal(isAllowanceCut(cut, 16 * 12 + 5), false);
+});
+
+test('recentRaiseAsks keeps the asks of the last year', () => {
+  const person = { allowance: { since: 0, raiseAsks: [100, 110, 120] } };
+  assert.deepEqual(recentRaiseAsks(person, 111), [100, 110, 120]);
+  assert.deepEqual(recentRaiseAsks(person, 130), [120]);
+  assert.deepEqual(recentRaiseAsks({}, 130), []);
 });

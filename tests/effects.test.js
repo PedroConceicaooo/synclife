@@ -235,3 +235,41 @@ test('allowance: start sets since and factor; decline waits until an age and som
   assert.deepEqual(run(decline, 150), { offerAgainFrom: 162 }, 'already past 12: a year later');
   assert.throws(() => run({ op: 'allowance', value: 'double' }, 80), /Unknown allowance value/);
 });
+
+test('allowance: a cut only when it is paid, and a new cut never shortens a running one', () => {
+  const { relationshipsById, country } = setup();
+  const run = (allowance, effect, currentMonthIndex) =>
+    applyEffects([effect], {
+      relationship: null,
+      relationshipsById,
+      peopleById: { p_player: { id: 'p_player', birth: 0, money: 0, ...(allowance ? { allowance } : {}) } },
+      playerId: 'p_player',
+      country,
+      currentMonthIndex,
+    }).peopleById.p_player.allowance;
+  const cut = (months) => ({ op: 'allowance', value: 'cut', months });
+
+  assert.equal(run(undefined, cut(6), 100), undefined, 'no allowance, nothing to cut');
+  assert.deepEqual(run({ offerAgainFrom: 144 }, cut(6), 100), { offerAgainFrom: 144 });
+  assert.deepEqual(run({ since: 80, factor: 1 }, cut(6), 100), { since: 80, factor: 1, cut: { from: 100, until: 106 } });
+  assert.deepEqual(run({ since: 80, factor: 1, cut: { from: 98, until: 110 } }, cut(3), 100).cut, { from: 100, until: 110 });
+  assert.deepEqual(run({ since: 80, factor: 1, cut: { from: 90, until: 96 } }, cut(3), 100).cut, { from: 100, until: 103 }, 'an old cut is over');
+});
+
+test('allowance: a raise multiplies the factor up to its max, and asks are remembered for a year', () => {
+  const { relationshipsById, country } = setup();
+  const run = (allowance, effect, currentMonthIndex = 100) =>
+    applyEffects([effect], {
+      relationship: null,
+      relationshipsById,
+      peopleById: { p_player: { id: 'p_player', birth: 0, money: 0, allowance } },
+      playerId: 'p_player',
+      country,
+      currentMonthIndex,
+    }).peopleById.p_player.allowance;
+  const raise = { op: 'allowance', value: 'raise', by: 1.1, max: 2 };
+
+  assert.equal(run({ since: 0, factor: 1 }, raise).factor, 1.1);
+  assert.equal(run({ since: 0, factor: 1.95 }, raise).factor, 2);
+  assert.deepEqual(run({ since: 0, factor: 1, raiseAsks: [80, 95] }, { op: 'allowance', value: 'raiseAsked' }).raiseAsks, [95, 100]);
+});

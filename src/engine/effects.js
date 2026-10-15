@@ -1,7 +1,7 @@
 // Closed vocabulary for event/interaction effects (rule 4 — no code in data).
 
 import { clamp, findRelationshipBetween } from '../systems/relationship.js';
-import { resolveAmount, transferMoney, addMoney } from '../systems/money.js';
+import { resolveAmount, transferMoney, addMoney, receivesAllowance, recentRaiseAsks } from '../systems/money.js';
 import { addChild } from '../systems/birth.js';
 import { adoptPet } from '../systems/pets.js';
 import { setEmotion, addTendency } from '../systems/personality.js';
@@ -196,14 +196,33 @@ function applyStressEffect(effect, context) {
 // factor: 1.25 } starts it, factor scaling the amount; { value: "decline",
 // offerAgainAge: 12, offerAgainAfterMonths: 12 } lets the parents offer it
 // again from that age, and never sooner than that many months.
+// Once it is paid: { value: "cut", months: 6 } holds it back as a
+// punishment (a new cut can only make one running longer); { value:
+// "raise", by: 1.1, max: 2 } multiplies it up to max times the base;
+// { value: "raiseAsked" } remembers an ask for a raise (one per period,
+// and asking often annoys).
+const ALLOWANCE_VALUES = ['start', 'decline', 'cut', 'raise', 'raiseAsked'];
+
 function applyAllowanceEffect(effect, context) {
+  if (!ALLOWANCE_VALUES.includes(effect.value)) throw new Error(`Unknown allowance value: ${effect.value}`);
+  const month = context.currentMonthIndex;
   return updatePerson(context, context.playerId, (person) => {
-    if (effect.value === 'start') return { ...person, allowance: { since: context.currentMonthIndex, factor: effect.factor ?? 1 } };
+    if (effect.value === 'start') return { ...person, allowance: { since: month, factor: effect.factor ?? 1 } };
     if (effect.value === 'decline') {
-      const offerAgainFrom = Math.max(person.birth + effect.offerAgainAge * 12, context.currentMonthIndex + (effect.offerAgainAfterMonths ?? 0));
+      const offerAgainFrom = Math.max(person.birth + effect.offerAgainAge * 12, month + (effect.offerAgainAfterMonths ?? 0));
       return { ...person, allowance: { offerAgainFrom } };
     }
-    throw new Error(`Unknown allowance value: ${effect.value}`);
+    if (!receivesAllowance(person)) return person;
+    const allowance = person.allowance;
+    if (effect.value === 'cut') {
+      const running = allowance.cut && month < allowance.cut.until ? allowance.cut.until : -Infinity;
+      return { ...person, allowance: { ...allowance, cut: { from: month, until: Math.max(running, month + effect.months) } } };
+    }
+    if (effect.value === 'raise') {
+      return { ...person, allowance: { ...allowance, factor: Math.min(effect.max, (allowance.factor ?? 1) * effect.by) } };
+    }
+    // raiseAsked
+    return { ...person, allowance: { ...allowance, raiseAsks: [...recentRaiseAsks(person, month), month] } };
   });
 }
 
