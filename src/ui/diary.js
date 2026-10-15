@@ -125,6 +125,11 @@ export function enrollmentLine(state, locale, entry) {
       return locale.format('diary.enrollment_refused', { activity, parent: who(state, locale, entry.parentId) });
     case 'enrollmentLeft':
       return locale.format('diary.enrollment_left', { activity });
+    // A minor asking to do something (an ear piercing).
+    case 'permissionGranted':
+      return locale.format('diary.permission_granted', { activity, parent: who(state, locale, entry.parentId) });
+    case 'permissionRefused':
+      return entry.parentId ? locale.format('diary.permission_refused', { activity, parent: who(state, locale, entry.parentId) }) : null;
     // Asking the parents to pay (parentPayment.js).
     case 'parentsPaid':
       return locale.format('diary.parents_paid', { activity, parent: who(state, locale, entry.parentId) });
@@ -196,6 +201,7 @@ export function makeoverLine(locale, activityId, look, sex) {
       style: locale.t(`hairStyle.${look.hairStyle}`),
       color: locale.t(`hairColor.${look.hairColor}`),
       glasses: locale.t(`glasses.${look.glasses ?? 'none'}`),
+      earrings: look.earrings ? locale.t(`earrings.${look.earrings}`) : '',
     },
     { player: sex },
   );
@@ -321,6 +327,8 @@ function entryLine(entry, state, locale, block, index) {
     case 'enrollmentEnded':
     case 'parentsPaid':
     case 'parentsDidNotPay':
+    case 'permissionGranted':
+    case 'permissionRefused':
       return enrollmentLine(state, locale, entry);
     case 'levelUp':
     case 'examFailed':

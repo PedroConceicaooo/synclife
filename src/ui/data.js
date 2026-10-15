@@ -139,6 +139,7 @@ const MANIFEST = {
     'shave.json',
     'optician.json',
     'orthodontics.json',
+    'ear_piercing.json',
     'massage.json',
     'waxing.json',
     'eyebrows.json',

@@ -88,7 +88,19 @@ export function renderAvatar(appearance, sex, phase, opts = {}) {
     const x = 60 + d * (p.rx - 1);
     return `<ellipse cx="${x}" cy="56" rx="5" ry="6.5" fill="url(#s${id})" ${ol(sl)}/><path d="M${x - d},53 q${d * 2},3 0,6" fill="none" stroke="${sl}" stroke-width="1.2" stroke-linecap="round"/>`;
   }).join('');
-  const head = `${ears}<ellipse cx="60" cy="52" rx="${p.rx}" ry="${p.ry}" fill="url(#s${id})" ${ol(sl)}/>`;
+  // Earrings (ear piercing): a stud or a hoop under each ear.
+  const earrings =
+    !baby && appearance.earrings
+      ? [-1, 1]
+          .map((d) => {
+            const x = 60 + d * (p.rx - 1);
+            return appearance.earrings === 'hoop'
+              ? `<circle cx="${x}" cy="64.5" r="2.6" fill="none" stroke="#D9B44A" stroke-width="1.3"/>`
+              : `<circle cx="${x}" cy="62.6" r="1.5" fill="#F3E7A8" stroke="#B8962E" stroke-width=".6"/>`;
+          })
+          .join('')
+      : '';
+  const head = `${ears}<ellipse cx="60" cy="52" rx="${p.rx}" ry="${p.ry}" fill="url(#s${id})" ${ol(sl)}/>${earrings}`;
 
   const ew = p.eyeR * 1.55, eh = p.eyeR * 1.75;
   const fem = sex === 'F' && !baby;

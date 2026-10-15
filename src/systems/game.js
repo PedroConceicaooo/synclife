@@ -29,7 +29,7 @@ import { buyAsset, sellAsset, listShop, applyAssetUpkeep } from './assets.js';
 import { isAllowanceAge, payAllowance, transferMoney } from './money.js';
 import { growStats } from './growth.js';
 import { decayAllSkills } from './training.js';
-import { requestEnrollment, leaveEnrollment, chargeEnrollments, askParentPermission } from './enrollment.js';
+import { requestEnrollment, leaveEnrollment, chargeEnrollments, askParentPermission, needsPermission } from './enrollment.js';
 import { compete, competitionBlocker } from './competitions.js';
 import { tryOut, endSeason, signUpForTryout, runDueTryouts, joinClubTeam, listClubTryouts } from './teams.js';
 import { rollScoutInvites } from './scout.js';
@@ -99,6 +99,7 @@ export function createGameState({
     enrollmentAskedThisPeriod: {},
     tryoutAskedThisPeriod: {},
     parentPayAskedThisPeriod: {},
+    permissionRefusedThisPeriod: {},
     competedThisPeriod: {},
     clubSeasons: {},
     remainingMonths: 0,
@@ -442,6 +443,7 @@ export function advanceStep(state, requestedMonths) {
     enrollmentAskedThisPeriod: {},
     tryoutAskedThisPeriod: {},
     parentPayAskedThisPeriod: {},
+    permissionRefusedThisPeriod: {},
     competedThisPeriod: {},
     lastActivityResult: null,
     firedEvents: [
@@ -846,8 +848,60 @@ export function askParentsToPayActivity(state, activityId, choice = null) {
 
 // Events triggered by an activity have no yearlyChance of their own: ones
 // with options become a decision, the rest apply right away.
+// An activity with parentPermission (an ear piercing): a minor asks the
+// parents first; a no holds for the rest of the period. Returns the state
+// to go on with (entries added) and whether it may go on.
+function checkParentPermission(state, activity) {
+  const playerId = state.player.id;
+  const player = state.people[playerId];
+  const goOn = { state, allowed: true, entries: [] };
+  if (!activity.parentPermission || !needsPermission(activity, player, state.currentMonthIndex)) return goOn;
+  const refused = state.permissionRefusedThisPeriod ?? {};
+  if (refused[activity.id]) {
+    const lastActivityResult = { attempted: false, activityId: activity.id, reason: 'permissionRefused' };
+    return { state: { ...state, lastActivityResult }, allowed: false };
+  }
+  // Blocked anyway (money, age...): no need to ask; attemptActivity says why.
+  const blocker = activityBlocker(activity, {
+    player,
+    country: state.country,
+    currentMonthIndex: state.currentMonthIndex,
+    usesThisPeriod: state.activityUsesThisPeriod?.[activity.id] ?? 0,
+    parentTraits: parentTraits(state),
+  });
+  if (blocker) return goOn;
+  const answer = askParentPermission(activity, {
+    playerId,
+    peopleById: state.people,
+    relationshipsById: state.relationships,
+    country: state.country,
+    currentMonthIndex: state.currentMonthIndex,
+    rng: state.rng,
+  });
+  const type = answer.allowed ? 'permissionGranted' : 'permissionRefused';
+  const entry = { type, activityId: activity.id, parentId: answer.parentId };
+  const next = { ...state, people: answer.peopleById, relationships: answer.relationshipsById };
+  if (answer.allowed) return { state: next, allowed: true, entries: [entry] };
+  return {
+    state: {
+      ...next,
+      permissionRefusedThisPeriod: { ...refused, [activity.id]: true },
+      history: appendToCurrentBlock(state.history, [entry]),
+      lastActivityResult: { attempted: false, activityId: activity.id, permissionEntry: entry },
+    },
+    allowed: false,
+  };
+}
+
 // choice: for makeovers (makeover.js), what the player picked.
 export function attemptPlayerActivity(state, activityId, choice = null) {
+  const permission = checkParentPermission(state, state.activitiesById[activityId]);
+  if (!permission.allowed) return permission.state;
+  return doPlayerActivity(permission.state, activityId, choice, permission.entries);
+}
+
+// before: diary entries that go right before the activity's (a parent's yes).
+function doPlayerActivity(state, activityId, choice, before) {
   const activity = state.activitiesById[activityId];
   const playerId = state.player.id;
   const playerBefore = state.people[playerId];
@@ -872,6 +926,7 @@ export function attemptPlayerActivity(state, activityId, choice = null) {
   const triggered = fireTriggeredEvents(state, result.triggeredEvents, { people: result.peopleById, relationships: result.relationshipsById });
   const { people, relationships } = triggered;
   const entries = [
+    ...before,
     result.training
       ? { type: 'training', activityId, gain: result.training.gain, technique: result.training.technique }
       : {

@@ -406,6 +406,7 @@ const ACTIVITY_BLOCKER_KEYS = {
   notEnrolled: 'ui.activity_notEnrolled',
   competed: 'ui.activity_competed',
   forbidden: 'ui.activity_forbidden',
+  permissionRefused: 'ui.activity_permissionRefused',
 };
 
 // Why asking for an enrollment did nothing (enrollPlayer).
@@ -434,6 +435,7 @@ const TRYOUT_BLOCKERS = ['asked', 'signedUp', 'onTeam', 'otherClub', 'alreadyTri
 
 function activityResultText(state, result, locale, sexes) {
   if (result.parentPayEntry && !result.attempted) return enrollmentLine(state, locale, result.parentPayEntry);
+  if (result.permissionEntry) return enrollmentLine(state, locale, result.permissionEntry);
   if (result.reason === 'asked' && !('enrollmentEntry' in result) && !result.tryoutEntries) return locale.t('ui.parents_pay_asked');
   if (result.tryoutEntries) return result.tryoutEntries.map((entry) => teamEntryLine(state, locale, entry)).join(' ');
   if (TRYOUT_BLOCKERS.includes(result.reason)) return locale.t(`ui.tryout_blocked.${result.reason}`);
@@ -675,6 +677,7 @@ function renderMakeover(dom, state, locale, activityId, picked, { onPickMakeover
   group('ui.makeover_color', options.hairColors, look.hairColor, (v) => capitalize(locale.t(`hairColor.${v}`), locale.language), (v) => ({ hairColor: v }));
   group('ui.makeover_beard', options.beard ? [true, false] : [], look.beard, (v) => locale.t(`ui.makeover_beard.${v}`), (v) => ({ beard: v }));
   group('ui.makeover_glasses', options.glasses, look.glasses, (v) => capitalize(locale.t(`glasses.${v}`), locale.language), (v) => ({ glasses: v }));
+  group('ui.makeover_earrings', options.earrings, look.earrings, (v) => capitalize(locale.t(`earrings.${v}`), locale.language), (v) => ({ earrings: v }));
 
   const actions = el('div', { className: 'submenu' });
   const busy = state.pendingDecisions.length > 0;

@@ -1,0 +1,58 @@
+{
+  "id": "ear_piercing",
+  "category": "body_care",
+  "conditions": {
+    "minAge": 10
+  },
+  "cost": "small",
+  "parentPermission": {
+    "under": 18,
+    "chance": {
+      "base": 0.5,
+      "modifiers": [
+        {
+          "factor": "affinity",
+          "weight": 0.6
+        },
+        {
+          "factor": "targetTrait",
+          "value": "rigid",
+          "adjust": -0.3
+        },
+        {
+          "factor": "targetTrait",
+          "value": "generous",
+          "adjust": 0.1
+        }
+      ]
+    },
+    "failure": [
+      {
+        "op": "stat",
+        "target": "player",
+        "stat": "happiness",
+        "delta": -2
+      }
+    ]
+  },
+  "makeover": {
+    "earrings": [
+      "stud",
+      "hoop"
+    ]
+  },
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": 1
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    }
+  ]
+}

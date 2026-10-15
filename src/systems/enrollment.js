@@ -29,8 +29,16 @@ export function payerOptions(activity, person, monthIndex) {
   return age < activity.enrollment.selfPayMinAge ? ['parents'] : ['parents', 'self'];
 }
 
-function needsPermission(activity, person, monthIndex) {
-  return ageAt(person.birth, monthIndex) < activity.enrollment.permissionUnder;
+// Who must ask and how the parents decide: an activity's own
+// parentPermission block ({ under, chance, failure }), or its enrollment's.
+function permissionRules(activity) {
+  if (activity.parentPermission) return activity.parentPermission;
+  const { permissionUnder, permission, failure } = activity.enrollment;
+  return { under: permissionUnder, chance: permission, failure };
+}
+
+export function needsPermission(activity, person, monthIndex) {
+  return ageAt(person.birth, monthIndex) < permissionRules(activity).under;
 }
 
 // The parent who is asked: the one who likes the player most (each side of
@@ -100,8 +108,9 @@ export function requestEnrollment(activity, { payer, playerId, peopleById, relat
 }
 
 // Asks the parents to let a minor do something with this activity that
-// costs them nothing (a club tryout, a scout's invitation), with the
-// activity's permission chance. A refusal applies its failure effects.
+// costs them nothing (a club tryout, a scout's invitation, an ear
+// piercing), with the activity's permission chance. A refusal applies its
+// failure effects.
 // Returns { allowed, parentId, peopleById, relationshipsById }; parentId is
 // null when nobody had to be asked.
 export function askParentPermission(activity, { playerId, peopleById, relationshipsById, country, currentMonthIndex, rng }) {
@@ -110,8 +119,9 @@ export function askParentPermission(activity, { playerId, peopleById, relationsh
   const asked = parentToAsk(playerId, relationshipsById);
   if (!asked) return { allowed: false, parentId: null, peopleById, relationshipsById };
   const parent = peopleById[asked.parentId];
+  const rules = permissionRules(activity);
   const allowed = rng.chance(
-    resolveChance(activity.enrollment.permission, {
+    resolveChance(rules.chance, {
       relationship: asked.relationship,
       targetPersonId: parent.id,
       target: parent,
@@ -124,7 +134,7 @@ export function askParentPermission(activity, { playerId, peopleById, relationsh
     }),
   );
   if (allowed) return { allowed, parentId: parent.id, peopleById, relationshipsById };
-  const result = applyEffects(activity.enrollment.failure ?? [], {
+  const result = applyEffects(rules.failure ?? [], {
     relationship: asked.relationship,
     relationshipsById,
     peopleById,

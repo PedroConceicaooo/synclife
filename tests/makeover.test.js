@@ -57,7 +57,7 @@ test('applyMakeover: a dye keeps the natural color for the children; going back 
   assert.deepEqual([back.appearance.hairColor, back.appearance.naturalHairColor], ['brown', null]);
   const twice = applyMakeover(applyMakeover(girl(), { hairColor: 'pink' }), { hairColor: 'blue' });
   assert.equal(twice.appearance.naturalHairColor, 'brown');
-  assert.deepEqual(currentChoice(dyed), { hairStyle: 'bob', hairColor: 'blue', beard: false, glasses: 'none' });
+  assert.deepEqual(currentChoice(dyed), { hairStyle: 'bob', hairColor: 'blue', beard: false, glasses: 'none', earrings: null });
 });
 
 test('attemptActivity pays, applies the pick, and refuses a pick the service lacks', () => {
@@ -65,7 +65,7 @@ test('attemptActivity pays, applies the pick, and refuses a pick the service lac
   const done = attemptActivity(ACTIVITIES.hair_salon, { ...args, choice: { hairStyle: 'ponytail', hairColor: 'red' } });
   assert.equal(done.attempted, true);
   assert.equal(done.peopleById.p_kid.money, 950);
-  assert.deepEqual(done.makeover, { hairStyle: 'ponytail', hairColor: 'red', beard: false, glasses: 'none' });
+  assert.deepEqual(done.makeover, { hairStyle: 'ponytail', hairColor: 'red', beard: false, glasses: 'none', earrings: null });
 
   const trim = attemptActivity(ACTIVITIES.hair_salon, args);
   assert.deepEqual(trim.peopleById.p_kid.appearance, look, 'no pick: a trim, the same look');
@@ -93,7 +93,7 @@ test('in the game: the pick reaches the diary, also when the parents pay', () =>
   const id = state.player.id;
   state = { ...state, people: { ...state.people, [id]: { ...state.people[id], money: 1e6 } } };
   const done = attemptPlayerActivity(state, 'hair_salon', { hairStyle: 'bun', hairColor: 'blue' });
-  assert.deepEqual(done.history.at(-1).entries.find((e) => e.type === 'activity').look, { hairStyle: 'bun', hairColor: 'blue', beard: false, glasses: 'none' });
+  assert.deepEqual(done.history.at(-1).entries.find((e) => e.type === 'activity').look, { hairStyle: 'bun', hairColor: 'blue', beard: false, glasses: 'none', earrings: null });
   assert.equal(done.people[id].appearance.hairColor, 'blue');
 
   const broke = { ...state, people: { ...state.people, [id]: { ...state.people[id], money: 0 } }, rng: { ...state.rng, chance: () => true } };
@@ -111,7 +111,7 @@ test('the optician: frames on the avatar, or contact lenses (no frame)', () => {
   const framed = applyMakeover(girl(), { glasses: 'round' });
   assert.equal(framed.appearance.glasses, 'round');
   assert.equal(currentChoice(framed).glasses, 'round');
-  const lenses = applyMakeover(framed, { glasses: 'none' });
+  const lenses = applyMakeover(framed, { glasses: 'none', earrings: null });
   assert.equal(lenses.appearance.glasses, null);
 
   const svg = (appearance, phase) => renderAvatar(appearance, 'F', phase);
