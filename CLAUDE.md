@@ -50,3 +50,4 @@ Pendências conhecidas:
 - Vida adulta (18+) fora da versão 1.
 - Time da faculdade (`college`): já existe nos `teamLevels` de futebol e basquete e nas ligas `*_college`, mas sem conteúdo. Fazer junto com a vida adulta (peneira no início do ano letivo da faculdade, nota mínima ~40).
 - `sibling_mischief` ("Seu irmão ou sua irmã quebrou a janela") não diz qual irmão: com dois ou mais, o efeito de assumir a culpa vai para um deles sem que o texto diga qual.
+- **Ajustes pedidos pelo Pedro, ainda abertos: ver `docs/ajustes-pedidos.md`** (bug das bandeiras, mesada por evento e por idade, navegação da aba Atividades em níveis). Não apague esta linha; ao resolver um ajuste, marque-o como feito naquele arquivo.

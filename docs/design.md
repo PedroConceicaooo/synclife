@@ -1,6 +1,6 @@
 # SyncLife — Documento de Design (v1)
 
-Atualizado em 2026-10-09 (inclui seção Interface). Fonte principal: Claude Doc "SyncLife — Documento de Design (v1)". Ao mudar o design, atualize os dois.
+Atualizado em 2026-10-15 (inclui seção Interface e a mesada por evento). Fonte principal: Claude Doc "SyncLife — Documento de Design (v1)". Ao mudar o design, atualize os dois.
 
 ## Visão geral
 
@@ -124,12 +124,33 @@ O personagem menor de idade tem quatro fontes de dinheiro. Ações que não depe
 
 | Fonte | Como funciona |
 | --- | --- |
-| Mesada | Paga todo mês pelos pais. Valor depende do dinheiro da família, da personalidade dos pais e da afinidade; pode ser cortada como castigo ou aumentada a pedido |
+| Mesada | Começa num **evento**: os pais decidem dar mesada (a partir dos 6 anos) e conversam com o jogador. Depois, paga todo mês. O valor cresce com a idade e depende do dinheiro da família, da personalidade dos pais e da afinidade; pode ser cortada como castigo ou aumentada a pedido |
 | Ajudar os pais | Via "fazer acordo": ajuda numa tarefa difícil em troca de dinheiro ou algo específico |
 | Bicos informais | Em Atividades: capinar, carregar compras, lavar carro, passear com cachorros, vender no recreio, cuidar de crianças (14+). Cada um tem idade mínima, ganho, custo e chance de pequenos eventos |
 | Pequenos crimes | Em Atividades: furtar alguém, roubar encomendas, furtar loja. Chance de ser pego e consequências vêm do país (justiça juvenil) e da família |
 
 **Vender no recreio** é um bico com investimento e risco: o jogador usa o próprio dinheiro para comprar mercadoria (doces, itens da moda) e revende na escola. O lucro pode ser maior que o de outros bicos, mas um professor rígido pode confiscar a mercadoria e dar advertência.
+
+### Mesada
+
+A mesada **não começa sozinha**. Antes dela o jogador não recebe nada dos pais todo mês.
+
+- **Evento "pais oferecem mesada"** (`allowance_offer`, evento do jogador): pode acontecer entre 6 e 12 anos, com chance anual que sobe com a afinidade com os pais, o dinheiro da família e o traço generoso, e que cai com pais rígidos e estresse alto. Se não aconteceu até os 12 anos, a chance sobe até ficar quase certa. Acontece uma vez por vida.
+- **Conversa:** o evento é um pequeno diálogo, na voz do pai ou da mãe, com variações de texto conforme o traço (generoso, rígido, padrão). Exemplo de referência (o texto final fica em `locales/pt-BR`):
+
+  > **Mãe:** Filho, seu pai e eu andamos conversando. Você está crescendo e achamos que está na hora de você ter um dinheirinho só seu.
+  > **Mãe:** Vai ser uma mesada, todo mês. Dá para gastar nos seus lazeres, um sorvete, um brinquedo, ou guardar para quando você ficar mais velho.
+  > **Mãe:** O dinheiro é seu, mas é você quem cuida dele. Combinado?
+
+  Versão rígida: "Mesada não é presente, é responsabilidade. Quero ver você cuidar bem do dinheiro e continuar ajudando em casa."
+
+- **Opções do jogador:**
+  - **Aceitar e agradecer:** a mesada começa e a afinidade com os pais sobe um pouco.
+  - **Pedir um valor maior:** chance de funcionar (afinidade, traço generoso, dinheiro). Se der certo, o valor fica 25% maior; se não, fica o valor combinado e a afinidade cai um pouco ("Não abusa, hein?").
+  - **Dizer que prefere ganhar ajudando em casa:** a mesada não começa agora, a afinidade sobe e o evento pode voltar a partir dos 12 anos.
+- **Valor por idade:** a mesada cresce com a idade, em faixas definidas no país padrão (escala de dinheiro e multiplicador, como na bolsa de formação). Valores iniciais, para ajustar nos testes, como parte do `small` do país: 6 a 8 anos, 40%; 9 a 11, 80%; 12 a 14, 140%; 15 a 17, 200%. Os fatores de afinidade, traço, riqueza e estresse continuam valendo.
+- **Controle dos pais:** a mesada pode ser cortada como castigo e aumentada a pedido (no máximo um pedido por período; pedir demais irrita), como já dizia a tabela acima.
+- **Saves antigos:** quem já recebe mesada continua recebendo, sem passar pelo evento.
 
 Valores de dinheiro usam escalas (pequeno, médio, grande) definidas por país, não números fixos.
 
@@ -380,7 +401,27 @@ Eventos com escolha e pontos de decisão aparecem num pop-up por cima da tela pr
 - **Relacionamentos:** todo vínculo próximo: família (pais, irmãos, padrastos), namorado(a), ficante, ex, amigos e animais de estimação. Cada uma com nome, papel e barra de relação dupla; tocar abre o perfil com as categorias de interação. Conhecidos (colegas de classe, professores, colegas de trabalho no futuro) ficam dentro da tela do lugar onde convivem, como a escola, para a lista não ficar poluída. Um colega que vira amigo passa para Relacionamentos.
 - **Escola / Profissão:** o lugar onde o personagem convive agora, com a turma e os professores (depois, colegas de trabalho).
 - **Bens:** tudo o que o personagem possui (bicicleta, celular, computador, contas em redes sociais; casa e carro na vida adulta) e a loja para comprar. Cada bem tem preço na moeda do país, idade mínima (o carro segue a idade para dirigir do país) e um efeito por ano enquanto é seu; dá para vender pela metade do preço.
-- **Atividades:** o que se faz sozinho, como bicos e lazer. Listas com título e uma linha de descrição.
+- **Atividades:** o que se faz sozinho, como bicos e lazer. Funciona em níveis, sem listas longas (ver "Navegação da aba Atividades" abaixo).
+
+### Navegação da aba Atividades
+
+A aba não pode virar uma lista enorme que obriga a rolar a tela. Cada nível mostra **poucos cartões grandes**, e tocar em um leva a **outra página**, não a uma lista que abre para baixo.
+
+| Nível | O que aparece |
+| --- | --- |
+| 1. Início da aba | Grade de 2 colunas com cartões grandes (ícone, título e "N opções"): **Bicos**, **Lazer**, **Atividades físicas**, **Cuidados com o corpo**, **Pequenos crimes**. Cabe na tela sem rolar. Cartão sem nenhuma opção para a idade, o sexo ou o país do personagem não aparece |
+| 2. Categoria | Página da categoria. Em **Atividades físicas**: cartões **Esportes**, **Artes marciais** e **Dança** (depois, **Música**, com instrumentos). Em **Bicos**: a lista dos bicos |
+| 3. Subcategoria | A lista da subcategoria: Artes marciais (10 modalidades), Dança (7 estilos), Esportes (futebol, basquete, natação, corrida, academia, CrossFit) |
+| 4. Modalidade | Página da modalidade, com o que ela oferece: **Treinar**, **Clubes e peneiras**, **Competições**, habilidade e graduação (`docs/atividades.md`, seções 3, 5, 7 e 8) |
+
+Regras:
+
+- **Cabeçalho da página:** seta de voltar, o título e o caminho curto ("Atividades › Atividades físicas"). Voltar sobe um nível, e o botão voltar do celular e do navegador faz o mesmo. Tocar de novo na aba Atividades volta ao diário (regra já existente).
+- **Ao abrir a aba**, o jogador cai no nível 1. Depois de **fazer uma atividade**, ele continua na mesma página, para poder repetir treinos, e o resultado aparece ali e no diário. Depois de **avançar o tempo**, volta ao diário.
+- **Linhas curtas:** cada item ocupa uma linha, com o nome e, à direita, uma etiqueta curta ("R$ 25", "Feito neste período", "Precisa de matrícula"). Chega de repetir "Você já fez isso neste período." em duas linhas para cada item. Itens já feitos ficam esmaecidos e no fim da lista.
+- **Atividade de um toque** (um bico, por exemplo) tem o botão na própria linha, sem página de modalidade. Só modalidades com treino, time ou competição têm o nível 4.
+- **Rolagem:** a página começa no topo ao entrar, e volta à posição em que estava ao voltar. A lista nunca passa por baixo da barra de abas nem do botão +1 ano / +6 meses (hoje o último item fica cortado atrás do botão).
+- **Mesmo padrão em outras abas:** se funcionar bem, avaliar o mesmo desenho para Bens e Relacionamentos.
 
 ### Para depois
 

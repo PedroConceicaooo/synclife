@@ -15,6 +15,8 @@ Atividades
 └── (bicos, pequenos crimes e o que já existe continuam como hoje)
 ```
 
+Na tela, cada nível da árvore acima é **uma página própria**, com poucos cartões grandes (nada de listas longas que abrem para baixo). O desenho completo está em `docs/design.md`, seção "Navegação da aba Atividades". Resumindo: o início da aba tem os cartões **Bicos**, **Lazer**, **Atividades físicas**, **Cuidados com o corpo** e **Pequenos crimes**; **Atividades físicas** abre **Esportes**, **Artes marciais** e **Dança**; cada um abre a sua lista; e a modalidade tem a página com Treinar, Clubes e peneiras e Competições.
+
 Itens que não fazem sentido para o personagem não aparecem: por idade, por sexo (barbeiro e barbear só para homens; cabeleireira para mulheres, conforme pedido) ou por lei do país.
 
 ## 2. Cuidados com o corpo
