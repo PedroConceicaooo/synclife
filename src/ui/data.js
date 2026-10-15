@@ -72,6 +72,7 @@ const MANIFEST = {
     'argument_with_parents.json',
   ],
   interactions: [
+    'ask_allowance_raise.json',
     'ask_money.json',
     'chat.json',
     'compliment.json',

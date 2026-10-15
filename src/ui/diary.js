@@ -350,6 +350,10 @@ function entryLine(entry, state, locale, block, index) {
     case 'teamGames':
     case 'clubSeason':
       return teamEntryLine(state, locale, entry);
+    case 'allowanceCut':
+      return locale.format('diary.allowance_cut', { months: locale.plural('age.months', entry.months) });
+    case 'allowanceBack':
+      return locale.t('diary.allowance_back');
     case 'interaction':
       return locale.format('diary.interaction', {
         label: text(`interaction.${entry.interactionId}.label`),

@@ -132,3 +132,9 @@ test('the allowance conversation is told in the voice of the speaker, with the t
   assert.ok(plain.endsWith('Escolha: Aceitar e agradecer.'), plain);
   assert.doesNotMatch(rigid + plain, UNRESOLVED);
 });
+
+test('the diary tells an allowance cut and its end', () => {
+  const state = createGameState({ seed: 11, ...ARGS });
+  const block = { month: state.player.birth + 120, entries: [{ type: 'allowanceCut', months: 6 }, { type: 'allowanceBack' }] };
+  assert.deepEqual(describeBlock(block, state, LOCALE).lines.map((l) => l.text), ['Meus pais cortaram minha mesada por 6 meses.', 'A mesada voltou.']);
+});

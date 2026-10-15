@@ -157,6 +157,11 @@ function statEntries(before, after) {
   if (emotion && (emotion !== before.emotion?.type || after.emotion.until !== before.emotion?.until)) {
     entries.push({ type: 'emotion', emotion });
   }
+  // The parents cut the allowance as a punishment (money.js).
+  const cut = after.allowance?.cut;
+  if (cut && (cut.from !== before.allowance?.cut?.from || cut.until !== before.allowance?.cut?.until)) {
+    entries.push({ type: 'allowanceCut', months: cut.until - cut.from });
+  }
   return entries;
 }
 
@@ -405,6 +410,9 @@ export function advanceStep(state, requestedMonths) {
   }
 
   // Only after the parents offered it (allowance_offer); nothing otherwise.
+  // A cut that ends in this advance gives it back from the next month.
+  const cut = people[playerId].allowance?.cut;
+  if (cut && cut.until >= state.currentMonthIndex && cut.until < nextMonthIndex) entries.push({ type: 'allowanceBack' });
   for (const [parentId, relationshipId] of [
     [state.mother.id, state.motherChildId],
     [state.father.id, state.fatherChildId],

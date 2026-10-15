@@ -33,6 +33,11 @@
       "target": "player",
       "value": "ashamed",
       "months": 6
+    },
+    {
+      "op": "allowance",
+      "value": "cut",
+      "months": 3
     }
   ]
 }

@@ -527,3 +527,42 @@ test('a full life gets no allowance before the parents offer it, and the monthly
     assert.ok(perMonth(paidMonthly.at(-2)) > perMonth(paidMonthly[0]), `seed ${seed}: more at 17 than at the start`);
   }
 });
+
+// The parents' control over the allowance (design doc, "Mesada").
+function withAllowance(seed, age, allowance) {
+  const state = createGameState(baseArgs(seed));
+  const month = state.player.birth + age * 12;
+  const player = { ...state.people[state.player.id], allowance: { since: month - 12, factor: 1, ...allowance } };
+  return { ...state, currentMonthIndex: month, people: { ...state.people, [state.player.id]: player } };
+}
+
+test('asking for an allowance raise: once per period for both parents, and it raises the allowance', () => {
+  const state = withAllowance(5, 10, {});
+  const has = (s, personId) => availableInteractions(s, personId).some((g) => g.interactionIds.includes('ask_allowance_raise'));
+  assert.ok(has(state, state.mother.id) && has(state, state.father.id));
+
+  const asked = attemptPlayerInteraction({ ...state, rng: { ...state.rng, chance: () => true } }, 'ask_allowance_raise', state.mother.id);
+  assert.equal(asked.people[state.player.id].allowance.factor, 1.1);
+  assert.equal(has(asked, state.father.id), false, 'one ask per period');
+
+  const nextPeriod = advanceStep({ ...asked, eventsById: {} }, 6);
+  assert.equal(has(nextPeriod, state.father.id), true);
+  assert.equal(has(withAllowance(5, 10, { cut: { from: state.currentMonthIndex, until: state.currentMonthIndex + 6 } }), state.mother.id), false, 'not while cut');
+});
+
+test('a punishment cuts the allowance: the diary says so, nothing is paid, then it comes back', () => {
+  const warning = { ...EVENTS_BY_ID.school_warning, conditions: { minAge: 0 }, yearlyChance: 1 };
+  const state = { ...withAllowance(5, 10, {}), eventsById: { school_warning: warning } };
+  const allowancePaid = (s) => s.history.at(-1).entries.filter((e) => e.type === 'money' && e.source === 'allowance').reduce((sum, e) => sum + e.amount, 0);
+
+  const punished = advanceStep(state, 6);
+  const entries = punished.history.at(-1).entries;
+  assert.ok(entries.some((e) => e.type === 'allowanceCut' && e.months === 3), JSON.stringify(entries.map((e) => e.type)));
+  assert.ok(allowancePaid(punished) > 0, 'the months before the punishment are paid');
+
+  const quiet = { ...punished, eventsById: {} };
+  const during = advanceStep(quiet, 6);
+  assert.ok(during.history.at(-1).entries.some((e) => e.type === 'allowanceBack'));
+  const paidMonths = allowancePaid(during) / (allowancePaid(punished) / 6);
+  assert.ok(Math.abs(paidMonths - 3) < 0.5, `three of six months paid, got ${paidMonths}`);
+});

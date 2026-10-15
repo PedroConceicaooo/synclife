@@ -37,6 +37,11 @@
       "side": "target",
       "delta": -6,
       "targetRole": "father"
+    },
+    {
+      "op": "allowance",
+      "value": "cut",
+      "months": 6
     }
   ]
 }

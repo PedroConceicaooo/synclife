@@ -1,0 +1,73 @@
+{
+  "id": "ask_allowance_raise",
+  "category": "ask",
+  "conditions": {
+    "targetRole": [
+      "mother",
+      "father"
+    ],
+    "minAge": 6,
+    "receivesAllowance": true,
+    "askedAllowanceRaiseThisPeriod": false
+  },
+  "chance": {
+    "base": 0.35,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.5
+      },
+      {
+        "factor": "targetTrait",
+        "value": "generous",
+        "adjust": 0.15
+      },
+      {
+        "factor": "targetTrait",
+        "value": "rigid",
+        "adjust": -0.15
+      },
+      {
+        "factor": "targetWealth",
+        "weight": 0.2
+      },
+      {
+        "factor": "targetStress",
+        "weight": -0.3
+      },
+      {
+        "factor": "recentAllowanceRaiseAsks",
+        "adjust": -0.15
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "allowance",
+      "value": "raise",
+      "by": 1.1,
+      "max": 2
+    },
+    {
+      "op": "allowance",
+      "value": "raiseAsked"
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ],
+  "failure": [
+    {
+      "op": "allowance",
+      "value": "raiseAsked"
+    },
+    {
+      "op": "affinity",
+      "side": "both",
+      "delta": -3
+    }
+  ]
+}
