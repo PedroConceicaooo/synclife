@@ -4,7 +4,7 @@
 import { ageAt } from '../engine/time.js';
 import { affinityBand } from './affinityColor.js';
 import { fullName } from '../systems/naming.js';
-import { describeHistory, trainingLine, trainingEventLine, enrollmentLine, clubName, teamName, teamEntryLine, makeoverLine } from './diary.js';
+import { describeHistory, eventPrompt, trainingLine, trainingEventLine, enrollmentLine, clubName, teamName, teamEntryLine, makeoverLine } from './diary.js';
 import { isAdult, availableInteractions, availableActivities, closePeople, playerOccupation, assetShop, clubTryouts, playerTeams } from './gameState.js';
 import { nextSeasonStart } from '../systems/teams.js';
 import { makeoverOptions, applyMakeover, currentChoice } from '../systems/makeover.js';
@@ -751,8 +751,7 @@ export function renderDecisionModal(dom, state, locale, { onChoose }) {
   const sexes = sexesOf(state);
 
   dom.decisionModal.hidden = false;
-  const params = decision.clubId ? { club: clubName(locale, state.clubsById[decision.clubId]) } : {};
-  dom.decisionPrompt.textContent = locale.format(`event.${decision.trigger}.prompt`, params, sexes);
+  dom.decisionPrompt.textContent = eventPrompt(locale, state, { ...decision, eventId: decision.trigger });
 
   clearChildren(dom.decisionOptions);
   for (const option of decisionEvent.options) {

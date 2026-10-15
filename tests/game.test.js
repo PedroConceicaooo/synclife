@@ -513,3 +513,17 @@ test('askParentsToPayActivity: short of money, the parents pay and the activity 
   const rich = { ...state, people: { ...state.people, [playerId]: { ...state.people[playerId], money: 1e6 } } };
   assert.equal(askParentsToPayActivity(rich, 'amusement_park').lastActivityResult.reason, 'unavailable');
 });
+
+test('a full life gets no allowance before the parents offer it, and the monthly amount grows with age', () => {
+  for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+    const { state } = playFullLife(seed);
+    const offer = state.history.findIndex((b) => b.entries.some((e) => e.eventId === 'allowance_offer' && e.optionId !== 'help_at_home'));
+    assert.ok(offer >= 0, `seed ${seed}: the parents offered it`);
+    const paidMonthly = state.history
+      .map((block, i) => ({ i, months: block.month - (state.history[i - 1]?.month ?? state.player.birth), paid: block.entries.filter((e) => e.source === 'allowance').reduce((sum, e) => sum + e.amount, 0) }))
+      .filter((b) => b.paid > 0);
+    assert.ok(paidMonthly[0].i > offer, `seed ${seed}: the first allowance comes after the offer`);
+    const perMonth = (b) => b.paid / b.months;
+    assert.ok(perMonth(paidMonthly.at(-2)) > perMonth(paidMonthly[0]), `seed ${seed}: more at 17 than at the start`);
+  }
+});

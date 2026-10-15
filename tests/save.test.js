@@ -77,7 +77,7 @@ test('a version 1 save (before team sports) is converted and keeps playing', () 
   }
 
   const migrated = migrate(v1);
-  assert.equal(migrated.saveVersion, 2);
+  assert.equal(migrated.saveVersion, SAVE_VERSION);
   for (const person of Object.values(migrated.people)) {
     assert.deepEqual([person.teams, person.tryouts, person.tryoutSignups], [[], [], []], person.id);
   }
@@ -87,4 +87,19 @@ test('a version 1 save (before team sports) is converted and keeps playing', () 
   assert.deepEqual(loaded.people[loaded.player.id].teams, []);
   assert.doesNotThrow(() => play(loaded, 2));
   assert.throws(() => fromSave({ ...v1, saveVersion: 0 }, DATA), /Unsupported save version/);
+});
+
+test('a version 2 save keeps paying the allowance it already paid, without the offer', () => {
+  // Version 2 paid from 3 years on: a 4-year-old was already getting it.
+  const young = createGameState({ seed: 21, ...DATA });
+  const v2 = (state, month) => JSON.parse(JSON.stringify({ ...toSave(state), currentMonth: month, saveVersion: 2 }));
+  const playerId = young.player.id;
+
+  const receiving = migrate(v2(young, young.player.birth + 4 * 12));
+  assert.equal(receiving.saveVersion, 3);
+  assert.deepEqual(receiving.people[playerId].allowance, { since: young.player.birth + 4 * 12, factor: 1 });
+
+  const baby = migrate(v2(young, young.player.birth + 2 * 12));
+  assert.equal(baby.people[playerId].allowance, undefined, 'a 2-year-old was not getting it yet');
+  assert.ok(Object.values(receiving.people).every((p) => p.id === playerId || p.allowance === undefined), 'only the player had it');
 });

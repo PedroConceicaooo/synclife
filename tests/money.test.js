@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveAmount, transferMoney, addMoney, isAllowanceAge, payAllowance } from '../src/systems/money.js';
+import { resolveAmount, transferMoney, addMoney, receivesAllowance, familyAllowanceAt, payAllowance } from '../src/systems/money.js';
 
 const COUNTRY = { currency: { scale: { small: 10, medium: 50, large: 200 } } };
 
@@ -31,45 +31,79 @@ test('addMoney adds to a single person without mutating the input', () => {
   assert.equal(peopleById.a.money, 100);
 });
 
-test('isAllowanceAge is false under 3 and true at 3 and above', () => {
-  assert.equal(isAllowanceAge(2), false);
-  assert.equal(isAllowanceAge(3), true);
-  assert.equal(isAllowanceAge(10), true);
+// Bands like the default country: share of "small" by age.
+const ALLOWANCE_COUNTRY = {
+  ...COUNTRY,
+  familyAllowance: {
+    ageBands: [
+      { minAge: 6, scale: 'small', multiplier: 0.4 },
+      { minAge: 9, scale: 'small', multiplier: 0.8 },
+      { minAge: 12, scale: 'small', multiplier: 1.4 },
+      { minAge: 15, scale: 'small', multiplier: 2 },
+    ],
+  },
+};
+const AVERAGE_PARENT = { id: 'p_mother', traits: [], money: 60 * 200 }; // affinity 50, no trait, 60x "large" -> 1x
+const AVERAGE_RELATIONSHIP = { affinity: { p_mother: 50 } };
+// Born at month 0, getting the allowance since month 0.
+const child = (allowance = { since: 0, factor: 1 }) => ({ id: 'p_child', birth: 0, ...(allowance ? { allowance } : {}) });
+const pay = (overrides) =>
+  payAllowance({ parent: AVERAGE_PARENT, relationship: AVERAGE_RELATIONSHIP, child: child(), country: ALLOWANCE_COUNTRY, ...overrides });
+
+test('receivesAllowance only after the parents offered it', () => {
+  assert.equal(receivesAllowance(child(null)), false);
+  assert.equal(receivesAllowance(child({ offerAgainFrom: 144 })), false);
+  assert.equal(receivesAllowance(child()), true);
+});
+
+test('familyAllowanceAt follows the age bands, and keeps the first band below it (old saves)', () => {
+  assert.equal(familyAllowanceAt(4, ALLOWANCE_COUNTRY), 4);
+  assert.equal(familyAllowanceAt(6, ALLOWANCE_COUNTRY), 4);
+  assert.equal(familyAllowanceAt(8, ALLOWANCE_COUNTRY), 4);
+  assert.equal(familyAllowanceAt(9, ALLOWANCE_COUNTRY), 8);
+  assert.equal(familyAllowanceAt(12, ALLOWANCE_COUNTRY), 14);
+  assert.equal(familyAllowanceAt(17, ALLOWANCE_COUNTRY), 20);
+});
+
+test('payAllowance pays nothing before the offer', () => {
+  assert.equal(pay({ child: child(null), fromMonth: 100, toMonth: 112 }), 0);
+});
+
+test('payAllowance pays an average parent half the family amount per month, growing with age', () => {
+  // 7 years: 0.4 x 10 = 4 a month for the family, 2 from each parent.
+  assert.equal(pay({ fromMonth: 7 * 12, toMonth: 8 * 12 }), 2 * 12);
+  // 16 years: 2 x 10 = 20 for the family, 10 from each parent.
+  assert.equal(pay({ fromMonth: 16 * 12, toMonth: 17 * 12 }), 10 * 12);
+});
+
+test('payAllowance counts each month at its own age when a band changes mid-step', () => {
+  // Months 8y7m..9y6m: five months at 8 (2 each), seven at 9 (4 each).
+  assert.equal(pay({ fromMonth: 8 * 12 + 6, toMonth: 9 * 12 + 6 }), 5 * 2 + 7 * 4);
+});
+
+test('payAllowance only counts the months after the allowance started', () => {
+  const started = child({ since: 10 * 12 + 3, factor: 1 });
+  assert.equal(pay({ child: started, fromMonth: 10 * 12, toMonth: 10 * 12 + 6 }), 3 * 4);
+});
+
+test('payAllowance applies the factor agreed in the conversation (asking for more)', () => {
+  const more = child({ since: 0, factor: 1.25 });
+  assert.equal(pay({ child: more, fromMonth: 16 * 12, toMonth: 17 * 12 }), Math.round(10 * 1.25) * 12);
 });
 
 test('payAllowance pays more for a richer, generous, high-affinity parent than a poorer, rigid, low-affinity one', () => {
   const richGenerousParent = { id: 'p_mother', traits: ['generous'], money: 1_000_000 };
   const poorRigidParent = { id: 'p_father', traits: ['rigid'], money: 1 };
-  const highAffinity = { affinity: { p_mother: 100 } };
-  const lowAffinity = { affinity: { p_father: 1 } };
+  const span = { fromMonth: 12 * 12, toMonth: 13 * 12 };
 
-  const high = payAllowance({ parent: richGenerousParent, relationship: highAffinity, country: COUNTRY, step: 6 });
-  const low = payAllowance({ parent: poorRigidParent, relationship: lowAffinity, country: COUNTRY, step: 6 });
+  const high = pay({ parent: richGenerousParent, relationship: { affinity: { p_mother: 100 } }, ...span });
+  const low = pay({ parent: poorRigidParent, relationship: { affinity: { p_father: 1 } }, ...span });
 
   assert.ok(high > low);
 });
 
-test('payAllowance scales linearly with step', () => {
-  const parent = { id: 'p_mother', traits: [], money: 2000 };
-  const relationship = { affinity: { p_mother: 50 } };
-
-  const sixMonths = payAllowance({ parent, relationship, country: COUNTRY, step: 6 });
-  const twelveMonths = payAllowance({ parent, relationship, country: COUNTRY, step: 12 });
-
-  assert.equal(twelveMonths, sixMonths * 2);
-});
-
-test('payAllowance pays an average parent half a "small" per month', () => {
-  // affinity 50 -> 1x, no trait -> 1x, money = 60x "large" -> 1x
-  const parent = { id: 'p_mother', traits: [], money: 60 * 200 };
-  const relationship = { affinity: { p_mother: 50 } };
-
-  assert.equal(payAllowance({ parent, relationship, country: COUNTRY, step: 12 }), 5 * 12);
-});
-
-test('payAllowance per parent never exceeds 1.5x "small" per month even for the richest, most loving parent', () => {
+test('payAllowance per parent never exceeds 1.5x the family amount even for the richest, most loving parent', () => {
   const parent = { id: 'p_mother', traits: ['generous'], money: 1_000_000_000 };
   const relationship = { affinity: { p_mother: 100 } };
-
-  assert.ok(payAllowance({ parent, relationship, country: COUNTRY, step: 12 }) <= 1.5 * 10 * 12);
+  assert.ok(pay({ parent, relationship, fromMonth: 16 * 12, toMonth: 17 * 12 }) <= 1.5 * 20 * 12);
 });

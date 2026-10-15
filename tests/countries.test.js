@@ -139,3 +139,18 @@ test('every country has the legal status and Pew acceptance of same-sex couples,
   }
   assert.match(resolveCountry('RU', countriesById).topics.same_sex_relationship.source, /2019/);
 });
+
+test('every country inherits the family allowance bands: from 6, growing with age, in money scales', () => {
+  const countriesById = loadCountries(COUNTRIES_DIR);
+  for (const id of ['BR', 'US', 'JP', 'RU', 'GB']) {
+    const bands = resolveCountry(id, countriesById).familyAllowance.ageBands;
+    assert.equal(bands[0].minAge, 6, id);
+    for (const [i, band] of bands.entries()) {
+      assert.ok(['small', 'medium', 'large'].includes(band.scale), `${id}: ${band.scale}`);
+      if (i > 0) {
+        assert.ok(band.minAge > bands[i - 1].minAge, `${id}: bands in age order`);
+        assert.ok(band.multiplier > bands[i - 1].multiplier, `${id}: more with age`);
+      }
+    }
+  }
+});

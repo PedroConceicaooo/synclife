@@ -312,3 +312,77 @@ test('processPlayerEvents is deterministic for a fixed seed', () => {
   const run = () => processPlayerEvents(PLAYER_EVENTS, playerArgs({ rng: createRng(99) }));
   assert.deepEqual(run(), run());
 });
+
+// Allowance offer (design doc, "Mesada"): a chance moved by the family, a
+// parent who speaks, and an option with its own chance.
+function familyArgs({ motherTraits = [], fatherTraits = [], affinity = 50, ageMonths = 8 * 12, ...overrides } = {}) {
+  const player = { id: 'p_player', birth: 0, money: 0, stats: { happiness: 50, health: 50, intelligence: 50, looks: 50 } };
+  const parent = (id, traits) => ({ id, traits, money: 12_000, stress: 50 });
+  const link = (id, role, rid) => ({ id: rid, roles: { [id]: role, p_player: 'son' }, affinity: { [id]: affinity, p_player: 50 }, since: 0 });
+  return {
+    player,
+    peopleById: { p_player: player, p_mom: parent('p_mom', motherTraits), p_dad: parent('p_dad', fatherTraits) },
+    relationshipsById: { r_mom: link('p_mom', 'mother', 'r_mom'), r_dad: link('p_dad', 'father', 'r_dad') },
+    currentMonthIndex: ageMonths,
+    step: 12,
+    country: { currency: { scale: { small: 10, medium: 50, large: 200 } } },
+    hasDecision: true,
+    ...overrides,
+  };
+}
+
+test('player events with chanceModifiers roll a chance moved by the family, capped at 0.95', () => {
+  const events = loadEvents(EVENTS_DIR);
+  const seen = (args) => {
+    let p;
+    processPlayerEvents({ allowance_offer: events.allowance_offer }, { ...familyArgs(args), rng: { chance: (x) => ((p = x), false), nextInt: () => 0, next: () => 0 } });
+    return p;
+  };
+  assert.ok(seen({ affinity: 90 }) > seen({ affinity: 50 }), 'parents who like the child offer it sooner');
+  assert.ok(seen({ motherTraits: ['generous'] }) > seen({}), 'a generous parent sooner');
+  assert.ok(seen({ fatherTraits: ['rigid'] }) < seen({}), 'a rigid parent later');
+  assert.ok(seen({ ageMonths: 12 * 12 }) > 0.9, 'almost certain at 12');
+  assert.equal(seen({ ageMonths: 12 * 12, affinity: 100, motherTraits: ['generous'] }), 0.95);
+});
+
+test('allowance_offer happens once: never after the allowance started, and only from 12 after a refusal', () => {
+  const event = loadEvents(EVENTS_DIR).allowance_offer;
+  const fires = (player, ageMonths) =>
+    processPlayerEvents({ allowance_offer: event }, { ...familyArgs({ ageMonths }), player, rng: { chance: () => true, nextInt: () => 0, next: () => 0 } }).fired.length;
+  const child = { id: 'p_player', birth: 0 };
+  assert.equal(fires(child, 5 * 12), 0, 'not before 6');
+  assert.equal(fires(child, 6 * 12), 1);
+  assert.equal(fires({ ...child, allowance: { since: 70, factor: 1 } }, 9 * 12), 0);
+  assert.equal(fires({ ...child, allowance: { offerAgainFrom: 144 } }, 9 * 12), 0);
+  assert.equal(fires({ ...child, allowance: { offerAgainFrom: 144 } }, 12 * 12), 1);
+});
+
+test('a decision with a speaker names one of the parents and the text variant of their trait', () => {
+  const event = loadEvents(EVENTS_DIR).allowance_offer;
+  const decide = (args, pick) =>
+    processPlayerEvents({ allowance_offer: event }, { ...familyArgs(args), rng: { chance: () => true, nextInt: () => pick, next: () => 0 } }).pendingDecisions[0];
+
+  assert.deepEqual(decide({}, 0), { trigger: 'allowance_offer', firingRelationship: null, speakerId: 'p_dad' });
+  assert.deepEqual(decide({ motherTraits: ['rigid'] }, 1), { trigger: 'allowance_offer', firingRelationship: null, speakerId: 'p_mom', variant: 'rigid' });
+  assert.equal(decide({ fatherTraits: ['generous', 'rigid'] }, 0).variant, 'generous', 'the first listed trait wins');
+});
+
+test('an option with a check applies success or failure and says which', () => {
+  const event = loadEvents(EVENTS_DIR).allowance_offer;
+  const args = familyArgs();
+  const ask = (succeeds) =>
+    resolveDecision(event, null, { ...args, playerId: 'p_player', optionId: 'ask_more', rng: { chance: () => succeeds, nextInt: () => 0 } });
+
+  const yes = ask(true);
+  assert.equal(yes.succeeded, true);
+  assert.deepEqual(yes.peopleById.p_player.allowance, { since: 8 * 12, factor: 1.25 });
+
+  const no = ask(false);
+  assert.equal(no.succeeded, false);
+  assert.deepEqual(no.peopleById.p_player.allowance, { since: 8 * 12, factor: 1 });
+  assert.equal(no.relationshipsById.r_mom.affinity.p_mom, 48, '"Não abusa, hein?"');
+
+  const accepted = resolveDecision(event, null, { ...args, playerId: 'p_player', optionId: 'accept', rng: {} });
+  assert.equal(accepted.succeeded, null);
+  assert.deepEqual(accepted.peopleById.p_player.allowance, { since: 8 * 12, factor: 1 });
+});

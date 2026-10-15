@@ -5,7 +5,7 @@
 // Paths are relative to this file, so the game works in a subfolder too
 // (e.g. GitHub Pages at /synclife/).
 
-const CACHE = 'synclife-v6';
+const CACHE = 'synclife-v7';
 // Kept at install, so they work offline even if never seen online. The
 // flags too: most only show on the custom-life screen, and a browser that
 // doesn't load hidden images would otherwise have just the header's one.

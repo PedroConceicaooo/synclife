@@ -87,9 +87,11 @@ test('stressed parents fight more, give less allowance and say no more often', (
   assert.ok(chanceSeen(90) > chanceSeen(50));
   assert.ok(chanceSeen(50) > chanceSeen(10));
 
-  const country = { currency: { scale: { small: 10, medium: 50, large: 200 } } };
+  const country = { currency: { scale: { small: 10, medium: 50, large: 200 } }, familyAllowance: { ageBands: [{ minAge: 6, scale: 'small', multiplier: 2 }] } };
   const relationship = { affinity: { p: 50 } };
-  const allowance = (stress) => payAllowance({ parent: { id: 'p', traits: [], money: 60 * 200, stress }, relationship, country, step: 12 });
+  const child = { id: 'c', birth: 0, allowance: { since: 0, factor: 1 } };
+  const allowance = (stress) =>
+    payAllowance({ parent: { id: 'p', traits: [], money: 60 * 200, stress }, relationship, child, country, fromMonth: 120, toMonth: 132 });
   assert.ok(allowance(100) < allowance(30));
 
   const askMoney = DATA.interactionsById.ask_money.chance;

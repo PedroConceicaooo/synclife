@@ -50,8 +50,12 @@ function formatEntry(entry) {
     case 'birthday':
       return `turned ${entry.age} (${formatDate(entry.month)})`;
     case 'event':
+      if (entry.optionId) {
+        const outcome = entry.succeeded === undefined ? '' : ` (${entry.succeeded ? 'success' : 'failure'})`;
+        return `event ${entry.eventId} -> chose ${entry.optionId}${outcome}`;
+      }
       if (entry.succeeded !== undefined) return `event ${entry.eventId} -> ${entry.succeeded ? 'success' : 'failure'}`;
-      return entry.optionId ? `event ${entry.eventId} -> chose ${entry.optionId}` : `event ${entry.eventId}`;
+      return `event ${entry.eventId}`;
     case 'worldEvent':
       return `world event ${entry.eventId} on ${entry.relationshipId}`;
     case 'money':

@@ -42,6 +42,30 @@
     "cometa",
     "maritaca"
   ],
+  "familyAllowance": {
+    "ageBands": [
+      {
+        "minAge": 6,
+        "scale": "small",
+        "multiplier": 0.4
+      },
+      {
+        "minAge": 9,
+        "scale": "small",
+        "multiplier": 0.8
+      },
+      {
+        "minAge": 12,
+        "scale": "small",
+        "multiplier": 1.4
+      },
+      {
+        "minAge": 15,
+        "scale": "small",
+        "multiplier": 2
+      }
+    ]
+  },
   "athleteAllowance": {
     "minAge": 14,
     "maxAge": 19,

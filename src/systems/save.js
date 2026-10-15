@@ -4,10 +4,15 @@
 
 import { createRng } from '../engine/random.js';
 import { resolveCountry } from '../engine/countries.js';
+import { ageAt } from '../engine/time.js';
 import { focusOnPlayer } from './game.js';
 
 // 2: people carry teams, tryouts and tryoutSignups (team sports).
-export const SAVE_VERSION = 2;
+// 3: the allowance starts with the parents' offer (person.allowance).
+export const SAVE_VERSION = 3;
+
+// Version 2 paid the allowance from this age on, without asking.
+const OLD_ALLOWANCE_AGE = 3;
 
 export function toSave(state) {
   return {
@@ -44,6 +49,16 @@ const MIGRATIONS = {
       Object.entries(save.people).map(([id, person]) => [id, { teams: [], tryouts: [], tryoutSignups: [], ...person }]),
     ),
   }),
+  // 2 -> 3: a player already getting the allowance keeps it, as it was.
+  2: (save) => {
+    const player = save.people[save.playerId];
+    const receiving = ageAt(player.birth, save.currentMonth) >= OLD_ALLOWANCE_AGE;
+    return {
+      ...save,
+      saveVersion: 3,
+      people: receiving ? { ...save.people, [player.id]: { ...player, allowance: { since: save.currentMonth, factor: 1 } } } : save.people,
+    };
+  },
 };
 
 export function migrate(save) {

@@ -15,7 +15,13 @@ import { payAllowance, transferMoney } from '../src/systems/money.js';
 
 const INTERACTIONS_DIR = fileURLToPath(new URL('../data/interactions/', import.meta.url));
 const ACTIVITIES_DIR = fileURLToPath(new URL('../data/activities/', import.meta.url));
-const COUNTRY = { id: 'BR', currency: { scale: { small: 25, medium: 125, large: 500 } } };
+const COUNTRY = {
+  id: 'BR',
+  currency: { scale: { small: 25, medium: 125, large: 500 } },
+  familyAllowance: { ageBands: [{ minAge: 6, scale: 'small', multiplier: 0.4 }, { minAge: 12, scale: 'small', multiplier: 1.4 }] },
+};
+// As if the parents offered the allowance at 6 (allowance_offer).
+const ALLOWANCE_FROM_AGE = 6;
 
 function runShortLife(seed) {
   const rng = createRng(seed);
@@ -41,6 +47,7 @@ function runShortLife(seed) {
   for (let i = 0; i < 20; i++) {
     const step = rng.chance(0.5) ? 6 : 12;
     const { nextMonthIndex } = advance(currentMonth, step, person.birth);
+    const previousMonth = currentMonth;
     currentMonth = nextMonthIndex;
     relationships = decayAll(relationships, step);
     relationships = resetInteractionsThisPeriod(relationships);
@@ -72,13 +79,21 @@ function runShortLife(seed) {
     });
     people = activityResult.peopleById;
 
-    const age = ageAt(person.birth, currentMonth);
-    if (age >= 3) {
+    const allowanceSince = person.birth + ALLOWANCE_FROM_AGE * 12;
+    if (ageAt(person.birth, currentMonth) >= ALLOWANCE_FROM_AGE) {
+      const child = { ...people[person.id], allowance: { since: allowanceSince, factor: 1 } };
       for (const [parent, relationshipId] of [
         [mother, motherChild.id],
         [father, fatherChild.id],
       ]) {
-        const amount = payAllowance({ parent: people[parent.id], relationship: relationships[relationshipId], country: COUNTRY, step });
+        const amount = payAllowance({
+          parent: people[parent.id],
+          relationship: relationships[relationshipId],
+          child,
+          country: COUNTRY,
+          fromMonth: previousMonth,
+          toMonth: currentMonth,
+        });
         people = transferMoney(people, parent.id, person.id, amount);
       }
     }

@@ -68,6 +68,7 @@ const MANIFEST = {
     'growth_spurt.json',
     'join_sports_team.json',
     'curfew.json',
+    'allowance_offer.json',
     'argument_with_parents.json',
   ],
   interactions: [

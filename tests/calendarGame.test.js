@@ -158,7 +158,9 @@ test('a player who trains football is asked about the school team each school ye
   const entry = schoolEntryMonth(base.player.birth, base.country.education);
   const month = entry + 4 * 12 - 1;
   const trained = { ...base.people[playerId], skills: { football: { skill: 60, peak: 60, sessions: 10, lastTrainedMonth: month, level: 0, levelSince: month } } };
-  const state = { ...base, currentMonthIndex: month, people: { ...base.people, [playerId]: trained } };
+  // Only the calendar events: a rolled decision would join the question.
+  const calendarEvents = Object.fromEntries(Object.entries(DATA.eventsById).filter(([, event]) => event.calendar));
+  const state = { ...base, eventsById: calendarEvents, currentMonthIndex: month, people: { ...base.people, [playerId]: trained } };
 
   const asked = advanceStep(state, 6);
   assert.equal(asked.currentMonthIndex, entry + 4 * 12, 'the advance stops at the school year start');

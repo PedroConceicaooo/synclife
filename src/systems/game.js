@@ -26,7 +26,7 @@ import { expireEmotions, relaxStress, activeEmotion } from './personality.js';
 import { attemptInteraction, listAvailableInteractions, parentsOf } from './interactions.js';
 import { attemptActivity, listActivities, activityBlocker, activityPrice } from './activities.js';
 import { buyAsset, sellAsset, listShop, applyAssetUpkeep, assetBlocker, assetPrice } from './assets.js';
-import { isAllowanceAge, payAllowance, transferMoney } from './money.js';
+import { payAllowance, transferMoney } from './money.js';
 import { growStats } from './growth.js';
 import { decayAllSkills } from './training.js';
 import { requestEnrollment, leaveEnrollment, chargeEnrollments, askParentPermission, needsPermission } from './enrollment.js';
@@ -404,16 +404,22 @@ export function advanceStep(state, requestedMonths) {
     }
   }
 
-  if (isAllowanceAge(ageAt(state.player.birth, nextMonthIndex))) {
-    for (const [parentId, relationshipId] of [
-      [state.mother.id, state.motherChildId],
-      [state.father.id, state.fatherChildId],
-    ]) {
-      const amount = payAllowance({ parent: people[parentId], relationship: relationships[relationshipId], country: state.country, step: months });
-      if (amount === 0) continue;
-      people = transferMoney(people, parentId, playerId, amount);
-      entries.push({ type: 'money', source: 'allowance', fromId: parentId, amount });
-    }
+  // Only after the parents offered it (allowance_offer); nothing otherwise.
+  for (const [parentId, relationshipId] of [
+    [state.mother.id, state.motherChildId],
+    [state.father.id, state.fatherChildId],
+  ]) {
+    const amount = payAllowance({
+      parent: people[parentId],
+      relationship: relationships[relationshipId],
+      child: people[playerId],
+      country: state.country,
+      fromMonth: state.currentMonthIndex,
+      toMonth: nextMonthIndex,
+    });
+    if (amount === 0) continue;
+    people = transferMoney(people, parentId, playerId, amount);
+    entries.push({ type: 'money', source: 'allowance', fromId: parentId, amount });
   }
 
   // After the allowance, so a child can pay the month with it.
@@ -525,7 +531,17 @@ export function resolveDecision(state, optionId) {
     people,
     pendingDecisions: state.pendingDecisions.slice(1),
     history: appendToCurrentBlock(state.history, [
-      { type: 'event', eventId: decisionEvent.id, optionId: result.optionId, ...(decision.clubId ? { clubId: decision.clubId } : {}) },
+      {
+        type: 'event',
+        eventId: decisionEvent.id,
+        optionId: result.optionId,
+        ...(decision.clubId ? { clubId: decision.clubId } : {}),
+        // Who spoke and in which tone (events.js pickSpeaker), so the diary
+        // tells the same conversation.
+        ...(decision.speakerId ? { speakerId: decision.speakerId } : {}),
+        ...(decision.variant ? { variant: decision.variant } : {}),
+        ...(result.succeeded === null ? {} : { succeeded: result.succeeded }),
+      },
       ...tryoutEntries,
       ...moneyEntries(playerBefore, playerAfter, { source: 'event', eventId: decisionEvent.id }),
       ...statEntries(playerBefore, playerAfter),

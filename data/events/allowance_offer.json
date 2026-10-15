@@ -1,0 +1,164 @@
+{
+  "id": "allowance_offer",
+  "subject": "player",
+  "conditions": {
+    "minAge": 6,
+    "maxAge": 17,
+    "awaitsAllowanceOffer": true
+  },
+  "yearlyChance": 0.12,
+  "chanceModifiers": [
+    {
+      "factor": "roleAffinity",
+      "role": "mother",
+      "weight": 0.15
+    },
+    {
+      "factor": "roleAffinity",
+      "role": "father",
+      "weight": 0.15
+    },
+    {
+      "factor": "parentsWealth",
+      "weight": 0.1
+    },
+    {
+      "factor": "parentsTrait",
+      "value": "generous",
+      "adjust": 0.1
+    },
+    {
+      "factor": "parentsTrait",
+      "value": "rigid",
+      "adjust": -0.08
+    },
+    {
+      "factor": "parentsStress",
+      "weight": -0.15
+    },
+    {
+      "factor": "fromAge",
+      "age": 12,
+      "adjust": 0.85
+    }
+  ],
+  "speaker": {
+    "roles": [
+      "mother",
+      "father"
+    ],
+    "traitVariants": [
+      "generous",
+      "rigid"
+    ]
+  },
+  "options": [
+    {
+      "id": "accept",
+      "effects": [
+        {
+          "op": "allowance",
+          "value": "start"
+        },
+        {
+          "op": "affinity",
+          "side": "both",
+          "delta": 2,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "both",
+          "delta": 2,
+          "targetRole": "father"
+        }
+      ]
+    },
+    {
+      "id": "ask_more",
+      "check": {
+        "base": 0.35,
+        "modifiers": [
+          {
+            "factor": "roleAffinity",
+            "role": "mother",
+            "weight": 0.3
+          },
+          {
+            "factor": "roleAffinity",
+            "role": "father",
+            "weight": 0.3
+          },
+          {
+            "factor": "parentsTrait",
+            "value": "generous",
+            "adjust": 0.2
+          },
+          {
+            "factor": "parentsTrait",
+            "value": "rigid",
+            "adjust": -0.2
+          },
+          {
+            "factor": "parentsWealth",
+            "weight": 0.2
+          }
+        ]
+      },
+      "success": [
+        {
+          "op": "allowance",
+          "value": "start",
+          "factor": 1.25
+        },
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 2
+        }
+      ],
+      "failure": [
+        {
+          "op": "allowance",
+          "value": "start"
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -2,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "target",
+          "delta": -2,
+          "targetRole": "father"
+        }
+      ]
+    },
+    {
+      "id": "help_at_home",
+      "effects": [
+        {
+          "op": "allowance",
+          "value": "decline",
+          "offerAgainAge": 12,
+          "offerAgainAfterMonths": 12
+        },
+        {
+          "op": "affinity",
+          "side": "both",
+          "delta": 3,
+          "targetRole": "mother"
+        },
+        {
+          "op": "affinity",
+          "side": "both",
+          "delta": 3,
+          "targetRole": "father"
+        }
+      ]
+    }
+  ]
+}

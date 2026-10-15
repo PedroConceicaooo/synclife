@@ -301,16 +301,19 @@ function entryLine(entry, state, locale, block, index) {
       const stage = locale.t(locale.has(localKey) ? localKey : `school.${entry.stageId}`);
       return locale.format('diary.school_stage', { stage });
     }
-    case 'event':
-      if (entry.succeeded !== undefined) return text(`event.${entry.eventId}.${entry.succeeded ? 'success' : 'failure'}`);
-      if (!entry.optionId) return text(`event.${entry.eventId}.text`);
-      return locale.format('diary.choice', {
-        // A scout's invitation names its club.
-        prompt: entry.clubId
-          ? locale.format(`event.${entry.eventId}.prompt`, { club: clubName(locale, state.clubsById[entry.clubId]) }, { player: state.player.sex })
-          : text(`event.${entry.eventId}.prompt`),
+    case 'event': {
+      if (!entry.optionId) {
+        if (entry.succeeded !== undefined) return text(`event.${entry.eventId}.${entry.succeeded ? 'success' : 'failure'}`);
+        return text(`event.${entry.eventId}.text`);
+      }
+      const choice = locale.format('diary.choice', {
+        prompt: eventPrompt(locale, state, entry, `${block.month}:${index}`),
         option: text(`event.${entry.eventId}.option.${entry.optionId}`),
       });
+      // An option with a chance (asking the parents for more) tells how it went.
+      if (entry.succeeded === undefined) return choice;
+      return `${choice} ${text(`event.${entry.eventId}.option.${entry.optionId}.${entry.succeeded ? 'success' : 'failure'}`)}`;
+    }
     case 'worldEvent':
       return entry.eventId === 'new_baby' ? babyBornLine(state, locale, block.month) : text(`event.${entry.eventId}.text`);
     case 'activity':
@@ -378,6 +381,17 @@ function statsLine(entries, locale) {
     return `${locale.t(`ui.stat_${stat}`)} ${delta > 0 ? '+' : '−'}${Math.abs(delta)}`;
   });
   return parts.length > 0 ? parts.join(' · ') : null;
+}
+
+// The question of a decision event, the same in the pop-up and in the
+// diary: a scout's invitation names its club; a conversation (events.js
+// pickSpeaker) uses the speaker's sex and the text variant of their trait.
+// decision: { eventId, clubId?, speakerId?, variant? }.
+export function eventPrompt(locale, state, { eventId, clubId, speakerId, variant }, seed) {
+  const params = clubId ? { club: clubName(locale, state.clubsById[clubId]) } : {};
+  const sexes = { player: state.player.sex, ...(speakerId ? { speaker: state.people[speakerId].sex } : {}) };
+  const key = variant && locale.has(`event.${eventId}.prompt.${variant}`) ? `event.${eventId}.prompt.${variant}` : `event.${eventId}.prompt`;
+  return locale.format(key, params, sexes, seed);
 }
 
 // kind lets the screen style a line: choice, money, stats or plain text.

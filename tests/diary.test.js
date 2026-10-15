@@ -113,3 +113,22 @@ test('a whole life with school shows the new class, new friends and teachers in 
   assert.ok(lines.some((l) => / virou (meu amigo|minha amiga)\.$/.test(l)));
   assert.ok(lines.some((l) => /^Piada na aula com (o professor|a professora) /.test(l)));
 });
+
+test('the allowance conversation is told in the voice of the speaker, with the tone of their trait and how asking went', () => {
+  const state = createGameState({ seed: 11, ...ARGS });
+  const block = {
+    month: state.player.birth + 96,
+    entries: [
+      { type: 'event', eventId: 'allowance_offer', optionId: 'ask_more', speakerId: state.mother.id, variant: 'rigid', succeeded: false },
+      { type: 'event', eventId: 'allowance_offer', optionId: 'accept', speakerId: state.father.id },
+    ],
+  };
+  const [rigid, plain] = describeBlock(block, state, LOCALE).lines.map((l) => l.text);
+
+  assert.ok(rigid.startsWith('Mãe: Senta aqui'), rigid);
+  assert.ok(rigid.includes('Seu pai e eu'), rigid);
+  assert.ok(rigid.endsWith('Escolha: Pedir um valor maior. "Não abusa, hein?" A mesada ficou no valor combinado.'), rigid);
+  assert.ok(plain.startsWith(`Pai: ${state.player.sex === 'F' ? 'Filha' : 'Filho'}, sua mãe e eu`), plain);
+  assert.ok(plain.endsWith('Escolha: Aceitar e agradecer.'), plain);
+  assert.doesNotMatch(rigid + plain, UNRESOLVED);
+});
