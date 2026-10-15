@@ -1,6 +1,7 @@
 {
   "id": "swimming",
   "category": "physical",
+  "group": "sports",
   "conditions": {
     "minAge": 3
   },

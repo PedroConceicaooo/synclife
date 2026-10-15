@@ -1,6 +1,7 @@
 {
   "id": "running",
   "category": "physical",
+  "group": "sports",
   "conditions": {
     "minAge": 6
   },

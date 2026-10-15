@@ -1,6 +1,7 @@
 {
   "id": "basketball",
   "category": "physical",
+  "group": "sports",
   "conditions": {
     "minAge": 6
   },
