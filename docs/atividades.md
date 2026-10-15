@@ -28,7 +28,7 @@ Pedidos por você:
 | Barbear | Homens adultos | Muda a barba (avatar) |
 | Manicure | Todos | Pequeno ganho de felicidade |
 | Massagem | Todos | Reduz estresse, aumenta felicidade |
-| Salão de bronzeamento | Conforme o país | Pequeno ganho de aparência; risco de evento de saúde se usar demais |
+| Salão de bronzeamento | Adultos (regra do jogo) | Pequeno ganho de aparência; risco de evento de saúde se usar demais |
 | Salão de depilação | Adolescentes e adultos | Pequeno ganho de aparência |
 
 Sugestões para acrescentar:
@@ -40,12 +40,18 @@ Sugestões para acrescentar:
 | Ótica | Todas | Óculos ou lentes; entra no avatar (acessório) |
 | Designer de sobrancelha | 14+ | Pequeno ganho de aparência |
 | Maquiagem | 12+ | Pequeno ganho de aparência; pais rígidos podem proibir |
-| Tatuagem | Conforme o país | Muda o avatar; idade mínima e consentimento dos pais variam por país |
-| Piercing | Conforme o país | Mesma lógica da tatuagem |
+| Tatuagem | 18+ (regra do jogo) | Felicidade e aparência; risco de arrependimento |
+| Piercing | 10+, com autorização dos pais até os 17 (regra do jogo) | Brinco no avatar (ponto de luz ou argola) |
 | Nutricionista | 12+ | Ajuda a saúde; dá bônus em atividades físicas |
 | Cirurgia plástica | 18+ | Ganho de aparência com custo alto e risco de complicação |
 
-Regras que vêm do país: idade mínima para tatuagem, piercing e bronzeamento artificial (no Brasil a Anvisa proíbe câmaras de bronzeamento desde 2009; na Inglaterra são proibidas para menores de 18). Confirmar na fonte primária antes de colocar nos JSONs.
+**Regras do jogo (iguais em todos os países, sem pesquisa de lei por país):**
+
+- Bronzeamento, tatuagem e cirurgia plástica: só a partir dos 18 anos (ficam para a vida adulta). Cada um tem um risco sorteado ao usar: queimadura, arrependimento, complicação.
+- Piercing de orelha: a partir dos 10 anos; menores de 18 precisam da autorização dos pais.
+- Barbear: homens a partir dos 18 (a barba só aparece no avatar adulto).
+- Maquiagem: 12+; pais rígidos não deixam até os 15.
+- Quem não tem dinheiro para um serviço pode pedir aos pais (seção 4).
 
 ## 3. Sistema de habilidade (vale para todas as atividades físicas)
 
