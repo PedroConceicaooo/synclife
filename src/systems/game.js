@@ -794,7 +794,7 @@ function trainingEntries(activityId, training) {
 // The player can't afford an activity (a service, a session): ask the
 // parents to pay it, once per activity and period. A yes hands over the
 // money and the activity happens right away.
-export function askParentsToPayActivity(state, activityId) {
+export function askParentsToPayActivity(state, activityId, choice = null) {
   const activity = state.activitiesById[activityId];
   const request = state.requestsById?.parents_pay;
   const playerId = state.player.id;
@@ -828,19 +828,21 @@ export function askParentsToPayActivity(state, activityId) {
     lastActivityResult: { attempted: false, activityId, parentPayEntry: entry },
   };
   if (!answer.paid) return next;
-  const done = attemptPlayerActivity(next, activityId);
+  const done = attemptPlayerActivity(next, activityId, choice);
   return { ...done, lastActivityResult: { ...done.lastActivityResult, parentPayEntry: entry } };
 }
 
 // Events triggered by an activity have no yearlyChance of their own: ones
 // with options become a decision, the rest apply right away.
-export function attemptPlayerActivity(state, activityId) {
+// choice: for makeovers (makeover.js), what the player picked.
+export function attemptPlayerActivity(state, activityId, choice = null) {
   const activity = state.activitiesById[activityId];
   const playerId = state.player.id;
   const playerBefore = state.people[playerId];
   const uses = state.activityUsesThisPeriod ?? {};
 
   const result = attemptActivity(activity, {
+    choice,
     parentTraits: parentTraits(state),
     player: playerBefore,
     peopleById: state.people,
@@ -860,7 +862,12 @@ export function attemptPlayerActivity(state, activityId) {
   const entries = [
     result.training
       ? { type: 'training', activityId, gain: result.training.gain, technique: result.training.technique }
-      : { type: 'activity', activityId, ...(activity.check ? { succeeded: result.succeeded } : {}) },
+      : {
+          type: 'activity',
+          activityId,
+          ...(activity.check ? { succeeded: result.succeeded } : {}),
+          ...(result.makeover ? { look: result.makeover } : {}),
+        },
     ...trainingEntries(activityId, result.training),
     ...triggered.entries,
     ...moneyEntries(playerBefore, people[playerId], { source: 'activity', activityId }),
@@ -879,6 +886,7 @@ export function attemptPlayerActivity(state, activityId) {
       attempted: true,
       activityId,
       succeeded: result.succeeded,
+      ...(result.makeover ? { look: result.makeover } : {}),
       triggeredEvents: triggered.fired.map((f) => f.eventId),
       training: result.training,
       trainingEvents: trainingEntries(activityId, result.training),

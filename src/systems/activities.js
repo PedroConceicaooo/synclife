@@ -16,6 +16,7 @@ import { trainSkill, techniquesLearned, isInjured } from './training.js';
 import { isEnrolled, payerOptions, monthlyFee } from './enrollment.js';
 import { competitionBlocker, competitionTier, medalCounts } from './competitions.js';
 import { isOnAnyTeam } from './teams.js';
+import { isValidChoice, applyMakeover, currentChoice } from './makeover.js';
 
 export function indexActivities(activities) {
   return Object.fromEntries(activities.map((activity) => [activity.id, activity]));
@@ -101,6 +102,7 @@ export function listActivities(activitiesById, { player, country, currentMonthIn
       category: activity.category,
       ...(activity.group ? { group: activity.group } : {}),
       ...(activity.teamLevels ? { teamSport: true } : {}),
+      ...(activity.makeover ? { makeover: true } : {}),
       minAge: activity.conditions.minAge,
       blocker: activityBlocker(activity, { player, country, currentMonthIndex, usesThisPeriod: usesById[activity.id] ?? 0, parentTraits }),
       ...(activity.training ? trainingStatus(activity, player, usesById[activity.id] ?? 0, currentMonthIndex) : {}),
@@ -121,10 +123,15 @@ export function listActivities(activitiesById, { player, country, currentMonthIn
 // (they may need a decision).
 export function attemptActivity(
   activity,
-  { player, peopleById, relationshipsById = {}, country, currentMonthIndex, rng, usesThisPeriod = 0, parentTraits = [] },
+  { player, peopleById, relationshipsById = {}, country, currentMonthIndex, rng, usesThisPeriod = 0, parentTraits = [], choice = null },
 ) {
   const blocker = activityBlocker(activity, { player: peopleById[player.id], country, currentMonthIndex, usesThisPeriod, parentTraits });
   if (blocker) return { attempted: false, reason: blocker, peopleById, relationshipsById, triggeredEvents: [] };
+  // A makeover needs a choice the service offers; none keeps the look (a trim).
+  const makeover = activity.makeover ? choice ?? currentChoice(peopleById[player.id]) : null;
+  if (makeover && !isValidChoice(activity, peopleById[player.id], choice ?? {})) {
+    return { attempted: false, reason: 'invalidChoice', peopleById, relationshipsById, triggeredEvents: [] };
+  }
 
   // Risky activities (crimes) roll a check: earnings and success effects
   // only when it works; randomEvents can follow "success" or "failure".
@@ -145,6 +152,10 @@ export function attemptActivity(
   });
 
   let peopleAfter = result.peopleById;
+  if (makeover) {
+    const changes = Object.fromEntries(Object.entries(makeover).filter(([key]) => (choice ?? {})[key] !== undefined));
+    peopleAfter = { ...peopleAfter, [player.id]: applyMakeover(peopleAfter[player.id], changes) };
+  }
   let training = null;
   if (activity.training) {
     const person = peopleAfter[player.id];
@@ -177,6 +188,7 @@ export function attemptActivity(
     peopleById: peopleAfter,
     relationshipsById: result.relationshipsById,
     triggeredEvents,
+    ...(makeover ? { makeover: currentChoice(peopleAfter[player.id]) } : {}),
     training: training && {
       gain: training.gain,
       technique: training.technique,

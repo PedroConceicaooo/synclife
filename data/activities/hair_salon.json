@@ -1,0 +1,35 @@
+{
+  "id": "hair_salon",
+  "category": "body_care",
+  "conditions": {
+    "minAge": 4,
+    "sex": "F"
+  },
+  "cost": "medium",
+  "makeover": {
+    "hairStyle": true,
+    "hairColors": [
+      "black",
+      "dark_brown",
+      "brown",
+      "blonde",
+      "red",
+      "blue",
+      "pink"
+    ]
+  },
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": 1
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    }
+  ]
+}

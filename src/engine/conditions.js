@@ -24,6 +24,9 @@ function evaluateCondition(key, expected, target, context) {
       return Math.min(...Object.values(target.affinity)) <= expected;
     case 'minAge':
       return ageAt(target.birth, context.currentMonthIndex) >= expected;
+    // "M" or "F": services for one sex (the barber, the hairdresser).
+    case 'sex':
+      return target.sex === expected;
     case 'maxAge':
       return ageAt(target.birth, context.currentMonthIndex) <= expected;
     // Relationship conditions that look at the people in it.

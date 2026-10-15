@@ -1,0 +1,20 @@
+{
+  "id": "shave",
+  "category": "body_care",
+  "conditions": {
+    "minAge": 18,
+    "sex": "M"
+  },
+  "cost": "small",
+  "makeover": {
+    "beard": true
+  },
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": 1
+    }
+  ]
+}

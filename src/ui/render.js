@@ -4,9 +4,11 @@
 import { ageAt } from '../engine/time.js';
 import { affinityBand } from './affinityColor.js';
 import { fullName } from '../systems/naming.js';
-import { describeHistory, trainingLine, trainingEventLine, enrollmentLine, clubName, teamName, teamEntryLine } from './diary.js';
+import { describeHistory, trainingLine, trainingEventLine, enrollmentLine, clubName, teamName, teamEntryLine, makeoverLine } from './diary.js';
 import { isAdult, availableInteractions, availableActivities, closePeople, playerOccupation, assetShop, clubTryouts, playerTeams } from './gameState.js';
 import { nextSeasonStart } from '../systems/teams.js';
+import { makeoverOptions, applyMakeover, currentChoice } from '../systems/makeover.js';
+import { activityPrice } from '../systems/activities.js';
 import { assetPrice, resalePrice } from '../systems/assets.js';
 import { avatarElement, sexIconElement, nameElement } from './avatarElement.js';
 import { lifeSummary } from '../systems/lifeEnd.js';
@@ -449,6 +451,7 @@ function activityResultText(state, result, locale, sexes) {
     const events = result.trainingEvents.map((entry) => trainingEventLine(locale, entry, state.player.sex));
     return [...paidBy, trainingLine(locale, result.activityId, result.training), ...events, ...eventTexts].join(' ');
   }
+  if (result.look) return [...paidBy, makeoverLine(locale, result.activityId, result.look, state.player.sex), ...eventTexts].join(' ');
   const outcome = result.succeeded === false ? 'failed' : 'done';
   return [...paidBy, locale.format(`activity.${result.activityId}.${outcome}`, {}, sexes, lastLineSeed(state, 'activity')), ...eventTexts].join(' ');
 }
@@ -521,12 +524,14 @@ function enrollmentButtons({ id, enrollment, competition, teamSport }, state, lo
   return submenu;
 }
 
-function activityRow(item, state, locale, { onDoActivity, onEnroll, onLeave, onCompete, onOpenClubs, onAskParentsToPay }) {
+function activityRow(item, state, locale, { onDoActivity, onEnroll, onLeave, onCompete, onOpenClubs, onAskParentsToPay, onOpenMakeover }) {
   const { id, blocker } = item;
   const nodes = [];
   const button = el('button', { className: 'row activity' });
   button.type = 'button';
-  button.disabled = blocker !== null || state.pendingDecisions.length > 0;
+  // A makeover opens its panel even short of money (the parents can pay there).
+  const opens = item.makeover && (blocker === null || blocker === 'money');
+  button.disabled = (!opens && blocker !== null) || state.pendingDecisions.length > 0;
   button.append(
     el('strong', { text: locale.t(`activity.${id}.title`) }),
     el('span', { className: 'detail', text: blocker ? locale.format(ACTIVITY_BLOCKER_KEYS[blocker], {}, sexesOf(state)) : locale.t(`activity.${id}.description`) }),
@@ -537,11 +542,12 @@ function activityRow(item, state, locale, { onDoActivity, onEnroll, onLeave, onC
     const club = team.clubId ? state.clubsById[team.clubId] : null;
     button.append(el('span', { className: 'detail', text: locale.format('ui.team_on', { team: teamName(locale, team.teamLevelId, club) }) }));
   }
-  button.addEventListener('click', () => onDoActivity(id));
+  button.addEventListener('click', () => (item.makeover ? onOpenMakeover(id) : onDoActivity(id)));
   nodes.push(button);
   if (item.enrollment) nodes.push(enrollmentButtons(item, state, locale, { onEnroll, onLeave, onCompete, onOpenClubs }));
-  // Short of money: ask the parents to pay (once per period).
-  if (item.askParents !== undefined) {
+  // Short of money: ask the parents to pay (once per period). A makeover
+  // asks from its panel, with the look picked.
+  if (item.askParents !== undefined && !item.makeover) {
     const submenu = el('div', { className: 'submenu' });
     const ask = el('button', { text: locale.t('ui.ask_parents_pay') });
     ask.type = 'button';
@@ -629,16 +635,80 @@ function renderClubTryouts(dom, state, locale, activityId, { onCloseClubs, onSig
   }
 }
 
+// A barber, a hairdresser (makeover.js): pick the cut, the color or the
+// beard with a preview of the avatar, then pay — or ask the parents.
+function renderMakeover(dom, state, locale, activityId, picked, { onPickMakeover, onConfirmMakeover, onCloseMakeover, onAskParentsToPay }) {
+  const activity = state.activitiesById[activityId];
+  const player = state.people[state.player.id];
+  const choice = { ...picked };
+  const look = { ...currentChoice(player), ...choice };
+  const options = makeoverOptions(activity, player);
+  const item = availableActivities(state).flatMap((g) => g.activities).find((a) => a.id === activityId);
+
+  dom.activitiesBack.hidden = false;
+  dom.activitiesBack.textContent = locale.t('ui.back');
+  dom.activitiesBack.onclick = onCloseMakeover;
+  dom.activitiesTitle.textContent = locale.t(`activity.${activityId}.title`);
+  dom.activitiesResult.textContent = state.lastActivityResult ? activityResultText(state, state.lastActivityResult, locale, sexesOf(state)) : '';
+  clearChildren(dom.activitiesList);
+
+  const preview = el('div', { className: 'makeover-preview' });
+  preview.appendChild(avatarElement(applyMakeover(player, choice), ageOf(state, player), 112));
+  dom.activitiesList.appendChild(preview);
+
+  const group = (titleKey, values, current, label, pick) => {
+    if (values.length === 0) return;
+    const section = el('div', { className: 'activities-group' });
+    section.appendChild(el('h2', { text: locale.t(titleKey) }));
+    const submenu = el('div', { className: 'submenu' });
+    for (const value of values) {
+      const button = el('button', { text: label(value) });
+      button.type = 'button';
+      button.setAttribute('aria-pressed', String(value === current));
+      button.addEventListener('click', () => onPickMakeover(pick(value)));
+      submenu.appendChild(button);
+    }
+    section.appendChild(submenu);
+    dom.activitiesList.appendChild(section);
+  };
+  group('ui.makeover_style', options.hairStyles, look.hairStyle, (v) => capitalize(locale.t(`hairStyle.${v}`), locale.language), (v) => ({ hairStyle: v }));
+  group('ui.makeover_color', options.hairColors, look.hairColor, (v) => capitalize(locale.t(`hairColor.${v}`), locale.language), (v) => ({ hairColor: v }));
+  group('ui.makeover_beard', options.beard ? [true, false] : [], look.beard, (v) => locale.t(`ui.makeover_beard.${v}`), (v) => ({ beard: v }));
+
+  const actions = el('div', { className: 'submenu' });
+  const busy = state.pendingDecisions.length > 0;
+  if (item?.blocker === 'money') {
+    const ask = el('button', { text: locale.t('ui.ask_parents_pay') });
+    ask.type = 'button';
+    ask.disabled = busy || !item.askParents;
+    ask.addEventListener('click', () => onAskParentsToPay(activityId, choice));
+    actions.appendChild(ask);
+  } else {
+    const amount = locale.money(activityPrice(activity, state.country), state.country.currency.code, state.country.currency.display);
+    const confirm = el('button', { text: locale.format('ui.makeover_confirm', { amount }) });
+    confirm.type = 'button';
+    confirm.disabled = busy || item?.blocker !== null;
+    confirm.addEventListener('click', () => onConfirmMakeover(activityId, choice));
+    actions.appendChild(confirm);
+  }
+  dom.activitiesList.appendChild(actions);
+}
+
 export function renderActivities(dom, state, locale, callbacksAndView) {
-  const { onDoActivity, onEnroll, onLeave, onCompete, onToggleGroup, onOpenClubs, onAskParentsToPay, openGroup = null, openClubs = null } = callbacksAndView;
+  const { onDoActivity, onEnroll, onLeave, onCompete, onToggleGroup, onOpenClubs, onAskParentsToPay, onOpenMakeover } = callbacksAndView;
+  const { openGroup = null, openClubs = null, openMakeover = null, makeoverChoice = null } = callbacksAndView;
   if (openClubs) {
     renderClubTryouts(dom, state, locale, openClubs, callbacksAndView);
+    return;
+  }
+  if (openMakeover) {
+    renderMakeover(dom, state, locale, openMakeover, makeoverChoice ?? {}, callbacksAndView);
     return;
   }
   dom.activitiesBack.hidden = true;
   dom.activitiesTitle.textContent = locale.t('ui.activities_title');
   dom.activitiesResult.textContent = state.lastActivityResult ? activityResultText(state, state.lastActivityResult, locale, sexesOf(state)) : '';
-  const callbacks = { onDoActivity, onEnroll, onLeave, onCompete, onOpenClubs, onAskParentsToPay };
+  const callbacks = { onDoActivity, onEnroll, onLeave, onCompete, onOpenClubs, onAskParentsToPay, onOpenMakeover };
 
   clearChildren(dom.activitiesList);
   for (const group of availableActivities(state)) {

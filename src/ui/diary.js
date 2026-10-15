@@ -188,6 +188,15 @@ export function teamSeasonLine(locale, entry, club, sex) {
   );
 }
 
+// A barber, a hairdresser: the "done" text with the new look in it.
+export function makeoverLine(locale, activityId, look, sex) {
+  return locale.format(
+    `activity.${activityId}.done`,
+    { style: locale.t(`hairStyle.${look.hairStyle}`), color: locale.t(`hairColor.${look.hairColor}`) },
+    { player: sex },
+  );
+}
+
 // Lines about teams and tryouts (teams.js, scout.js); the Activities screen
 // shows the same ones right after acting.
 export function teamEntryLine(state, locale, entry) {
@@ -294,6 +303,7 @@ function entryLine(entry, state, locale, block, index) {
     case 'worldEvent':
       return entry.eventId === 'new_baby' ? babyBornLine(state, locale, block.month) : text(`event.${entry.eventId}.text`);
     case 'activity':
+      if (entry.look) return makeoverLine(locale, entry.activityId, entry.look, state.player.sex);
       return text(`activity.${entry.activityId}.${entry.succeeded === false ? 'failed' : 'done'}`);
     case 'training':
       return trainingLine(locale, entry.activityId, entry);

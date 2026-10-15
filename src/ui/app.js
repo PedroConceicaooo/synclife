@@ -260,7 +260,18 @@ async function main() {
         },
         onCloseClubs: () => update({ ...state, lastActivityResult: null }, { ...view, clubsFor: null }),
         onSignUp: (activityId, clubId) => update(signUpPlayerForTryout(state, activityId, clubId)),
-        onAskParentsToPay: (activityId) => update(askParentsToPayActivity(state, activityId)),
+        onAskParentsToPay: (activityId, choice = null) => {
+          const next = askParentsToPayActivity(state, activityId, choice);
+          // A makeover the parents paid for is done: back to the list.
+          const done = choice && next.lastActivityResult?.attempted;
+          update(next, done ? { ...view, makeoverFor: null, makeoverChoice: null } : view);
+        },
+        onOpenMakeover: (activityId) => update({ ...state, lastActivityResult: null }, { ...view, makeoverFor: activityId, makeoverChoice: null }),
+        onPickMakeover: (change) => update(state, { ...view, makeoverChoice: { ...(view.makeoverChoice ?? {}), ...change } }),
+        onConfirmMakeover: (activityId, choice) => update(attemptPlayerActivity(state, activityId, choice), { ...view, makeoverFor: null, makeoverChoice: null }),
+        onCloseMakeover: () => update({ ...state, lastActivityResult: null }, { ...view, makeoverFor: null, makeoverChoice: null }),
+        openMakeover: view.makeoverFor ?? null,
+        makeoverChoice: view.makeoverChoice ?? null,
         openClubs: view.clubsFor ?? null,
       });
     } else {

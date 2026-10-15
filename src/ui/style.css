@@ -549,6 +549,18 @@ h1 {
   color: var(--pen);
 }
 
+/* A picked option (makeover cut, color). */
+.submenu button[aria-pressed="true"] {
+  background: var(--pen);
+  color: var(--on-pen);
+}
+
+.makeover-preview {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 4px;
+}
+
 #profile-result,
 #activities-result {
   min-height: 1.5em;
