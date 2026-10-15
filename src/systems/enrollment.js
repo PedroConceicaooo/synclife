@@ -7,7 +7,8 @@
 //   from then on          the player decides and pays
 //
 // The state lives on the person who trains:
-//   person.enrollments[activityId] = { since, payerId }
+//   person.enrollments[activityId] = { since, payerId, owedMonths? }
+// owedMonths: months the payer couldn't pay yet (see chargeEnrollments).
 
 import { ageAt } from '../engine/time.js';
 import { applyEffects } from '../engine/effects.js';
@@ -141,26 +142,44 @@ export function leaveEnrollment(peopleById, personId, activityId) {
   return { ...peopleById, [personId]: { ...person, enrollments } };
 }
 
-// Every advance: each enrollment costs fee × months to whoever pays it. One
-// the payer can no longer afford ends. Returns the payments and the ends
-// for the diary.
+// A payer short of money gets some time: the months go unpaid (owed) and
+// the enrollment only ends when more than this many are owed.
+export const ENROLLMENT_GRACE_MONTHS = 6;
+
+function setEnrollment(peopleById, personId, activityId, enrollment) {
+  const person = peopleById[personId];
+  return { ...peopleById, [personId]: { ...person, enrollments: { ...person.enrollments, [activityId]: enrollment } } };
+}
+
+// Every advance: each enrollment costs fee × months, plus any owed months,
+// to whoever pays it. A payer who can't pay it all owes the months instead;
+// past ENROLLMENT_GRACE_MONTHS owed, the enrollment ends (the debt with it).
+// Returns the payments, the late ones and the ends for the diary.
 export function chargeEnrollments(peopleById, activitiesById, { country, months }) {
   let people = peopleById;
   const paid = [];
+  const late = [];
   const ended = [];
   for (const person of Object.values(peopleById)) {
-    for (const [activityId, { payerId }] of Object.entries(person.enrollments ?? {})) {
+    for (const [activityId, enrollment] of Object.entries(person.enrollments ?? {})) {
       const activity = activitiesById[activityId];
-      const amount = activity?.enrollment ? monthlyFee(activity, country) * months : 0;
-      const payer = people[payerId];
-      if (!payer || payer.money < amount) {
+      const fee = activity?.enrollment ? monthlyFee(activity, country) : 0;
+      const owedMonths = (enrollment.owedMonths ?? 0) + months;
+      const payer = people[enrollment.payerId];
+      if (payer && payer.money >= fee * owedMonths) {
+        const amount = fee * owedMonths;
+        people = { ...people, [payer.id]: { ...payer, money: payer.money - amount } };
+        const { owedMonths: _paid, ...settled } = enrollment;
+        people = setEnrollment(people, person.id, activityId, settled);
+        paid.push({ personId: person.id, activityId, payerId: payer.id, amount });
+      } else if (payer && owedMonths <= ENROLLMENT_GRACE_MONTHS) {
+        people = setEnrollment(people, person.id, activityId, { ...enrollment, owedMonths });
+        late.push({ personId: person.id, activityId, payerId: payer.id, owedMonths });
+      } else {
         people = leaveEnrollment(people, person.id, activityId);
-        ended.push({ personId: person.id, activityId, payerId });
-        continue;
+        ended.push({ personId: person.id, activityId, payerId: enrollment.payerId });
       }
-      people = { ...people, [payerId]: { ...payer, money: payer.money - amount } };
-      paid.push({ personId: person.id, activityId, payerId, amount });
     }
   }
-  return { peopleById: people, paid, ended };
+  return { peopleById: people, paid, late, ended };
 }

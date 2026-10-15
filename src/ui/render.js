@@ -477,7 +477,10 @@ function trainingDetails({ id, skill, levelId, stripes, techniques, usesLeft, co
 // Enrollment line inside the row, and the buttons to ask or leave under it.
 function enrollmentDetail({ enrollment }, state, locale) {
   const amount = locale.money(enrollment.fee, state.country.currency.code, state.country.currency.display);
-  if (enrollment.enrolled) return locale.format(`ui.enrolled_${enrollment.paidBy}`, { amount }, sexesOf(state));
+  if (enrollment.enrolled) {
+    const line = locale.format(`ui.enrolled_${enrollment.paidBy}`, { amount }, sexesOf(state));
+    return enrollment.owedMonths ? `${line} ${locale.format('ui.enrollment_late', { months: locale.plural('age.months', enrollment.owedMonths) })}` : line;
+  }
   if (enrollment.trainsWithTeam) return locale.t('ui.trains_with_team');
   return locale.format('ui.enroll_fee', { amount });
 }

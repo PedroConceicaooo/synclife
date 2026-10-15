@@ -125,6 +125,8 @@ export function enrollmentLine(state, locale, entry) {
       return locale.format('diary.enrollment_refused', { activity, parent: who(state, locale, entry.parentId) });
     case 'enrollmentLeft':
       return locale.format('diary.enrollment_left', { activity });
+    case 'enrollmentLate':
+      return locale.format('diary.enrollment_late', { activity, months: locale.plural('age.months', entry.owedMonths) });
     case 'enrollmentEnded':
       return locale.format('diary.enrollment_ended', { activity });
     default:
@@ -290,6 +292,7 @@ function entryLine(entry, state, locale, block, index) {
     case 'enrolled':
     case 'enrollmentRefused':
     case 'enrollmentLeft':
+    case 'enrollmentLate':
     case 'enrollmentEnded':
       return enrollmentLine(state, locale, entry);
     case 'levelUp':

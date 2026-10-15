@@ -403,6 +403,7 @@ export function advanceStep(state, requestedMonths) {
   const fees = chargeEnrollments(people, state.activitiesById, { country: state.country, months });
   people = fees.peopleById;
   for (const f of fees.paid.filter((f) => f.payerId === playerId)) entries.push({ type: 'money', source: 'enrollment', activityId: f.activityId, amount: -f.amount });
+  for (const f of fees.late.filter((f) => f.personId === playerId)) entries.push({ type: 'enrollmentLate', activityId: f.activityId, owedMonths: f.owedMonths });
   for (const f of fees.ended.filter((f) => f.personId === playerId)) entries.push({ type: 'enrollmentEnded', activityId: f.activityId });
 
   entries.push(...statEntries(playerBefore, people[playerId]));

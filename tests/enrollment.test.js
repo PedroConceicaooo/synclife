@@ -11,10 +11,13 @@ import {
   leaveEnrollment,
   chargeEnrollments,
   askParentPermission,
+  ENROLLMENT_GRACE_MONTHS,
 } from '../src/systems/enrollment.js';
 import { activityBlocker } from '../src/systems/activities.js';
 import { resolveChance } from '../src/systems/interactions.js';
 import { loadActivities } from '../src/systems/activitiesLoader.js';
+import { createLocale } from '../src/i18n/locale.js';
+import { enrollmentLine } from '../src/ui/diary.js';
 
 const ACTIVITIES_DIR = fileURLToPath(new URL('../data/activities/', import.meta.url));
 const LOCALE = JSON.parse(readFileSync(new URL('../locales/pt-BR/ui.json', import.meta.url), 'utf8'));
@@ -127,17 +130,33 @@ test('training needs the enrollment', () => {
   assert.equal(activityBlocker(ACTIVITY, { ...args, player: { ...player, enrollments: { bjj: { since: 0, payerId: 'p_mom' } } } }), null);
 });
 
-test('chargeEnrollments takes fee × months from the payer, and ends what the payer cannot afford', () => {
+test('chargeEnrollments takes fee × months from the payer; one who cannot pay owes the months', () => {
   const { peopleById } = family({ motherMoney: 100, fatherMoney: 30 });
   const kid = { ...peopleById.p_kid, enrollments: { bjj: { since: 0, payerId: 'p_mom' }, gym: { since: 0, payerId: 'p_dad' } } };
   const activitiesById = { bjj: ACTIVITY, gym: { ...ACTIVITY, id: 'gym' } };
   const result = chargeEnrollments({ ...peopleById, p_kid: kid }, activitiesById, { country: COUNTRY, months: 6 });
 
   assert.equal(result.peopleById.p_mom.money, 40);
-  assert.equal(result.peopleById.p_dad.money, 30);
+  assert.equal(result.peopleById.p_dad.money, 30, 'nothing taken from a payer short of money');
   assert.deepEqual(result.paid, [{ personId: 'p_kid', activityId: 'bjj', payerId: 'p_mom', amount: 60 }]);
-  assert.deepEqual(result.ended, [{ personId: 'p_kid', activityId: 'gym', payerId: 'p_dad' }]);
-  assert.deepEqual(Object.keys(result.peopleById.p_kid.enrollments), ['bjj']);
+  assert.deepEqual(result.late, [{ personId: 'p_kid', activityId: 'gym', payerId: 'p_dad', owedMonths: 6 }]);
+  assert.deepEqual(result.ended, []);
+  assert.deepEqual(result.peopleById.p_kid.enrollments.gym, { since: 0, payerId: 'p_dad', owedMonths: 6 });
+});
+
+test('past ENROLLMENT_GRACE_MONTHS owed the enrollment ends; paying settles the owed months too', () => {
+  const activitiesById = { gym: { ...ACTIVITY, id: 'gym' } };
+  const { peopleById } = family({ fatherMoney: 30 });
+  const late = { ...peopleById, p_kid: { ...peopleById.p_kid, enrollments: { gym: { since: 0, payerId: 'p_dad', owedMonths: ENROLLMENT_GRACE_MONTHS } } } };
+
+  const ended = chargeEnrollments(late, activitiesById, { country: COUNTRY, months: 6 });
+  assert.deepEqual(ended.ended, [{ personId: 'p_kid', activityId: 'gym', payerId: 'p_dad' }]);
+  assert.deepEqual(ended.peopleById.p_kid.enrollments, {});
+
+  const rich = { ...late, p_dad: { ...late.p_dad, money: 200 } };
+  const settled = chargeEnrollments(rich, activitiesById, { country: COUNTRY, months: 6 });
+  assert.deepEqual(settled.paid, [{ personId: 'p_kid', activityId: 'gym', payerId: 'p_dad', amount: 10 * (ENROLLMENT_GRACE_MONTHS + 6) }]);
+  assert.deepEqual(settled.peopleById.p_kid.enrollments.gym, { since: 0, payerId: 'p_dad' });
 });
 
 test('leaveEnrollment ends one enrollment', () => {
@@ -187,4 +206,12 @@ test('askParentPermission: minors ask the parent who likes them most; adults nee
   assert.equal(no.relationshipsById.r_1.affinity.p_kid, 58, 'the failure effects apply');
   const adult = askParentPermission(ACTIVITY, { ...family({ ageYears: 18 }), rng: never });
   assert.deepEqual([adult.allowed, adult.parentId], [true, null]);
+});
+
+test('the diary warns about a late fee', () => {
+  const locale = createLocale(LOCALE);
+  assert.equal(
+    enrollmentLine({}, locale, { type: 'enrollmentLate', activityId: 'bjj', owedMonths: 6 }),
+    'Jiu-jitsu: a mensalidade está atrasada há 6 meses. Se continuar sem pagar, a matrícula será cancelada.',
+  );
 });

@@ -62,7 +62,9 @@ function trainingStatus(activity, player, uses, currentMonthIndex) {
 function enrollmentStatus(activity, player, { country, currentMonthIndex }) {
   const fee = monthlyFee(activity, country);
   const enrolled = player.enrollments?.[activity.id];
-  if (enrolled) return { enrolled: true, fee, paidBy: enrolled.payerId === player.id ? 'self' : 'parents' };
+  if (enrolled) {
+    return { enrolled: true, fee, paidBy: enrolled.payerId === player.id ? 'self' : 'parents', ...(enrolled.owedMonths ? { owedMonths: enrolled.owedMonths } : {}) };
+  }
   // On a team: trains with it, no class needed (the class stays possible).
   const onTeam = isOnAnyTeam(player, activity.id) ? { trainsWithTeam: true } : {};
   return { enrolled: false, fee, payerOptions: payerOptions(activity, player, currentMonthIndex), ...onTeam };
