@@ -46,7 +46,7 @@ Criado em 2026-10-15. Lista dos ajustes que o Pedro pediu ao jogar. Cada um tem 
 - A mesada só é paga depois do evento (`person.allowance`). Faixas em `familyAllowance` no país padrão: 40%, 80%, 140% e 200% do `small`, mês a mês pela idade.
 - Vocabulário novo, com testes: condição `awaitsAllowanceOffer`, efeito `allowance`, fatores `parentsWealth`, `parentsStress` e `fromAge`, `chanceModifiers` em eventos do jogador, `speaker` e opções com `check`.
 - Save na versão 3: quem já recebia continua recebendo, sem o evento. `CACHE` em `synclife-v7`.
-- Fica para outra etapa (item 5): cortar a mesada como castigo e pedir aumento.
+- Item 5, feito depois no mesmo dia: os castigos (advertência da escola, pais chamados, polícia) cortam a mesada por 3, 6 ou 12 meses, com linha no diário no corte e na volta; a interação "Pedir aumento da mesada" (uma vez por período, pedir demais irrita) aumenta 10% até o dobro. Regra em `docs/design.md`, seção "Mesada".
 
 **Confirmado pelo Pedro em 2026-10-15:** a conversa aparece aos 6 anos numa vida nova (depois de recarregar a página para o service worker trocar de versão).
 

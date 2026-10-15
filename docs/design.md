@@ -149,7 +149,9 @@ A mesada **não começa sozinha**. Antes dela o jogador não recebe nada dos pai
   - **Pedir um valor maior:** chance de funcionar (afinidade, traço generoso, dinheiro). Se der certo, o valor fica 25% maior; se não, fica o valor combinado e a afinidade cai um pouco ("Não abusa, hein?").
   - **Dizer que prefere ganhar ajudando em casa:** a mesada não começa agora, a afinidade sobe e o evento pode voltar a partir dos 12 anos.
 - **Valor por idade:** a mesada cresce com a idade, em faixas definidas no país padrão (escala de dinheiro e multiplicador, como na bolsa de formação). Valores iniciais, para ajustar nos testes, como parte do `small` do país: 6 a 8 anos, 40%; 9 a 11, 80%; 12 a 14, 140%; 15 a 17, 200%. Os fatores de afinidade, traço, riqueza e estresse continuam valendo.
-- **Controle dos pais:** a mesada pode ser cortada como castigo e aumentada a pedido (no máximo um pedido por período; pedir demais irrita), como já dizia a tabela acima.
+- **Controle dos pais:** a mesada pode ser cortada como castigo e aumentada a pedido, como já dizia a tabela acima.
+  - **Corte:** os castigos cortam a mesada por um tempo: advertência da escola, 3 meses; pais chamados por um pequeno delito, 6 meses; polícia, 12 meses. Um corte novo nunca encurta um que está correndo. O diário diz "Meus pais cortaram minha mesada por N meses" e, no fim, "A mesada voltou".
+  - **Pedir aumento:** interação com o pai ou a mãe, só para quem recebe mesada e não está de castigo, uma vez por período (vale pelos dois). A chance sobe com a afinidade, o traço generoso e o dinheiro, e cai com pai ou mãe rígido, estresse e cada pedido do último ano (pedir demais irrita). Se der certo, a mesada fica 10% maior, até o dobro do valor base; se não, a afinidade cai.
 - **Saves antigos:** quem já recebe mesada continua recebendo, sem passar pelo evento.
 
 Valores de dinheiro usam escalas (pequeno, médio, grande) definidas por país, não números fixos.
