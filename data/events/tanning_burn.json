@@ -1,0 +1,21 @@
+{
+  "id": "tanning_burn",
+  "subject": "player",
+  "conditions": {
+    "minAge": 18
+  },
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": -3
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": -1
+    }
+  ]
+}

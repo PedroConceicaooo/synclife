@@ -1,0 +1,15 @@
+{
+  "id": "tattoo_regret",
+  "subject": "player",
+  "conditions": {
+    "minAge": 18
+  },
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -3
+    }
+  ]
+}

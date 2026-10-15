@@ -1,0 +1,22 @@
+{
+  "id": "plastic_surgery",
+  "category": "body_care",
+  "conditions": {
+    "minAge": 18
+  },
+  "cost": "large",
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": 6
+    }
+  ],
+  "randomEvents": [
+    {
+      "event": "surgery_complication",
+      "chance": 0.1
+    }
+  ]
+}

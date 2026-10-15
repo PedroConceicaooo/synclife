@@ -61,3 +61,15 @@ test('every body care service declares minAge and a price', () => {
     assert.ok(['small', 'medium', 'large'].includes(service.cost), service.id);
   }
 });
+
+test('tanning, tattoos and plastic surgery are for adults, each with its risk', () => {
+  const ids = (age) => listActivities(ACTIVITIES, { player: player(age), country: COUNTRY, currentMonthIndex: age * 12 }).flatMap((g) => g.activities).map((a) => a.id);
+  const risks = { tanning: 'tanning_burn', tattoo: 'tattoo_regret', plastic_surgery: 'surgery_complication' };
+  for (const [id, risk] of Object.entries(risks)) {
+    assert.equal(ACTIVITIES[id].conditions.minAge, 18, id);
+    assert.ok(!ids(17).includes(id) && ids(18).includes(id), id);
+    const adult = player(18, 1e6);
+    const done = attemptActivity(ACTIVITIES[id], { player: adult, peopleById: { p_kid: adult }, country: COUNTRY, currentMonthIndex: 18 * 12, rng: { chance: () => true } });
+    assert.deepEqual(done.triggeredEvents, [risk], id);
+  }
+});

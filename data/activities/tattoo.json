@@ -1,0 +1,28 @@
+{
+  "id": "tattoo",
+  "category": "body_care",
+  "conditions": {
+    "minAge": 18
+  },
+  "cost": "large",
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 3
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": 1
+    }
+  ],
+  "randomEvents": [
+    {
+      "event": "tattoo_regret",
+      "chance": 0.1
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "surgery_complication",
+  "subject": "player",
+  "conditions": {
+    "minAge": 18
+  },
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": -8
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -4
+    }
+  ]
+}

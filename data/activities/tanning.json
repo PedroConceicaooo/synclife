@@ -1,0 +1,22 @@
+{
+  "id": "tanning",
+  "category": "body_care",
+  "conditions": {
+    "minAge": 18
+  },
+  "cost": "small",
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": 2
+    }
+  ],
+  "randomEvents": [
+    {
+      "event": "tanning_burn",
+      "chance": 0.15
+    }
+  ]
+}
