@@ -674,6 +674,7 @@ function renderMakeover(dom, state, locale, activityId, picked, { onPickMakeover
   group('ui.makeover_style', options.hairStyles, look.hairStyle, (v) => capitalize(locale.t(`hairStyle.${v}`), locale.language), (v) => ({ hairStyle: v }));
   group('ui.makeover_color', options.hairColors, look.hairColor, (v) => capitalize(locale.t(`hairColor.${v}`), locale.language), (v) => ({ hairColor: v }));
   group('ui.makeover_beard', options.beard ? [true, false] : [], look.beard, (v) => locale.t(`ui.makeover_beard.${v}`), (v) => ({ beard: v }));
+  group('ui.makeover_glasses', options.glasses, look.glasses, (v) => capitalize(locale.t(`glasses.${v}`), locale.language), (v) => ({ glasses: v }));
 
   const actions = el('div', { className: 'submenu' });
   const busy = state.pendingDecisions.length > 0;

@@ -2,7 +2,9 @@
 // looks on their avatar — the barber and the hairdresser change the cut,
 // the hairdresser the color too (dyes included), shaving the beard. The
 // activity's data says what may change:
-//   "makeover": { "hairStyle": true, "hairColors": [...], "beard": true }
+//   "makeover": { "hairStyle": true, "hairColors": [...], "beard": true,
+//                 "glasses": ["round", "square", "none"] }
+// appearance.glasses is the frame worn, or null ("none": contact lenses).
 // The player picks; the engine only checks the pick against the data and
 // the person's sex, and applies it. A dyed color keeps the natural one in
 // naturalHairColor, so children still inherit the real color.
@@ -12,20 +14,21 @@ import { normalizeAppearance } from './appearanceCompat.js';
 
 const sexOf = (person) => (person.sex === 'F' ? 'F' : 'M');
 
-// What the player may pick here: { hairStyles, hairColors, beard }.
+// What the player may pick here: { hairStyles, hairColors, beard, glasses }.
 export function makeoverOptions(activity, person) {
   const rules = activity.makeover ?? {};
   return {
     hairStyles: rules.hairStyle ? HAIR_STYLE_IDS[sexOf(person)] : [],
     hairColors: rules.hairColors ?? [],
     beard: Boolean(rules.beard),
+    glasses: rules.glasses ?? [],
   };
 }
 
 // The look the person has now, as a choice (a plain trim keeps it).
 export function currentChoice(person) {
   const appearance = normalizeAppearance(person);
-  return { hairStyle: appearance.hairStyle, hairColor: appearance.hairColor, beard: appearance.beard };
+  return { hairStyle: appearance.hairStyle, hairColor: appearance.hairColor, beard: appearance.beard, glasses: appearance.glasses ?? 'none' };
 }
 
 // Whether a choice only uses what this service offers (anything left out
@@ -35,6 +38,7 @@ export function isValidChoice(activity, person, choice = {}) {
   if (choice.hairStyle !== undefined && !options.hairStyles.includes(choice.hairStyle)) return false;
   if (choice.hairColor !== undefined && !options.hairColors.includes(choice.hairColor)) return false;
   if (choice.beard !== undefined && (!options.beard || typeof choice.beard !== 'boolean')) return false;
+  if (choice.glasses !== undefined && !options.glasses.includes(choice.glasses)) return false;
   return true;
 }
 
@@ -49,5 +53,6 @@ export function applyMakeover(person, choice = {}) {
     next.naturalHairColor = choice.hairColor === natural ? null : natural;
   }
   if (choice.beard !== undefined) next.beard = choice.beard;
+  if (choice.glasses !== undefined) next.glasses = choice.glasses === 'none' ? null : choice.glasses;
   return { ...person, appearance: next };
 }

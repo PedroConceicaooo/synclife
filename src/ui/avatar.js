@@ -102,6 +102,25 @@ export function renderAvatar(appearance, sex, phase, opts = {}) {
       ${fem ? `<path d="M${x + (dx > 0 ? ew : -ew)},${y - 1} l${dx > 0 ? 2.4 : -2.4},-2" stroke="#2A1D18" stroke-width="1.6" stroke-linecap="round"/>` : ''}`;
   }).join('');
 
+  // Glasses (ótica): a frame per eye, a bridge, the temples to the ears.
+  const lens = Math.max(ew, eh) + 2.6;
+  const frame = '#2B2B33';
+  const glassesSvg =
+    !baby && appearance.glasses
+      ? [-10, 10]
+          .map((dx) => {
+            const x = 60 + dx, y = p.eyeY;
+            const shape =
+              appearance.glasses === 'square'
+                ? `<rect x="${x - lens}" y="${y - lens * 0.85}" width="${lens * 2}" height="${lens * 1.7}" rx="2.5"`
+                : `<circle cx="${x}" cy="${y}" r="${lens}"`;
+            return `${shape} fill="#fff" fill-opacity=".18" stroke="${frame}" stroke-width="1.7"/>`;
+          })
+          .join('') +
+        `<path d="M${50 + lens},${p.eyeY - 1} Q60,${p.eyeY - 3.5} ${70 - lens},${p.eyeY - 1}" fill="none" stroke="${frame}" stroke-width="1.6"/>` +
+        `<path d="M${50 - lens},${p.eyeY - 1} L${60 - p.rx + 1},${p.eyeY - 2} M${70 + lens},${p.eyeY - 1} L${60 + p.rx - 1},${p.eyeY - 2}" stroke="${frame}" stroke-width="1.5"/>`
+      : '';
+
   const browColor = shade(appearance.hairColor === 'gray' ? '#8A8A8A' : hair, -0.25);
   const brows = p.brow ? [-10, 10].map((dx) => `<path d="M${60 + dx - 6},${p.eyeY - eh - 3.2} Q${60 + dx},${p.eyeY - eh - 6} ${60 + dx + 6},${p.eyeY - eh - 3.6}" fill="none" stroke="${browColor}" stroke-width="${sex === 'M' && phase !== 'child' ? 3 : 2.1}" stroke-linecap="round"/>`).join('') : '';
 
@@ -129,7 +148,7 @@ export function renderAvatar(appearance, sex, phase, opts = {}) {
 <radialGradient id="g${id}" cx="50%" cy="35%" r="70%"><stop offset="0" stop-color="${bg1}"/><stop offset="1" stop-color="${bg2}"/></radialGradient>
 </defs>
 <circle cx="60" cy="60" r="58" fill="url(#g${id})"/>
-<g clip-path="url(#c${id})">${back}${body}${neck}${head}${cheeks}${eyes}${brows}${nose}${beardSvg}${mouth}${front}${shine}</g>
+<g clip-path="url(#c${id})">${back}${body}${neck}${head}${cheeks}${eyes}${brows}${glassesSvg}${nose}${beardSvg}${mouth}${front}${shine}</g>
 </svg>`;
 }
 

@@ -1,0 +1,23 @@
+{
+  "id": "optician",
+  "category": "body_care",
+  "conditions": {
+    "minAge": 4
+  },
+  "cost": "medium",
+  "makeover": {
+    "glasses": [
+      "round",
+      "square",
+      "none"
+    ]
+  },
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 1
+    }
+  ]
+}

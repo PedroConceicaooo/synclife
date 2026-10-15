@@ -192,7 +192,11 @@ export function teamSeasonLine(locale, entry, club, sex) {
 export function makeoverLine(locale, activityId, look, sex) {
   return locale.format(
     `activity.${activityId}.done`,
-    { style: locale.t(`hairStyle.${look.hairStyle}`), color: locale.t(`hairColor.${look.hairColor}`) },
+    {
+      style: locale.t(`hairStyle.${look.hairStyle}`),
+      color: locale.t(`hairColor.${look.hairColor}`),
+      glasses: locale.t(`glasses.${look.glasses ?? 'none'}`),
+    },
     { player: sex },
   );
 }
