@@ -175,8 +175,10 @@ button:disabled {
   overscroll-behavior: contain;
 }
 
+/* The bottom padding keeps the last row clear of the round advance
+   button, which rises 26px over the screen. */
 #screens > section {
-  padding: var(--gutter);
+  padding: var(--gutter) var(--gutter) calc(var(--gutter) + 32px);
 }
 
 #screens > section[hidden] {
@@ -445,34 +447,6 @@ h1 {
   margin-top: 6px;
 }
 
-/* A group of activities (martial arts, dances): one row with a chevron
-   that opens the list under it, indented. */
-.row.activity-group {
-  position: relative;
-  padding-right: 28px;
-}
-
-.row.activity-group::after {
-  content: "";
-  position: absolute;
-  right: 6px;
-  top: 50%;
-  width: 8px;
-  height: 8px;
-  border-right: 2px solid var(--ink-soft);
-  border-bottom: 2px solid var(--ink-soft);
-  transform: translateY(-75%) rotate(45deg);
-}
-
-.row.activity-group.open::after {
-  transform: translateY(-25%) rotate(-135deg);
-}
-
-.activity-group-items {
-  padding-left: 14px;
-  border-left: 2px solid var(--rule);
-}
-
 .people-list {
   list-style: none;
   padding: 0;
@@ -487,6 +461,147 @@ h1 {
 
 #school-empty {
   color: var(--ink-soft);
+}
+
+/* Activities tab in levels: a page header (back arrow, trail, title),
+   big cards in two columns, then short rows with a tag on the right. */
+.page-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.page-head h1 {
+  margin: 0;
+}
+
+.page-back {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin-left: -10px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--pen);
+}
+
+.page-back svg,
+.nav-card svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.trail {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.trail:empty {
+  display: none;
+}
+
+.nav-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.nav-card {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 4px;
+  min-height: 108px;
+  padding: 14px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: left;
+}
+
+.nav-card svg {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 4px;
+  color: var(--pen);
+}
+
+.nav-card .detail {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.nav-cards + .item-list {
+  margin-top: 16px;
+}
+
+/* One line per item: the name, and a short tag on the right. */
+.row.item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 10px 0;
+}
+
+.row.item-row strong {
+  min-width: 0;
+}
+
+.row.item-row .tag {
+  flex: none;
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rows that open a page end in a chevron. */
+.row.item-row.opens::after {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  margin-left: -4px;
+  border-right: 2px solid var(--ink-soft);
+  border-bottom: 2px solid var(--ink-soft);
+  transform: rotate(-45deg);
+}
+
+.row.item-row .tag.action {
+  color: var(--pen);
+}
+
+.row.item-row.done {
+  opacity: 0.45;
+}
+
+.modality-info {
+  display: grid;
+  gap: 6px;
+}
+
+.modality-info .detail,
+.detail.blocker {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.submenu button.primary {
+  grid-column: 1 / -1;
+  min-height: 48px;
+  border-color: var(--pen);
+  background: var(--pen);
+  color: var(--on-pen);
 }
 
 .activities-group + .activities-group {
@@ -566,6 +681,12 @@ h1 {
   min-height: 1.5em;
   margin: 12px 0;
   color: var(--pen);
+}
+
+/* No result yet: no gap between the title and the cards. */
+#activities-result:empty {
+  min-height: 0;
+  margin: 0;
 }
 
 /* Decision pop-up, rising from the bottom within thumb reach. */

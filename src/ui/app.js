@@ -16,8 +16,10 @@ import {
   playableCountries,
   buyPlayerAsset,
   sellPlayerAsset,
+  availableActivities,
 } from './gameState.js';
 import { toSave, fromSave } from '../systems/save.js';
+import { activityPage, parentPath } from './activityNav.js';
 import { continueAsSibling } from '../systems/lifeEnd.js';
 import {
   renderHeader,
@@ -91,6 +93,7 @@ const dom = {
   activitiesScreen: byId('activities-screen'),
   activitiesBack: byId('activities-back'),
   activitiesTitle: byId('activities-title'),
+  activitiesTrail: byId('activities-trail'),
   activitiesResult: byId('activities-result'),
   activitiesList: byId('activities-list'),
   advance: byId('advance'),
@@ -187,6 +190,52 @@ async function main() {
     dom.screens.scrollTo({ top: dom.screens.scrollHeight, behavior });
   }
 
+  // Activities tab in levels: a new page starts at the top; going back up
+  // returns to where the page above was (by path, while the tab is open).
+  const scrollByPath = new Map();
+  const pathKey = (path) => path.join('/');
+
+  // The page the tab really shows: a path that no longer fits (an item
+  // the player can't see anymore) stands for its deepest valid part.
+  function activityPathNow() {
+    return view.screen === 'activities' ? activityPage(availableActivities(state), view.activityPath ?? []).path : [];
+  }
+
+  function goToActivityPage(nextPath) {
+    const path = activityPathNow();
+    scrollByPath.set(pathKey(path), dom.screens.scrollTop);
+    const up = nextPath.length < path.length;
+    update({ ...state, lastActivityResult: null }, { ...view, activityPath: nextPath, makeoverChoice: null });
+    dom.screens.scrollTo({ top: up ? scrollByPath.get(pathKey(nextPath)) ?? 0 : 0 });
+  }
+
+  // The phone's (and browser's) back button goes one level up in the tab:
+  // below its first level, one extra history entry stands for "up". It is
+  // taken away again at the first level or when the tab closes, so back
+  // works as before everywhere else.
+  let upEntry = false;
+  let ownBacks = 0;
+  function syncBackButton() {
+    const deep = activityPathNow().length > 0;
+    if (deep && !upEntry) {
+      history.pushState({ synclife: 'up' }, '');
+      upEntry = true;
+    } else if (!deep && upEntry) {
+      upEntry = false;
+      ownBacks += 1;
+      history.back();
+    }
+  }
+  window.addEventListener('popstate', () => {
+    if (ownBacks > 0) {
+      ownBacks -= 1;
+      return;
+    }
+    upEntry = false;
+    const path = activityPathNow();
+    if (path.length > 0) goToActivityPage(parentPath(path));
+  });
+
   // Every change to the game goes through here: save, then redraw.
   function update(nextState, nextView = view) {
     state = nextState;
@@ -213,7 +262,9 @@ async function main() {
         scrollDiaryToEnd();
       },
       onTab: (tab) => {
-        // A tab opens without the result message of the last visit.
+        // A tab opens without the result message of the last visit, and
+        // the Activities tab on its first level.
+        scrollByPath.clear();
         const next = { ...state, lastActivityResult: null, lastAssetResult: null };
         update(next, { screen: tab });
         if (tab === 'life') scrollDiaryToEnd();
@@ -249,32 +300,27 @@ async function main() {
         onAskParentsToBuy: (assetId) => update(askParentsToBuyAsset(state, assetId)),
       });
     } else if (view.screen === 'activities') {
+      // The tab works in levels (activityNav.js): view.activityPath is the page.
+      const path = view.activityPath ?? [];
       renderActivities(dom, state, locale, {
+        path,
+        makeoverChoice: view.makeoverChoice ?? null,
+        onNavigate: goToActivityPage,
+        // Doing something keeps the player on the same page (to train again).
         onDoActivity: (activityId) => update(attemptPlayerActivity(state, activityId)),
         onEnroll: (activityId, payer) => update(enrollPlayer(state, activityId, payer)),
         onLeave: (activityId) => update(leavePlayerEnrollment(state, activityId)),
         onCompete: (activityId) => update(competePlayer(state, activityId)),
-        onToggleGroup: (group) => update(state, { ...view, group }),
-        openGroup: view.group ?? null,
-        onOpenClubs: (activityId) => {
-          update({ ...state, lastActivityResult: null }, { ...view, clubsFor: activityId });
-          dom.screens.scrollTo({ top: 0 });
-        },
-        onCloseClubs: () => update({ ...state, lastActivityResult: null }, { ...view, clubsFor: null }),
         onSignUp: (activityId, clubId) => update(signUpPlayerForTryout(state, activityId, clubId)),
         onAskParentsToPay: (activityId, choice = null) => {
           const next = askParentsToPayActivity(state, activityId, choice);
           // A makeover the parents paid for is done: back to the list.
           const done = choice && next.lastActivityResult?.attempted;
-          update(next, done ? { ...view, makeoverFor: null, makeoverChoice: null } : view);
+          update(next, done ? { ...view, activityPath: parentPath(path), makeoverChoice: null } : view);
         },
-        onOpenMakeover: (activityId) => update({ ...state, lastActivityResult: null }, { ...view, makeoverFor: activityId, makeoverChoice: null }),
         onPickMakeover: (change) => update(state, { ...view, makeoverChoice: { ...(view.makeoverChoice ?? {}), ...change } }),
-        onConfirmMakeover: (activityId, choice) => update(attemptPlayerActivity(state, activityId, choice), { ...view, makeoverFor: null, makeoverChoice: null }),
-        onCloseMakeover: () => update({ ...state, lastActivityResult: null }, { ...view, makeoverFor: null, makeoverChoice: null }),
-        openMakeover: view.makeoverFor ?? null,
-        makeoverChoice: view.makeoverChoice ?? null,
-        openClubs: view.clubsFor ?? null,
+        onConfirmMakeover: (activityId, choice) =>
+          update(attemptPlayerActivity(state, activityId, choice), { ...view, activityPath: parentPath(path), makeoverChoice: null }),
       });
     } else {
       renderProfile(dom, state, locale, view.personId, view.category, {
@@ -283,6 +329,8 @@ async function main() {
         onSelectCategory: (category) => update(state, { ...view, category }),
       });
     }
+
+    syncBackButton();
 
     renderDecisionModal(dom, state, locale, {
       // After the last choice of an interrupted advance, the rest of the time

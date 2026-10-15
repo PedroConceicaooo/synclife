@@ -9,6 +9,8 @@ import { isAdult, availableInteractions, availableActivities, closePeople, playe
 import { nextSeasonStart } from '../systems/teams.js';
 import { makeoverOptions, applyMakeover, currentChoice } from '../systems/makeover.js';
 import { activityPrice } from '../systems/activities.js';
+import { resolveAmount } from '../systems/money.js';
+import { activityPage, parentPath, breadcrumb, itemStatus, isDone, hasModalityPage, CLUBS_PAGE } from './activityNav.js';
 import { assetPrice, resalePrice } from '../systems/assets.js';
 import { avatarElement, sexIconElement, nameElement } from './avatarElement.js';
 import { lifeSummary } from '../systems/lifeEnd.js';
@@ -139,14 +141,19 @@ const TAB_ICONS = {
   activities: 'M12 3l2.5 5.4 5.9.7-4.4 4 1.2 5.9L12 16.1 6.8 19l1.2-5.9-4.4-4 5.9-.7z',
 };
 
-function tabIcon(name) {
+// A 24 x 24 line icon stroked with currentColor (tabs, activity cards).
+function lineIcon(d) {
   const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   icon.setAttribute('viewBox', '0 0 24 24');
   icon.setAttribute('aria-hidden', 'true');
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  path.setAttribute('d', TAB_ICONS[name]);
+  path.setAttribute('d', d);
   icon.appendChild(path);
   return icon;
+}
+
+function tabIcon(name) {
+  return lineIcon(TAB_ICONS[name]);
 }
 
 // The school tab follows the stage of life: daycare, school, then a job.
@@ -526,58 +533,142 @@ function enrollmentButtons({ id, enrollment, competition, teamSport }, state, lo
   return submenu;
 }
 
-function activityRow(item, state, locale, { onDoActivity, onEnroll, onLeave, onCompete, onOpenClubs, onAskParentsToPay, onOpenMakeover }) {
-  const { id, blocker } = item;
-  const nodes = [];
-  const button = el('button', { className: 'row activity' });
-  button.type = 'button';
-  // A makeover opens its panel even short of money (the parents can pay there).
-  const opens = item.makeover && (blocker === null || blocker === 'money');
-  button.disabled = (!opens && blocker !== null) || state.pendingDecisions.length > 0;
-  button.append(
-    el('strong', { text: locale.t(`activity.${id}.title`) }),
-    el('span', { className: 'detail', text: blocker ? locale.format(ACTIVITY_BLOCKER_KEYS[blocker], {}, sexesOf(state)) : locale.t(`activity.${id}.description`) }),
-  );
-  if (item.enrollment) button.append(el('span', { className: 'detail', text: enrollmentDetail(item, state, locale) }));
-  if (item.levelId && blocker !== 'notEnrolled') button.append(...trainingDetails(item, locale));
-  for (const team of item.teamSport ? (state.people[state.player.id].teams ?? []).filter((t) => t.activityId === id) : []) {
-    const club = team.clubId ? state.clubsById[team.clubId] : null;
-    button.append(el('span', { className: 'detail', text: locale.format('ui.team_on', { team: teamName(locale, team.teamLevelId, club) }) }));
-  }
-  button.addEventListener('click', () => (item.makeover ? onOpenMakeover(id) : onDoActivity(id)));
-  nodes.push(button);
-  if (item.enrollment) nodes.push(enrollmentButtons(item, state, locale, { onEnroll, onLeave, onCompete, onOpenClubs }));
-  // Short of money: ask the parents to pay (once per period). A makeover
-  // asks from its panel, with the look picked.
-  if (item.askParents !== undefined && !item.makeover) {
-    const submenu = el('div', { className: 'submenu' });
-    const ask = el('button', { text: locale.t('ui.ask_parents_pay') });
-    ask.type = 'button';
-    ask.disabled = !item.askParents || state.pendingDecisions.length > 0;
-    ask.addEventListener('click', () => onAskParentsToPay(id));
-    submenu.appendChild(ask);
-    nodes.push(submenu);
-  }
-  return nodes;
+// Activities tab in levels (design doc, "Navegação da aba Atividades";
+// the pages come from activityNav.js): big cards to choose a category or a
+// subcategory, short rows with a tag on the right, and a page per modality.
+const ACTIVITY_ICONS = {
+  odd_jobs: 'M4 8h16v11H4z M9 8V5h6v3 M4 13h16',
+  leisure: 'M4 8a2 2 0 0 0 0 4v4h16v-4a2 2 0 0 1 0-4V4H4z M14 4v12',
+  physical: 'M3 10v4 M6 7v10 M18 7v10 M21 10v4 M6 12h12',
+  body_care: 'M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z',
+  crime: 'M3 9c3-2 15-2 18 0-1 6-4 8-6 8l-3-3-3 3c-2 0-5-2-6-8z M8 11h2 M14 11h2',
+  sports: 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M12 3c-3 3-3 15 0 18 M3 12h18',
+  martial_arts: 'M4 14h16v4H4z M10 14l-2 6 M14 14l2 6 M8 14V6h8v8',
+  dance: 'M9 18V5l11-2v13 M9 18a3 3 0 1 1-6 0a3 3 0 1 1 6 0z M20 16a3 3 0 1 1-6 0a3 3 0 1 1 6 0z',
+  back: 'M15 5l-7 7 7 7',
+};
+
+function pageTitle(page, locale) {
+  if (page.kind === 'home') return locale.t('ui.activities_title');
+  if (page.kind === 'category') return locale.t(`activityCategory.${page.category}`);
+  if (page.kind === 'group') return locale.t(`activityGroup.${page.group}`);
+  if (page.kind === 'clubs') return locale.format('ui.clubs_title', { activity: locale.t(`activity.${page.item.id}.title`) });
+  return locale.t(`activity.${page.item.id}.title`);
 }
 
-// Activities with a `group` (martial arts, dances) sit behind one row that
-// opens them, so twenty sports don't bury the rest of the screen.
-function groupRow(group, items, open, locale, onToggleGroup) {
-  const button = el('button', { className: `row activity-group${open ? ' open' : ''}` });
+function crumbLabel(crumb, locale) {
+  if (crumb.kind === 'home') return locale.t('ui.activities_title');
+  if (crumb.kind === 'category') return locale.t(`activityCategory.${crumb.id}`);
+  if (crumb.kind === 'group') return locale.t(`activityGroup.${crumb.id}`);
+  return locale.t(`activity.${crumb.id}.title`);
+}
+
+// Back arrow, the short trail ("Atividades › Atividades físicas") and the title.
+function renderActivitiesHeader(dom, page, locale, onNavigate) {
+  dom.activitiesBack.hidden = page.level === 1;
+  clearChildren(dom.activitiesBack);
+  dom.activitiesBack.appendChild(lineIcon(ACTIVITY_ICONS.back));
+  dom.activitiesBack.setAttribute('aria-label', locale.t('ui.back'));
+  dom.activitiesBack.onclick = () => onNavigate(parentPath(page.path));
+  dom.activitiesTrail.textContent = breadcrumb(page).map((crumb) => crumbLabel(crumb, locale)).join(' › ');
+  dom.activitiesTitle.textContent = pageTitle(page, locale);
+}
+
+function navCard(card, locale, onOpen) {
+  const button = el('button', { className: 'nav-card' });
   button.type = 'button';
-  button.setAttribute('aria-expanded', String(open));
-  const enrolled = items.filter((a) => a.enrollment?.enrolled).length;
-  button.append(
-    el('strong', { text: locale.t(`activityGroup.${group}`) }),
-    el('span', { className: 'detail', text: locale.plural(enrolled > 0 ? 'ui.activity_group_enrolled' : 'ui.activity_group_count', enrolled > 0 ? enrolled : items.length) }),
-  );
-  button.addEventListener('click', () => onToggleGroup(open ? null : group));
+  const title = locale.t(card.kind === 'category' ? `activityCategory.${card.id}` : `activityGroup.${card.id}`);
+  const count = card.enrolled ? locale.plural('ui.activity_group_enrolled', card.enrolled) : locale.plural('ui.options_count', card.count);
+  button.append(lineIcon(ACTIVITY_ICONS[card.id] ?? ACTIVITY_ICONS.physical), el('strong', { text: title }), el('span', { className: 'detail', text: count }));
+  button.addEventListener('click', onOpen);
   return button;
 }
 
-// Design doc: lists with title and a one-line description. Activities the
-// player can't do right now stay visible, disabled, with the reason.
+// The tag on the right of a row: the price (or what it pays), done this
+// period, needs enrollment, enrolled, or why it can't be done now.
+function itemTag(item, state, locale) {
+  if (canAskParents(item)) return locale.t('ui.ask_parents_pay');
+  const status = itemStatus(item);
+  if (status === 'blocked') return locale.format(`ui.activity_tag.${item.blocker}`, {}, sexesOf(state));
+  if (status !== 'available') return locale.format(`ui.activity_tag.${status}`, {}, sexesOf(state));
+  const activity = state.activitiesById[item.id];
+  const { code, display } = state.country.currency;
+  const price = activityPrice(activity, state.country);
+  if (price > 0) return locale.money(price, code, display);
+  return activity.earnings ? `+${locale.money(resolveAmount(activity.earnings, state.country), code, display)}` : '';
+}
+
+// Short of money, and the parents can still be asked this period.
+function canAskParents(item) {
+  return item.blocker === 'money' && Boolean(item.askParents);
+}
+
+function askParentsButton(item, state, locale, onAskParentsToPay) {
+  const submenu = el('div', { className: 'submenu' });
+  const ask = el('button', { text: locale.t('ui.ask_parents_pay') });
+  ask.type = 'button';
+  ask.disabled = !item.askParents || state.pendingDecisions.length > 0;
+  ask.addEventListener('click', () => onAskParentsToPay(item.id));
+  submenu.appendChild(ask);
+  return submenu;
+}
+
+// One short row. A modality (or a makeover) opens its page; a one-tap
+// activity (an odd job) is done from the row itself — or, short of money,
+// asks the parents to pay (once per period).
+function itemRow(item, state, locale, { onOpen, onDoActivity, onAskParentsToPay }) {
+  const opens = hasModalityPage(item) || item.makeover;
+  const row = el('button', { className: `row item-row${opens ? ' opens' : ''}${isDone(item) ? ' done' : ''}` });
+  row.type = 'button';
+  row.append(
+    el('strong', { text: locale.t(`activity.${item.id}.title`) }),
+    el('span', { className: `tag${canAskParents(item) ? ' action' : ''}`, text: itemTag(item, state, locale) }),
+  );
+  if (opens) {
+    row.addEventListener('click', () => onOpen(item.id));
+  } else if (canAskParents(item)) {
+    row.disabled = state.pendingDecisions.length > 0;
+    row.addEventListener('click', () => onAskParentsToPay(item.id));
+  } else {
+    row.disabled = item.blocker !== null || state.pendingDecisions.length > 0;
+    row.addEventListener('click', () => onDoActivity(item.id));
+  }
+  return [row];
+}
+
+// Level 4: what the modality offers — train, enrollment, clubs and
+// tryouts, competitions — with the skill, the grade and the medals.
+function renderModality(dom, state, locale, page, { onDoActivity, onEnroll, onLeave, onCompete, onAskParentsToPay, onNavigate }) {
+  const { item } = page;
+  const info = el('div', { className: 'modality-info' });
+  info.appendChild(el('p', { className: 'detail', text: locale.t(`activity.${item.id}.description`) }));
+  if (item.enrollment) info.appendChild(el('p', { className: 'detail', text: enrollmentDetail(item, state, locale) }));
+  for (const team of item.teamSport ? (state.people[state.player.id].teams ?? []).filter((t) => t.activityId === item.id) : []) {
+    const club = team.clubId ? state.clubsById[team.clubId] : null;
+    info.appendChild(el('p', { className: 'detail', text: locale.format('ui.team_on', { team: teamName(locale, team.teamLevelId, club) }) }));
+  }
+  if (item.levelId && item.blocker !== 'notEnrolled') info.append(...trainingDetails(item, locale));
+  dom.activitiesList.appendChild(info);
+
+  // Not enrolled yet: the reason and the enrollment buttons, no dead button.
+  if (item.blocker !== 'notEnrolled') {
+    const actions = el('div', { className: 'submenu' });
+    const train = el('button', { className: 'primary', text: locale.t('ui.train') });
+    train.type = 'button';
+    train.disabled = item.blocker !== null || state.pendingDecisions.length > 0;
+    train.addEventListener('click', () => onDoActivity(item.id));
+    actions.appendChild(train);
+    dom.activitiesList.appendChild(actions);
+  }
+  if (item.blocker) dom.activitiesList.appendChild(el('p', { className: 'detail blocker', text: locale.format(ACTIVITY_BLOCKER_KEYS[item.blocker], {}, sexesOf(state)) }));
+
+  if (item.enrollment) {
+    const onOpenClubs = () => onNavigate([...page.path, CLUBS_PAGE]);
+    dom.activitiesList.appendChild(enrollmentButtons(item, state, locale, { onEnroll, onLeave, onCompete, onOpenClubs }));
+  }
+  if (item.askParents !== undefined) dom.activitiesList.appendChild(askParentsButton(item, state, locale, onAskParentsToPay));
+}
+
 // Atividades → modalidade → Clubes e peneiras (docs/atividades.md 7.3):
 // the clubs of the player's city, then the rest of the country, each with
 // category, tryout month and deadline, youngest age and requirement.
@@ -617,13 +708,7 @@ function clubRow(row, state, locale, activityId, onSignUp) {
   return nodes;
 }
 
-function renderClubTryouts(dom, state, locale, activityId, { onCloseClubs, onSignUp }) {
-  dom.activitiesBack.hidden = false;
-  dom.activitiesBack.textContent = locale.t('ui.back');
-  dom.activitiesBack.onclick = onCloseClubs;
-  dom.activitiesTitle.textContent = locale.format('ui.clubs_title', { activity: locale.t(`activity.${activityId}.title`) });
-  dom.activitiesResult.textContent = state.lastActivityResult ? activityResultText(state, state.lastActivityResult, locale, sexesOf(state)) : '';
-  clearChildren(dom.activitiesList);
+function renderClubTryouts(dom, state, locale, activityId, { onSignUp }) {
   const rows = clubTryouts(state, activityId);
   for (const [key, group] of [
     ['ui.clubs_local', rows.filter((r) => r.local)],
@@ -639,20 +724,13 @@ function renderClubTryouts(dom, state, locale, activityId, { onCloseClubs, onSig
 
 // A barber, a hairdresser (makeover.js): pick the cut, the color or the
 // beard with a preview of the avatar, then pay — or ask the parents.
-function renderMakeover(dom, state, locale, activityId, picked, { onPickMakeover, onConfirmMakeover, onCloseMakeover, onAskParentsToPay }) {
+function renderMakeover(dom, state, locale, item, picked, { onPickMakeover, onConfirmMakeover, onAskParentsToPay }) {
+  const activityId = item.id;
   const activity = state.activitiesById[activityId];
   const player = state.people[state.player.id];
   const choice = { ...picked };
   const look = { ...currentChoice(player), ...choice };
   const options = makeoverOptions(activity, player);
-  const item = availableActivities(state).flatMap((g) => g.activities).find((a) => a.id === activityId);
-
-  dom.activitiesBack.hidden = false;
-  dom.activitiesBack.textContent = locale.t('ui.back');
-  dom.activitiesBack.onclick = onCloseMakeover;
-  dom.activitiesTitle.textContent = locale.t(`activity.${activityId}.title`);
-  dom.activitiesResult.textContent = state.lastActivityResult ? activityResultText(state, state.lastActivityResult, locale, sexesOf(state)) : '';
-  clearChildren(dom.activitiesList);
 
   const preview = el('div', { className: 'makeover-preview' });
   preview.appendChild(avatarElement(applyMakeover(player, choice), ageOf(state, player), 112));
@@ -681,7 +759,7 @@ function renderMakeover(dom, state, locale, activityId, picked, { onPickMakeover
 
   const actions = el('div', { className: 'submenu' });
   const busy = state.pendingDecisions.length > 0;
-  if (item?.blocker === 'money') {
+  if (item.blocker === 'money') {
     const ask = el('button', { text: locale.t('ui.ask_parents_pay') });
     ask.type = 'button';
     ask.disabled = busy || !item.askParents;
@@ -691,52 +769,36 @@ function renderMakeover(dom, state, locale, activityId, picked, { onPickMakeover
     const amount = locale.money(activityPrice(activity, state.country), state.country.currency.code, state.country.currency.display);
     const confirm = el('button', { text: locale.format('ui.makeover_confirm', { amount }) });
     confirm.type = 'button';
-    confirm.disabled = busy || item?.blocker !== null;
+    confirm.disabled = busy || item.blocker !== null;
     confirm.addEventListener('click', () => onConfirmMakeover(activityId, choice));
     actions.appendChild(confirm);
   }
   dom.activitiesList.appendChild(actions);
 }
 
-export function renderActivities(dom, state, locale, callbacksAndView) {
-  const { onDoActivity, onEnroll, onLeave, onCompete, onToggleGroup, onOpenClubs, onAskParentsToPay, onOpenMakeover } = callbacksAndView;
-  const { openGroup = null, openClubs = null, openMakeover = null, makeoverChoice = null } = callbacksAndView;
-  if (openClubs) {
-    renderClubTryouts(dom, state, locale, openClubs, callbacksAndView);
-    return;
-  }
-  if (openMakeover) {
-    renderMakeover(dom, state, locale, openMakeover, makeoverChoice ?? {}, callbacksAndView);
-    return;
-  }
-  dom.activitiesBack.hidden = true;
-  dom.activitiesTitle.textContent = locale.t('ui.activities_title');
+// path: where the player is in the tab (activityNav.js); makeoverChoice:
+// the look picked so far on a makeover page.
+export function renderActivities(dom, state, locale, callbacks) {
+  const { path = [], makeoverChoice = null, onNavigate, onDoActivity, onAskParentsToPay } = callbacks;
+  const page = activityPage(availableActivities(state), path);
+  renderActivitiesHeader(dom, page, locale, onNavigate);
   dom.activitiesResult.textContent = state.lastActivityResult ? activityResultText(state, state.lastActivityResult, locale, sexesOf(state)) : '';
-  const callbacks = { onDoActivity, onEnroll, onLeave, onCompete, onOpenClubs, onAskParentsToPay, onOpenMakeover };
-
   clearChildren(dom.activitiesList);
-  for (const group of availableActivities(state)) {
-    const section = el('div', { className: 'activities-group' });
-    section.appendChild(el('h2', { text: locale.t(`activityCategory.${group.category}`) }));
 
-    const seenGroups = new Set();
-    for (const item of group.activities) {
-      if (!item.group) {
-        section.append(...activityRow(item, state, locale, callbacks));
-        continue;
-      }
-      if (seenGroups.has(item.group)) continue;
-      seenGroups.add(item.group);
-      const members = group.activities.filter((a) => a.group === item.group);
-      const open = openGroup === item.group;
-      section.appendChild(groupRow(item.group, members, open, locale, onToggleGroup));
-      if (open) {
-        const inner = el('div', { className: 'activity-group-items' });
-        for (const member of members) inner.append(...activityRow(member, state, locale, callbacks));
-        section.appendChild(inner);
-      }
-    }
-    dom.activitiesList.appendChild(section);
+  if (page.kind === 'clubs') return renderClubTryouts(dom, state, locale, page.item.id, callbacks);
+  if (page.kind === 'makeover') return renderMakeover(dom, state, locale, page.item, makeoverChoice ?? {}, callbacks);
+  if (page.kind === 'activity') return renderModality(dom, state, locale, page, callbacks);
+
+  if (page.cards.length > 0) {
+    const grid = el('div', { className: 'nav-cards' });
+    for (const card of page.cards) grid.appendChild(navCard(card, locale, () => onNavigate([...page.path, card.id])));
+    dom.activitiesList.appendChild(grid);
+  }
+  if (page.items.length > 0) {
+    const list = el('div', { className: 'item-list' });
+    const open = (id) => onNavigate([...page.path, id]);
+    for (const item of page.items) list.append(...itemRow(item, state, locale, { onOpen: open, onDoActivity, onAskParentsToPay }));
+    dom.activitiesList.appendChild(list);
   }
 }
 
