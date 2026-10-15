@@ -221,6 +221,13 @@ function applyEffect(effect, context) {
       return applyTendencyEffect(effect, context);
     case 'stress':
       return applyStressEffect(effect, context);
+    // Better training for a while (a nutritionist's plan): training.js
+    // multiplies the gain by factor until the month it ends.
+    case 'trainingBoost':
+      return updatePerson(context, context.playerId, (person) => ({
+        ...person,
+        trainingBoost: { until: context.currentMonthIndex + effect.months, factor: effect.factor },
+      }));
     default:
       throw new Error(`Unknown effect op: ${effect.op}`);
   }

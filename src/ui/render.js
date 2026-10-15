@@ -403,6 +403,7 @@ const ACTIVITY_BLOCKER_KEYS = {
   injured: 'ui.activity_injured',
   notEnrolled: 'ui.activity_notEnrolled',
   competed: 'ui.activity_competed',
+  forbidden: 'ui.activity_forbidden',
 };
 
 // Why asking for an enrollment did nothing (enrollPlayer).

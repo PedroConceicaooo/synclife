@@ -1,0 +1,16 @@
+{
+  "id": "dentist",
+  "category": "body_care",
+  "conditions": {
+    "minAge": 3
+  },
+  "cost": "medium",
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 2
+    }
+  ]
+}

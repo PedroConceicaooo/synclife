@@ -1,0 +1,16 @@
+{
+  "id": "manicure",
+  "category": "body_care",
+  "conditions": {
+    "minAge": 8
+  },
+  "cost": "small",
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 3
+    }
+  ]
+}

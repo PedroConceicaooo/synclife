@@ -22,7 +22,7 @@ export function indexActivities(activities) {
 }
 
 // Display order of the Activities screen.
-export const ACTIVITY_CATEGORIES = ['odd_jobs', 'physical', 'leisure', 'crime'];
+export const ACTIVITY_CATEGORIES = ['body_care', 'physical', 'odd_jobs', 'leisure', 'crime'];
 
 export const ACTIVITY_USES_PER_PERIOD = 1;
 export const TRAINING_USES_PER_PERIOD = 2;
@@ -40,9 +40,18 @@ export function activityPrice(activity, country) {
   return cost(activity, country);
 }
 
+// forbiddenWhen: { parentTrait, maxAge } — a parent with that trait says
+// no up to that age (rigid parents and makeup). parentTraits: the traits of
+// the player's parents.
+function forbidden(activity, player, currentMonthIndex, parentTraits) {
+  const rule = activity.forbiddenWhen;
+  return Boolean(rule && parentTraits.includes(rule.parentTrait) && ageAt(player.birth, currentMonthIndex) <= rule.maxAge);
+}
+
 // Why an activity can't be done right now, or null if it can.
-export function activityBlocker(activity, { player, country, currentMonthIndex, usesThisPeriod = 0 }) {
+export function activityBlocker(activity, { player, country, currentMonthIndex, usesThisPeriod = 0, parentTraits = [] }) {
   if (!evaluateConditions(activity.conditions, player, { currentMonthIndex, country })) return 'conditions';
+  if (forbidden(activity, player, currentMonthIndex, parentTraits)) return 'forbidden';
   if (activity.enrollment && !isEnrolled(player, activity.id) && !isOnAnyTeam(player, activity.id)) return 'notEnrolled';
   if (activity.training?.aptitude === 'physical' && isInjured(player, currentMonthIndex)) return 'injured';
   if (usesThisPeriod >= usesPerPeriod(activity)) return 'limit';
@@ -85,7 +94,7 @@ function competitionStatus(activity, player, currentMonthIndex, competed) {
 // Activities the player is old enough for, grouped by category in display
 // order. Ones blocked only by the limit or by money stay listed (with their
 // blocker) so the UI can show them disabled instead of making them vanish.
-export function listActivities(activitiesById, { player, country, currentMonthIndex, usesById = {}, competedById = {} }) {
+export function listActivities(activitiesById, { player, country, currentMonthIndex, usesById = {}, competedById = {}, parentTraits = [] }) {
   const visible = Object.values(activitiesById)
     .map((activity) => ({
       id: activity.id,
@@ -93,7 +102,7 @@ export function listActivities(activitiesById, { player, country, currentMonthIn
       ...(activity.group ? { group: activity.group } : {}),
       ...(activity.teamLevels ? { teamSport: true } : {}),
       minAge: activity.conditions.minAge,
-      blocker: activityBlocker(activity, { player, country, currentMonthIndex, usesThisPeriod: usesById[activity.id] ?? 0 }),
+      blocker: activityBlocker(activity, { player, country, currentMonthIndex, usesThisPeriod: usesById[activity.id] ?? 0, parentTraits }),
       ...(activity.training ? trainingStatus(activity, player, usesById[activity.id] ?? 0, currentMonthIndex) : {}),
       ...(activity.enrollment ? { enrollment: enrollmentStatus(activity, player, { country, currentMonthIndex }) } : {}),
       ...(activity.competitions ? { competition: competitionStatus(activity, player, currentMonthIndex, competedById[activity.id]) } : {}),
@@ -112,9 +121,9 @@ export function listActivities(activitiesById, { player, country, currentMonthIn
 // (they may need a decision).
 export function attemptActivity(
   activity,
-  { player, peopleById, relationshipsById = {}, country, currentMonthIndex, rng, usesThisPeriod = 0 },
+  { player, peopleById, relationshipsById = {}, country, currentMonthIndex, rng, usesThisPeriod = 0, parentTraits = [] },
 ) {
-  const blocker = activityBlocker(activity, { player: peopleById[player.id], country, currentMonthIndex, usesThisPeriod });
+  const blocker = activityBlocker(activity, { player: peopleById[player.id], country, currentMonthIndex, usesThisPeriod, parentTraits });
   if (blocker) return { attempted: false, reason: blocker, peopleById, relationshipsById, triggeredEvents: [] };
 
   // Risky activities (crimes) roll a check: earnings and success effects

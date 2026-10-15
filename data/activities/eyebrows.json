@@ -1,0 +1,22 @@
+{
+  "id": "eyebrows",
+  "category": "body_care",
+  "conditions": {
+    "minAge": 14
+  },
+  "cost": "small",
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": 1
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ]
+}

@@ -26,7 +26,7 @@ function roleAffinity(role, relationshipsById, playerId) {
 // player is only needed for playerStat modifiers, relationshipsById and
 // playerId for roleAffinity (event checks).
 // The player's parents (for factors about them).
-function parentsOf(playerId, relationshipsById, peopleById) {
+export function parentsOf(playerId, relationshipsById, peopleById) {
   return Object.values(relationshipsById)
     .filter((r) => playerId in r.roles && ['son', 'daughter'].includes(r.roles[playerId]))
     .map((r) => peopleById[Object.keys(r.roles).find((id) => id !== playerId)])

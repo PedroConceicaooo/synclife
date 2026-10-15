@@ -37,9 +37,10 @@ export function ageFactor(ageYears = FULL_GAIN_AGE) {
 
 // ganho = 5 × (1 − habilidade / 110) × aptidão × idade × sorte (0,7 a 1,3),
 // mínimo 1 — except at 100, where there is nothing left to gain.
-export function trainingGain(skill, aptitude, rng, ageYears) {
+// boost: a multiplier while a trainingBoost lasts (nutritionist), else 1.
+export function trainingGain(skill, aptitude, rng, ageYears, boost = 1) {
   const luck = 0.7 + 0.6 * rng.next();
-  const gain = Math.max(1, Math.round(BASE_GAIN * (1 - skill / 110) * aptitudeFactor(aptitude) * ageFactor(ageYears) * luck));
+  const gain = Math.max(1, Math.round(BASE_GAIN * (1 - skill / 110) * aptitudeFactor(aptitude) * ageFactor(ageYears) * luck * boost));
   return Math.max(0, Math.min(gain, 100 - skill));
 }
 
@@ -112,7 +113,8 @@ export function trainSkill(training, entry, { person, monthIndex, rng }) {
   const current = entry ?? newSkillEntry(monthIndex);
   const aptitude = person.aptitudes?.[training.aptitude ?? 'physical'];
   const age = ageAt(person.birth, monthIndex);
-  const gain = trainingGain(current.skill, aptitude, rng, age);
+  const boost = person.trainingBoost && monthIndex < person.trainingBoost.until ? person.trainingBoost.factor : 1;
+  const gain = trainingGain(current.skill, aptitude, rng, age, boost);
   const skill = current.skill + gain;
   const sessions = current.sessions + 1;
   // Compared at the age of the last session, so a technique that was only

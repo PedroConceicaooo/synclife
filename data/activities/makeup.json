@@ -1,0 +1,26 @@
+{
+  "id": "makeup",
+  "category": "body_care",
+  "conditions": {
+    "minAge": 12
+  },
+  "cost": "small",
+  "forbiddenWhen": {
+    "parentTrait": "rigid",
+    "maxAge": 15
+  },
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": 2
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ]
+}

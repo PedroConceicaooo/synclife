@@ -23,7 +23,7 @@ import { calendarPoints, calendarEventsAt, firstDecisionPoint } from './calendar
 import { startClass, promoteFriendships } from './schoolmates.js';
 import { schoolStageAt, schoolEntryMonth } from './school.js';
 import { expireEmotions, relaxStress, activeEmotion } from './personality.js';
-import { attemptInteraction, listAvailableInteractions } from './interactions.js';
+import { attemptInteraction, listAvailableInteractions, parentsOf } from './interactions.js';
 import { attemptActivity, listActivities, activityBlocker, activityPrice } from './activities.js';
 import { buyAsset, sellAsset, listShop, applyAssetUpkeep } from './assets.js';
 import { isAllowanceAge, payAllowance, transferMoney } from './money.js';
@@ -602,9 +602,15 @@ function fireTriggeredEvents(state, eventIds, { people, relationships }) {
   return { people: peopleNow, relationships: relationshipsNow, entries, pendingDecisions, fired };
 }
 
+// The traits of the player's parents (rules like rigid parents and makeup).
+function parentTraits(state) {
+  return parentsOf(state.player.id, state.relationships, state.people).flatMap((parent) => parent.traits);
+}
+
 export function availableActivities(state) {
   const asked = state.enrollmentAskedThisPeriod ?? {};
   return listActivities(state.activitiesById, {
+    parentTraits: parentTraits(state),
     player: state.people[state.player.id],
     country: state.country,
     currentMonthIndex: state.currentMonthIndex,
@@ -835,6 +841,7 @@ export function attemptPlayerActivity(state, activityId) {
   const uses = state.activityUsesThisPeriod ?? {};
 
   const result = attemptActivity(activity, {
+    parentTraits: parentTraits(state),
     player: playerBefore,
     peopleById: state.people,
     relationshipsById: state.relationships,

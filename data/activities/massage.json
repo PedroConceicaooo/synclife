@@ -1,0 +1,22 @@
+{
+  "id": "massage",
+  "category": "body_care",
+  "conditions": {
+    "minAge": 14
+  },
+  "cost": "medium",
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 4
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "health",
+      "delta": 1
+    }
+  ]
+}

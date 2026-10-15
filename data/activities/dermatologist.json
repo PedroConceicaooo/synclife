@@ -1,0 +1,22 @@
+{
+  "id": "dermatologist",
+  "category": "body_care",
+  "conditions": {
+    "minAge": 10
+  },
+  "cost": "medium",
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": 3
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 2
+    }
+  ]
+}
