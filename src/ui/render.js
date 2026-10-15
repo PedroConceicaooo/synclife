@@ -842,13 +842,14 @@ function assetResultText(state, locale) {
   const result = state.lastAssetResult;
   if (!result) return '';
   const title = (id) => locale.t(`asset.${id}.title`);
-  if (!result.done) return locale.format(`ui.asset_blocked.${result.reason}`, { items: '' });
-  if (result.action === 'bought') return locale.format('ui.asset_bought', { item: title(result.assetId) });
+  const paidBy = result.parentPayEntry ? `${enrollmentLine(state, locale, result.parentPayEntry)} ` : '';
+  if (!result.done) return result.parentPayEntry ? paidBy.trim() : locale.format(`ui.asset_blocked.${result.reason}`, { items: '' });
+  if (result.action === 'bought') return paidBy + locale.format('ui.asset_bought', { item: title(result.assetId) });
   return locale.format('ui.asset_sold', { items: locale.list(result.dropped.map(title)) });
 }
 
 // Design: everything the player owns, and where to get more.
-export function renderAssets(dom, state, locale, { onBuy, onSell }) {
+export function renderAssets(dom, state, locale, { onBuy, onSell, onAskParentsToBuy }) {
   const player = state.people[state.player.id];
   const money = (amount) => locale.money(amount, state.country.currency.code, state.country.currency.display);
   const title = (id) => locale.t(`asset.${id}.title`);
@@ -880,7 +881,7 @@ export function renderAssets(dom, state, locale, { onBuy, onSell }) {
   for (const group of assetShop(state)) {
     const section = el('div', { className: 'activities-group' });
     section.appendChild(el('h3', { text: locale.t(`assetCategory.${group.category}`) }));
-    for (const { id, price, blocker } of group.items) {
+    for (const { id, price, blocker, askParents } of group.items) {
       const button = el('button', { className: 'row activity' });
       button.type = 'button';
       button.disabled = blocker !== null;
@@ -895,6 +896,16 @@ export function renderAssets(dom, state, locale, { onBuy, onSell }) {
       );
       button.addEventListener('click', () => onBuy(id));
       section.appendChild(button);
+      // Short of money: the parents can be asked to buy it (once per period).
+      if (askParents !== undefined) {
+        const submenu = el('div', { className: 'submenu' });
+        const ask = el('button', { text: locale.t('ui.ask_parents_pay') });
+        ask.type = 'button';
+        ask.disabled = !askParents || state.pendingDecisions.length > 0;
+        ask.addEventListener('click', () => onAskParentsToBuy(id));
+        submenu.appendChild(ask);
+        section.appendChild(submenu);
+      }
     }
     dom.assetsShop.appendChild(section);
   }

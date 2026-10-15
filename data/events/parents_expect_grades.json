@@ -1,0 +1,50 @@
+{
+  "id": "parents_expect_grades",
+  "subject": "player",
+  "conditions": {
+    "minAge": 6,
+    "inSchool": true
+  },
+  "options": [
+    {
+      "id": "promise",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "intelligence",
+          "delta": 1
+        },
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": -1
+        },
+        {
+          "op": "affinity",
+          "targetRole": [
+            "mother",
+            "father"
+          ],
+          "side": "target",
+          "delta": 1
+        }
+      ]
+    },
+    {
+      "id": "shrug",
+      "effects": [
+        {
+          "op": "affinity",
+          "targetRole": [
+            "mother",
+            "father"
+          ],
+          "side": "target",
+          "delta": -2
+        }
+      ]
+    }
+  ]
+}

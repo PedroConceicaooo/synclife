@@ -11,6 +11,7 @@ import {
   competePlayer,
   signUpPlayerForTryout,
   askParentsToPayActivity,
+  askParentsToBuyAsset,
   continueAdvance,
   playableCountries,
   buyPlayerAsset,
@@ -245,6 +246,7 @@ async function main() {
       renderAssets(dom, state, locale, {
         onBuy: (assetId) => update(buyPlayerAsset(state, assetId)),
         onSell: (assetId) => update(sellPlayerAsset(state, assetId)),
+        onAskParentsToBuy: (assetId) => update(askParentsToBuyAsset(state, assetId)),
       });
     } else if (view.screen === 'activities') {
       renderActivities(dom, state, locale, {

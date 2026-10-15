@@ -7,6 +7,10 @@ import { resolveChance, PRICE_SHARE_REFERENCE } from '../src/systems/interaction
 import { loadRequests } from '../src/systems/requestsLoader.js';
 import { createLocale } from '../src/i18n/locale.js';
 import { enrollmentLine } from '../src/ui/diary.js';
+import { createGameState, askParentsToBuyAsset, assetShop, resolveDecision } from '../src/systems/game.js';
+import { loadCountries } from '../src/engine/countriesLoader.js';
+import { loadAssets } from '../src/systems/assetsLoader.js';
+import { loadEvents } from '../src/systems/eventsLoader.js';
 
 const REQUESTS_DIR = fileURLToPath(new URL('../data/requests/', import.meta.url));
 const REQUEST = loadRequests(REQUESTS_DIR).parents_pay;
@@ -84,4 +88,40 @@ test('the diary tells how the ask went', () => {
   assert.equal(line({ type: 'parentsPaid' }), 'Academia: pedi para minha mãe pagar, e deu certo.');
   assert.equal(line({ type: 'parentsDidNotPay', reason: 'refused' }), 'Academia: pedi para minha mãe pagar, mas não rolou.');
   assert.equal(line({ type: 'parentsDidNotPay', reason: 'parentNoMoney' }), 'Academia: pedi para minha mãe pagar, mas o dinheiro está curto em casa.');
+});
+
+test('in the game: the parents can buy an asset; after a yes they may expect good grades', () => {
+  const dir = (d) => fileURLToPath(new URL(`../data/${d}/`, import.meta.url));
+  const events = loadEvents(dir('events'));
+  let state = createGameState({
+    seed: 8,
+    countriesById: loadCountries(dir('countries')),
+    eventsById: { parents_expect_grades: events.parents_expect_grades },
+    interactionsById: {},
+    activitiesById: {},
+    assetsById: loadAssets(dir('assets')),
+    requestsById: loadRequests(REQUESTS_DIR),
+  });
+  const id = state.player.id;
+  state = { ...state, currentMonthIndex: state.player.birth + 12 * 12, people: { ...state.people, [id]: { ...state.people[id], money: 0 } } };
+  const bike = assetShop(state).flatMap((g) => g.items).find((i) => i.id === 'bicycle');
+  assert.equal(bike.blocker, 'money');
+  assert.equal(bike.askParents, true);
+
+  const yes = askParentsToBuyAsset({ ...state, rng: { ...state.rng, chance: () => true } }, 'bicycle');
+  assert.ok(yes.people[id].assets.some((a) => a.assetId === 'bicycle'));
+  const types = yes.history.at(-1).entries.map((e) => e.type);
+  assert.ok(types.indexOf('parentsPaid') < types.indexOf('assetBought'));
+  assert.deepEqual(yes.pendingDecisions.map((d) => d.trigger), ['parents_expect_grades']);
+  const shrugged = resolveDecision(yes, 'shrug');
+  assert.equal(shrugged.pendingDecisions.length, 0);
+
+  const no = askParentsToBuyAsset({ ...state, rng: { ...state.rng, chance: () => false } }, 'bicycle');
+  assert.ok(!(no.people[id].assets ?? []).some((a) => a.assetId === 'bicycle'));
+  assert.equal(askParentsToBuyAsset(no, 'bicycle').lastAssetResult.reason, 'asked');
+  assert.equal(assetShop(no).flatMap((g) => g.items).find((i) => i.id === 'bicycle').askParents, false);
+
+  const locale = createLocale(LOCALE_ENTRIES);
+  const line = enrollmentLine(no, locale, no.history.at(-1).entries.find((e) => e.type === 'parentsDidNotPay'));
+  assert.match(line, /^Bicicleta: pedi para (minha mãe|meu pai) pagar/);
 });

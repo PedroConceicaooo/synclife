@@ -25,7 +25,7 @@ import { schoolStageAt, schoolEntryMonth } from './school.js';
 import { expireEmotions, relaxStress, activeEmotion } from './personality.js';
 import { attemptInteraction, listAvailableInteractions, parentsOf } from './interactions.js';
 import { attemptActivity, listActivities, activityBlocker, activityPrice } from './activities.js';
-import { buyAsset, sellAsset, listShop, applyAssetUpkeep } from './assets.js';
+import { buyAsset, sellAsset, listShop, applyAssetUpkeep, assetBlocker, assetPrice } from './assets.js';
 import { isAllowanceAge, payAllowance, transferMoney } from './money.js';
 import { growStats } from './growth.js';
 import { decayAllSkills } from './training.js';
@@ -808,46 +808,81 @@ function trainingEntries(activityId, training) {
 // The player can't afford an activity (a service, a session): ask the
 // parents to pay it, once per activity and period. A yes hands over the
 // money and the activity happens right away.
-export function askParentsToPayActivity(state, activityId, choice = null) {
-  const activity = state.activitiesById[activityId];
-  const request = state.requestsById?.parents_pay;
-  const playerId = state.player.id;
-  const asked = state.parentPayAskedThisPeriod ?? {};
-  const blocker = activityBlocker(activity, {
-    player: state.people[playerId],
-    country: state.country,
-    currentMonthIndex: state.currentMonthIndex,
-    usesThisPeriod: state.activityUsesThisPeriod?.[activityId] ?? 0,
-  });
-  if (!request || blocker !== 'money' || asked[activityId]) {
-    return { ...state, lastActivityResult: { attempted: false, activityId, reason: asked[activityId] ? 'asked' : blocker ?? 'unavailable' } };
-  }
-
+// Asks the parents to pay for something with a price — an activity, an
+// asset — once per thing and period (key). item names it in the diary
+// ({ activityId } or { assetId }). After a yes, the request's afterYes
+// events may follow ("we paid, now we expect good grades"). Returns
+// { state, paid, entry }.
+function askParentsToPayFor(state, { key, price, item }) {
+  const request = state.requestsById.parents_pay;
   const answer = askParentsToPay(request, {
-    playerId,
-    price: activityPrice(activity, state.country),
+    playerId: state.player.id,
+    price,
     peopleById: state.people,
     relationshipsById: state.relationships,
     country: state.country,
     currentMonthIndex: state.currentMonthIndex,
     rng: state.rng,
   });
-  const entry = { type: answer.paid ? 'parentsPaid' : 'parentsDidNotPay', activityId, parentId: answer.parentId, ...(answer.paid ? {} : { reason: answer.reason }) };
-  const next = {
+  const entry = { type: answer.paid ? 'parentsPaid' : 'parentsDidNotPay', ...item, parentId: answer.parentId, ...(answer.paid ? {} : { reason: answer.reason }) };
+  let next = {
     ...state,
     people: answer.peopleById,
     relationships: answer.relationshipsById,
-    parentPayAskedThisPeriod: { ...asked, [activityId]: true },
+    parentPayAskedThisPeriod: { ...(state.parentPayAskedThisPeriod ?? {}), [key]: true },
     history: appendToCurrentBlock(state.history, [entry]),
-    lastActivityResult: { attempted: false, activityId, parentPayEntry: entry },
   };
-  if (!answer.paid) return next;
+  if (answer.paid) {
+    const eventIds = (request.afterYes ?? []).filter((r) => state.eventsById[r.event] && next.rng.chance(r.chance)).map((r) => r.event);
+    const triggered = fireTriggeredEvents(next, eventIds, { people: next.people, relationships: next.relationships });
+    next = {
+      ...next,
+      people: triggered.people,
+      relationships: triggered.relationships,
+      pendingDecisions: [...next.pendingDecisions, ...triggered.pendingDecisions],
+      firedEvents: [...next.firedEvents, ...triggered.fired],
+      history: appendToCurrentBlock(next.history, triggered.entries),
+    };
+  }
+  return { state: next, paid: answer.paid, entry };
+}
+
+export function askParentsToPayActivity(state, activityId, choice = null) {
+  const activity = state.activitiesById[activityId];
+  const asked = state.parentPayAskedThisPeriod ?? {};
+  const blocker = activityBlocker(activity, {
+    player: state.people[state.player.id],
+    country: state.country,
+    currentMonthIndex: state.currentMonthIndex,
+    usesThisPeriod: state.activityUsesThisPeriod?.[activityId] ?? 0,
+  });
+  if (!state.requestsById?.parents_pay || blocker !== 'money' || asked[activityId]) {
+    return { ...state, lastActivityResult: { attempted: false, activityId, reason: asked[activityId] ? 'asked' : blocker ?? 'unavailable' } };
+  }
+  const { state: next, paid, entry } = askParentsToPayFor(state, { key: activityId, price: activityPrice(activity, state.country), item: { activityId } });
+  if (!paid) return { ...next, lastActivityResult: { attempted: false, activityId, parentPayEntry: entry } };
   const done = attemptPlayerActivity(next, activityId, choice);
   return { ...done, lastActivityResult: { ...done.lastActivityResult, parentPayEntry: entry } };
 }
 
-// Events triggered by an activity have no yearlyChance of their own: ones
-// with options become a decision, the rest apply right away.
+// Asset keys don't clash with activity ids in parentPayAskedThisPeriod.
+const assetAskKey = (assetId) => `asset:${assetId}`;
+
+// The player can't afford an asset (a bike, a phone): the same ask.
+export function askParentsToBuyAsset(state, assetId) {
+  const asset = state.assetsById[assetId];
+  const key = assetAskKey(assetId);
+  const asked = state.parentPayAskedThisPeriod ?? {};
+  const blocker = assetBlocker(asset, { player: state.people[state.player.id], country: state.country, currentMonthIndex: state.currentMonthIndex });
+  if (!state.requestsById?.parents_pay || blocker !== 'money' || asked[key]) {
+    return { ...state, lastAssetResult: { done: false, assetId, reason: asked[key] ? 'asked' : blocker ?? 'unavailable' } };
+  }
+  const { state: next, paid, entry } = askParentsToPayFor(state, { key, price: assetPrice(asset, state.country), item: { assetId } });
+  if (!paid) return { ...next, lastAssetResult: { done: false, assetId, parentPayEntry: entry } };
+  const bought = buyPlayerAsset(next, assetId);
+  return { ...bought, lastAssetResult: { ...bought.lastAssetResult, parentPayEntry: entry } };
+}
+
 // An activity with parentPermission (an ear piercing): a minor asks the
 // parents first; a no holds for the rest of the period. Returns the state
 // to go on with (entries added) and whether it may go on.
@@ -900,7 +935,9 @@ export function attemptPlayerActivity(state, activityId, choice = null) {
   return doPlayerActivity(permission.state, activityId, choice, permission.entries);
 }
 
-// before: diary entries that go right before the activity's (a parent's yes).
+// before: diary entries that go right before the activity's (a parent's
+// yes). Events triggered by an activity have no yearlyChance of their own:
+// ones with options become a decision, the rest apply right away.
 function doPlayerActivity(state, activityId, choice, before) {
   const activity = state.activitiesById[activityId];
   const playerId = state.player.id;
@@ -1017,12 +1054,19 @@ export function playerOccupation(state) {
   return { type: age < BABY_UNTIL_AGE ? 'baby' : 'preschool' };
 }
 
+// Short of money for an item: askParents says whether the parents can
+// still be asked this period.
 export function assetShop(state) {
+  const asked = state.parentPayAskedThisPeriod ?? {};
+  const canAsk = Boolean(state.requestsById?.parents_pay);
   return listShop(state.assetsById ?? {}, {
     player: state.people[state.player.id],
     country: state.country,
     currentMonthIndex: state.currentMonthIndex,
-  });
+  }).map((group) => ({
+    ...group,
+    items: group.items.map((item) => (item.blocker === 'money' && canAsk ? { ...item, askParents: !asked[assetAskKey(item.id)] } : item)),
+  }));
 }
 
 export function buyPlayerAsset(state, assetId) {

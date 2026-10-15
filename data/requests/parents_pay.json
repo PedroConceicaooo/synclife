@@ -54,5 +54,11 @@
       "stat": "happiness",
       "delta": -1
     }
+  ],
+  "afterYes": [
+    {
+      "event": "parents_expect_grades",
+      "chance": 0.25
+    }
   ]
 }

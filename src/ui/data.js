@@ -49,6 +49,7 @@ const MANIFEST = {
     'tanning_burn.json',
     'tattoo_regret.json',
     'surgery_complication.json',
+    'parents_expect_grades.json',
     'babysitter.json',
     'neighbor_extra_tip.json',
     'teacher_confiscates.json',

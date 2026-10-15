@@ -116,7 +116,8 @@ export function trainingEventLine(locale, entry, sex) {
 // Enrollment entries (enrollment.js); the Activities screen shows the same
 // line right after asking.
 export function enrollmentLine(state, locale, entry) {
-  const activity = locale.t(`activity.${entry.activityId}.title`);
+  // Asking the parents to pay can be for an asset too.
+  const activity = locale.t(entry.assetId ? `asset.${entry.assetId}.title` : `activity.${entry.activityId}.title`);
   switch (entry.type) {
     case 'enrolled':
       if (!entry.parentId) return locale.format('diary.enrolled.alone', { activity });
