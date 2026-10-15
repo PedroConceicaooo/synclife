@@ -5,8 +5,23 @@
 // Paths are relative to this file, so the game works in a subfolder too
 // (e.g. GitHub Pages at /synclife/).
 
-const CACHE = 'synclife-v5';
-const SHELL = ['./', 'index.html', 'src/ui/style.css', 'src/ui/app.js', 'manifest.webmanifest', 'icons/icon.svg'];
+const CACHE = 'synclife-v6';
+// Kept at install, so they work offline even if never seen online. The
+// flags too: most only show on the custom-life screen, and a browser that
+// doesn't load hidden images would otherwise have just the header's one.
+const SHELL = [
+  './',
+  'index.html',
+  'src/ui/style.css',
+  'src/ui/app.js',
+  'manifest.webmanifest',
+  'icons/icon.svg',
+  'src/ui/flags/BR.svg',
+  'src/ui/flags/GB.svg',
+  'src/ui/flags/JP.svg',
+  'src/ui/flags/RU.svg',
+  'src/ui/flags/US.svg',
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));
