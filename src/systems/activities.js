@@ -35,6 +35,11 @@ function cost(activity, country) {
   return activity.cost ? resolveAmount(activity.cost, country) : 0;
 }
 
+// What doing the activity once costs the player (0 when free).
+export function activityPrice(activity, country) {
+  return cost(activity, country);
+}
+
 // Why an activity can't be done right now, or null if it can.
 export function activityBlocker(activity, { player, country, currentMonthIndex, usesThisPeriod = 0 }) {
   if (!evaluateConditions(activity.conditions, player, { currentMonthIndex, country })) return 'conditions';

@@ -430,6 +430,8 @@ function competitionResultText(state, result, locale) {
 const TRYOUT_BLOCKERS = ['asked', 'signedUp', 'onTeam', 'otherClub', 'alreadyTried', 'age', 'noSport', 'notInSchool'];
 
 function activityResultText(state, result, locale, sexes) {
+  if (result.parentPayEntry && !result.attempted) return enrollmentLine(state, locale, result.parentPayEntry);
+  if (result.reason === 'asked' && !('enrollmentEntry' in result) && !result.tryoutEntries) return locale.t('ui.parents_pay_asked');
   if (result.tryoutEntries) return result.tryoutEntries.map((entry) => teamEntryLine(state, locale, entry)).join(' ');
   if (TRYOUT_BLOCKERS.includes(result.reason)) return locale.t(`ui.tryout_blocked.${result.reason}`);
   if (result.competitionEntries) return competitionResultText(state, result, locale);
@@ -440,12 +442,14 @@ function activityResultText(state, result, locale, sexes) {
     .map((eventId) => `event.${eventId}.text`)
     .filter((key) => locale.has(key))
     .map((key) => locale.format(key, {}, sexes));
+  // When the parents paid for it, that comes first.
+  const paidBy = result.parentPayEntry ? [enrollmentLine(state, locale, result.parentPayEntry)] : [];
   if (result.training) {
     const events = result.trainingEvents.map((entry) => trainingEventLine(locale, entry, state.player.sex));
-    return [trainingLine(locale, result.activityId, result.training), ...events, ...eventTexts].join(' ');
+    return [...paidBy, trainingLine(locale, result.activityId, result.training), ...events, ...eventTexts].join(' ');
   }
   const outcome = result.succeeded === false ? 'failed' : 'done';
-  return [locale.format(`activity.${result.activityId}.${outcome}`, {}, sexes, lastLineSeed(state, 'activity')), ...eventTexts].join(' ');
+  return [...paidBy, locale.format(`activity.${result.activityId}.${outcome}`, {}, sexes, lastLineSeed(state, 'activity')), ...eventTexts].join(' ');
 }
 
 // Skills (training.js): level and skill bar, sessions left in the period
@@ -516,7 +520,7 @@ function enrollmentButtons({ id, enrollment, competition, teamSport }, state, lo
   return submenu;
 }
 
-function activityRow(item, state, locale, { onDoActivity, onEnroll, onLeave, onCompete, onOpenClubs }) {
+function activityRow(item, state, locale, { onDoActivity, onEnroll, onLeave, onCompete, onOpenClubs, onAskParentsToPay }) {
   const { id, blocker } = item;
   const nodes = [];
   const button = el('button', { className: 'row activity' });
@@ -535,6 +539,16 @@ function activityRow(item, state, locale, { onDoActivity, onEnroll, onLeave, onC
   button.addEventListener('click', () => onDoActivity(id));
   nodes.push(button);
   if (item.enrollment) nodes.push(enrollmentButtons(item, state, locale, { onEnroll, onLeave, onCompete, onOpenClubs }));
+  // Short of money: ask the parents to pay (once per period).
+  if (item.askParents !== undefined) {
+    const submenu = el('div', { className: 'submenu' });
+    const ask = el('button', { text: locale.t('ui.ask_parents_pay') });
+    ask.type = 'button';
+    ask.disabled = !item.askParents || state.pendingDecisions.length > 0;
+    ask.addEventListener('click', () => onAskParentsToPay(id));
+    submenu.appendChild(ask);
+    nodes.push(submenu);
+  }
   return nodes;
 }
 
@@ -615,7 +629,7 @@ function renderClubTryouts(dom, state, locale, activityId, { onCloseClubs, onSig
 }
 
 export function renderActivities(dom, state, locale, callbacksAndView) {
-  const { onDoActivity, onEnroll, onLeave, onCompete, onToggleGroup, onOpenClubs, openGroup = null, openClubs = null } = callbacksAndView;
+  const { onDoActivity, onEnroll, onLeave, onCompete, onToggleGroup, onOpenClubs, onAskParentsToPay, openGroup = null, openClubs = null } = callbacksAndView;
   if (openClubs) {
     renderClubTryouts(dom, state, locale, openClubs, callbacksAndView);
     return;
@@ -623,7 +637,7 @@ export function renderActivities(dom, state, locale, callbacksAndView) {
   dom.activitiesBack.hidden = true;
   dom.activitiesTitle.textContent = locale.t('ui.activities_title');
   dom.activitiesResult.textContent = state.lastActivityResult ? activityResultText(state, state.lastActivityResult, locale, sexesOf(state)) : '';
-  const callbacks = { onDoActivity, onEnroll, onLeave, onCompete, onOpenClubs };
+  const callbacks = { onDoActivity, onEnroll, onLeave, onCompete, onOpenClubs, onAskParentsToPay };
 
   clearChildren(dom.activitiesList);
   for (const group of availableActivities(state)) {

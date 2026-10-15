@@ -9,6 +9,7 @@ import { indexInteractions } from '../systems/interactions.js';
 import { indexActivities } from '../systems/activities.js';
 import { indexAssets } from '../systems/assets.js';
 import { indexClubs, indexLeagues } from '../systems/clubs.js';
+import { indexRequests } from '../systems/requests.js';
 import { FALLBACK_LANGUAGE } from '../i18n/locale.js';
 
 const MANIFEST = {
@@ -152,6 +153,7 @@ const MANIFEST = {
     'tap_dance.json',
     'wing_chun.json',
   ],
+  requests: ['parents_pay.json'],
   // Written by scripts/generate-clubs.js, with the pro leagues.
   clubs: [
     'BR.json',
@@ -217,7 +219,7 @@ async function fetchAll(dir, files) {
 }
 
 export async function loadGameData() {
-  const [countries, events, interactions, activities, assets, clubs, leagues] = await Promise.all([
+  const [countries, events, interactions, activities, assets, clubs, leagues, requests] = await Promise.all([
     fetchAll('countries', MANIFEST.countries),
     fetchAll('events', MANIFEST.events),
     fetchAll('interactions', MANIFEST.interactions),
@@ -225,6 +227,7 @@ export async function loadGameData() {
     fetchAll('assets', MANIFEST.assets),
     fetchAll('clubs', MANIFEST.clubs),
     fetchAll('leagues', MANIFEST.leagues),
+    fetchAll('requests', MANIFEST.requests),
   ]);
 
   const countriesWithNames = await Promise.all(
@@ -241,6 +244,7 @@ export async function loadGameData() {
     assetsById: indexAssets(assets),
     clubsById: indexClubs(clubs),
     leaguesById: indexLeagues(leagues),
+    requestsById: indexRequests(requests),
   };
 }
 

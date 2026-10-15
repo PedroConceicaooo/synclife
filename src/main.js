@@ -7,6 +7,7 @@ import { loadInteractions } from './systems/interactionsLoader.js';
 import { loadActivities } from './systems/activitiesLoader.js';
 import { loadAssets } from './systems/assetsLoader.js';
 import { loadClubs, loadLeagues } from './systems/clubsLoader.js';
+import { loadRequests } from './systems/requestsLoader.js';
 import { createGameState, advanceStep, resolveDecision, continueAdvance, canContinueAdvance, isAdult } from './systems/game.js';
 import { lifeSummary } from './systems/lifeEnd.js';
 
@@ -17,6 +18,7 @@ const ACTIVITIES_DIR = fileURLToPath(new URL('../data/activities/', import.meta.
 const ASSETS_DIR = fileURLToPath(new URL('../data/assets/', import.meta.url));
 const CLUBS_DIR = fileURLToPath(new URL('../data/clubs/', import.meta.url));
 const LEAGUES_DIR = fileURLToPath(new URL('../data/leagues/', import.meta.url));
+const REQUESTS_DIR = fileURLToPath(new URL('../data/requests/', import.meta.url));
 
 function readSeedFromArgs() {
   const arg = process.argv.find((a) => a.startsWith('--seed='));
@@ -81,6 +83,7 @@ function main() {
     assetsById: loadAssets(ASSETS_DIR),
     clubsById: loadClubs(CLUBS_DIR),
     leaguesById: loadLeagues(LEAGUES_DIR),
+    requestsById: loadRequests(REQUESTS_DIR),
   });
 
   console.log(`Born: ${formatPerson(state.player)} sex=${state.player.sex} country=${state.country.id}`);

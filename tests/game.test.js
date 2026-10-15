@@ -8,6 +8,7 @@ import { loadEvents } from '../src/systems/eventsLoader.js';
 import { loadCountries } from '../src/engine/countriesLoader.js';
 import { loadInteractions } from '../src/systems/interactionsLoader.js';
 import { loadActivities } from '../src/systems/activitiesLoader.js';
+import { loadRequests } from '../src/systems/requestsLoader.js';
 import {
   createGameState,
   advanceStep,
@@ -17,6 +18,7 @@ import {
   enrollPlayer,
   leavePlayerEnrollment,
   competePlayer,
+  askParentsToPayActivity,
   availableActivities,
   availableInteractions,
   closePeople,
@@ -489,4 +491,25 @@ test('competePlayer: once per activity and period, logged in the diary, free aga
 
   const advanced = advanceStep(competed, 6);
   assert.equal(availableActivities(advanced)[0].activities[0].competition.blocker, null);
+});
+
+test('askParentsToPayActivity: short of money, the parents pay and the activity happens, once per period', () => {
+  const requestsById = loadRequests(fileURLToPath(new URL('../data/requests/', import.meta.url)));
+  let state = createGameState({ ...baseArgs(5), eventsById: {}, requestsById, activitiesById: { amusement_park: ACTIVITIES_BY_ID.amusement_park } });
+  const playerId = state.player.id;
+  state = { ...state, currentMonthIndex: state.player.birth + 10 * 12, people: { ...state.people, [playerId]: { ...state.people[playerId], money: 0 } } };
+  assert.equal(availableActivities(state)[0].activities[0].askParents, true);
+
+  const paid = askParentsToPayActivity({ ...state, rng: { ...state.rng, chance: () => true } }, 'amusement_park');
+  const types = paid.history.at(-1).entries.map((e) => e.type);
+  assert.equal(types.indexOf('activity'), types.indexOf('parentsPaid') + 1);
+  assert.equal(paid.people[playerId].money, 0, 'the money came and went to the ticket');
+
+  const refused = askParentsToPayActivity({ ...state, rng: { ...state.rng, chance: () => false } }, 'amusement_park');
+  assert.equal(refused.history.at(-1).entries.at(-1).type, 'parentsDidNotPay');
+  assert.equal(askParentsToPayActivity(refused, 'amusement_park').lastActivityResult.reason, 'asked');
+  assert.equal(availableActivities(refused)[0].activities[0].askParents, false);
+
+  const rich = { ...state, people: { ...state.people, [playerId]: { ...state.people[playerId], money: 1e6 } } };
+  assert.equal(askParentsToPayActivity(rich, 'amusement_park').lastActivityResult.reason, 'unavailable');
 });

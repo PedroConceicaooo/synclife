@@ -10,6 +10,7 @@ import {
   leavePlayerEnrollment,
   competePlayer,
   signUpPlayerForTryout,
+  askParentsToPayActivity,
   continueAdvance,
   playableCountries,
   buyPlayerAsset,
@@ -259,6 +260,7 @@ async function main() {
         },
         onCloseClubs: () => update({ ...state, lastActivityResult: null }, { ...view, clubsFor: null }),
         onSignUp: (activityId, clubId) => update(signUpPlayerForTryout(state, activityId, clubId)),
+        onAskParentsToPay: (activityId) => update(askParentsToPayActivity(state, activityId)),
         openClubs: view.clubsFor ?? null,
       });
     } else {

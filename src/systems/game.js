@@ -24,7 +24,7 @@ import { startClass, promoteFriendships } from './schoolmates.js';
 import { schoolStageAt, schoolEntryMonth } from './school.js';
 import { expireEmotions, relaxStress, activeEmotion } from './personality.js';
 import { attemptInteraction, listAvailableInteractions } from './interactions.js';
-import { attemptActivity, listActivities } from './activities.js';
+import { attemptActivity, listActivities, activityBlocker, activityPrice } from './activities.js';
 import { buyAsset, sellAsset, listShop, applyAssetUpkeep } from './assets.js';
 import { isAllowanceAge, payAllowance, transferMoney } from './money.js';
 import { growStats } from './growth.js';
@@ -36,6 +36,7 @@ import { rollScoutInvites } from './scout.js';
 import { payAllowances } from './athleteAllowance.js';
 import { playGames, mergeSeasonEntries } from './games.js';
 import { playClubSeasons } from './clubSeasons.js';
+import { askParentsToPay } from './parentPayment.js';
 
 const START_YEAR = 2000;
 export const ADULT_AGE = 18;
@@ -53,6 +54,7 @@ export function createGameState({
   assetsById = {},
   clubsById = {},
   leaguesById = {},
+  requestsById = {},
   choices,
 }) {
   const rng = createRng(seed);
@@ -89,11 +91,13 @@ export function createGameState({
     assetsById,
     clubsById,
     leaguesById,
+    requestsById,
     pendingDecisions: [],
     firedEvents: [],
     activityUsesThisPeriod: {},
     enrollmentAskedThisPeriod: {},
     tryoutAskedThisPeriod: {},
+    parentPayAskedThisPeriod: {},
     competedThisPeriod: {},
     clubSeasons: {},
     remainingMonths: 0,
@@ -425,6 +429,7 @@ export function advanceStep(state, requestedMonths) {
     activityUsesThisPeriod: {},
     enrollmentAskedThisPeriod: {},
     tryoutAskedThisPeriod: {},
+    parentPayAskedThisPeriod: {},
     competedThisPeriod: {},
     lastActivityResult: null,
     firedEvents: [
@@ -607,7 +612,13 @@ export function availableActivities(state) {
     competedById: state.competedThisPeriod ?? {},
   }).map((group) => ({
     ...group,
-    activities: group.activities.map((a) => (a.enrollment && asked[a.id] ? { ...a, enrollment: { ...a.enrollment, askedThisPeriod: true } } : a)),
+    activities: group.activities.map((a) => {
+      const withEnrollment = a.enrollment && asked[a.id] ? { ...a, enrollment: { ...a.enrollment, askedThisPeriod: true } } : a;
+      // Short of money: the parents can be asked to pay, once per period.
+      return a.blocker === 'money' && state.requestsById?.parents_pay
+        ? { ...withEnrollment, askParents: !state.parentPayAskedThisPeriod?.[a.id] }
+        : withEnrollment;
+    }),
   }));
 }
 
@@ -772,6 +783,47 @@ function trainingEntries(activityId, training) {
   if (training.stripe) entries.push({ type: 'stripe', activityId, stripe: training.stripe, levelId: training.currentLevelId });
   if (training.injuredMonths) entries.push({ type: 'injury', activityId, months: training.injuredMonths });
   return entries;
+}
+
+// The player can't afford an activity (a service, a session): ask the
+// parents to pay it, once per activity and period. A yes hands over the
+// money and the activity happens right away.
+export function askParentsToPayActivity(state, activityId) {
+  const activity = state.activitiesById[activityId];
+  const request = state.requestsById?.parents_pay;
+  const playerId = state.player.id;
+  const asked = state.parentPayAskedThisPeriod ?? {};
+  const blocker = activityBlocker(activity, {
+    player: state.people[playerId],
+    country: state.country,
+    currentMonthIndex: state.currentMonthIndex,
+    usesThisPeriod: state.activityUsesThisPeriod?.[activityId] ?? 0,
+  });
+  if (!request || blocker !== 'money' || asked[activityId]) {
+    return { ...state, lastActivityResult: { attempted: false, activityId, reason: asked[activityId] ? 'asked' : blocker ?? 'unavailable' } };
+  }
+
+  const answer = askParentsToPay(request, {
+    playerId,
+    price: activityPrice(activity, state.country),
+    peopleById: state.people,
+    relationshipsById: state.relationships,
+    country: state.country,
+    currentMonthIndex: state.currentMonthIndex,
+    rng: state.rng,
+  });
+  const entry = { type: answer.paid ? 'parentsPaid' : 'parentsDidNotPay', activityId, parentId: answer.parentId, ...(answer.paid ? {} : { reason: answer.reason }) };
+  const next = {
+    ...state,
+    people: answer.peopleById,
+    relationships: answer.relationshipsById,
+    parentPayAskedThisPeriod: { ...asked, [activityId]: true },
+    history: appendToCurrentBlock(state.history, [entry]),
+    lastActivityResult: { attempted: false, activityId, parentPayEntry: entry },
+  };
+  if (!answer.paid) return next;
+  const done = attemptPlayerActivity(next, activityId);
+  return { ...done, lastActivityResult: { ...done.lastActivityResult, parentPayEntry: entry } };
 }
 
 // Events triggered by an activity have no yearlyChance of their own: ones

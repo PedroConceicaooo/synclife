@@ -1,0 +1,58 @@
+{
+  "id": "parents_pay",
+  "conditions": {
+    "minAge": 3
+  },
+  "chance": {
+    "base": 0.65,
+    "modifiers": [
+      {
+        "factor": "affinity",
+        "weight": 0.6
+      },
+      {
+        "factor": "targetTrait",
+        "value": "generous",
+        "adjust": 0.15
+      },
+      {
+        "factor": "targetTrait",
+        "value": "rigid",
+        "adjust": -0.15
+      },
+      {
+        "factor": "targetStress",
+        "weight": -0.3
+      },
+      {
+        "factor": "priceVsWealth",
+        "weight": 0.4
+      },
+      {
+        "factor": "recentRequests",
+        "adjust": -0.1
+      }
+    ]
+  },
+  "success": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 1
+    }
+  ],
+  "failure": [
+    {
+      "op": "affinity",
+      "side": "player",
+      "delta": -1
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -1
+    }
+  ]
+}

@@ -5,6 +5,9 @@ import { evaluateConditions } from '../engine/conditions.js';
 import { applyEffects } from '../engine/effects.js';
 import { resolveAmount, WEALTH_REFERENCE_IN_LARGE } from './money.js';
 
+// A price this share of someone's money counts as a big ask (priceVsWealth).
+export const PRICE_SHARE_REFERENCE = 0.02;
+
 export function indexInteractions(interactions) {
   return Object.fromEntries(interactions.map((interaction) => [interaction.id, interaction]));
 }
@@ -32,7 +35,7 @@ function parentsOf(playerId, relationshipsById, peopleById) {
 
 export function resolveChance(
   chance,
-  { relationship, targetPersonId, target, player, relationshipsById, peopleById, playerId, country, parentPays = false },
+  { relationship, targetPersonId, target, player, relationshipsById, peopleById, playerId, country, parentPays = false, price = 0, recentRequests = 0 },
 ) {
   let p = chance.base;
 
@@ -87,6 +90,17 @@ export function resolveChance(
       // Requests where the parents would pay (enrollment.js).
       case 'parentPays':
         if (parentPays) p += modifier.adjust;
+        break;
+      // The price against the target's money: something costing
+      // PRICE_SHARE_REFERENCE of it takes a whole weight off, at most 1.5.
+      case 'priceVsWealth': {
+        const share = price / Math.max(1, target.money * PRICE_SHARE_REFERENCE);
+        p -= Math.min(1.5, share) * modifier.weight;
+        break;
+      }
+      // Asking again and again annoys (parentPayment.js): adjust per ask lately.
+      case 'recentRequests':
+        p += recentRequests * modifier.adjust;
         break;
       default:
         throw new Error(`Unknown chance factor: ${modifier.factor}`);

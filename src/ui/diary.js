@@ -125,6 +125,14 @@ export function enrollmentLine(state, locale, entry) {
       return locale.format('diary.enrollment_refused', { activity, parent: who(state, locale, entry.parentId) });
     case 'enrollmentLeft':
       return locale.format('diary.enrollment_left', { activity });
+    // Asking the parents to pay (parentPayment.js).
+    case 'parentsPaid':
+      return locale.format('diary.parents_paid', { activity, parent: who(state, locale, entry.parentId) });
+    case 'parentsDidNotPay': {
+      if (!entry.parentId) return null;
+      const key = entry.reason === 'parentNoMoney' ? 'diary.parents_no_money' : 'diary.parents_refused';
+      return locale.format(key, { activity, parent: who(state, locale, entry.parentId) });
+    }
     case 'enrollmentLate':
       return locale.format('diary.enrollment_late', { activity, months: locale.plural('age.months', entry.owedMonths) });
     case 'enrollmentEnded':
@@ -294,6 +302,8 @@ function entryLine(entry, state, locale, block, index) {
     case 'enrollmentLeft':
     case 'enrollmentLate':
     case 'enrollmentEnded':
+    case 'parentsPaid':
+    case 'parentsDidNotPay':
       return enrollmentLine(state, locale, entry);
     case 'levelUp':
     case 'examFailed':

@@ -26,6 +26,7 @@ export function toSave(state) {
     activityUsesThisPeriod: state.activityUsesThisPeriod,
     enrollmentAskedThisPeriod: state.enrollmentAskedThisPeriod,
     tryoutAskedThisPeriod: state.tryoutAskedThisPeriod,
+    parentPayAskedThisPeriod: state.parentPayAskedThisPeriod,
     competedThisPeriod: state.competedThisPeriod,
     clubSeasons: state.clubSeasons,
     remainingMonths: state.remainingMonths,
@@ -54,7 +55,10 @@ export function migrate(save) {
   return current;
 }
 
-export function fromSave(rawSave, { countriesById, eventsById, interactionsById, activitiesById, assetsById = {}, clubsById = {}, leaguesById = {} }) {
+export function fromSave(
+  rawSave,
+  { countriesById, eventsById, interactionsById, activitiesById, assetsById = {}, clubsById = {}, leaguesById = {}, requestsById = {} },
+) {
   const save = migrate(rawSave);
   const base = {
     seed: save.seed,
@@ -69,11 +73,13 @@ export function fromSave(rawSave, { countriesById, eventsById, interactionsById,
     assetsById,
     clubsById,
     leaguesById,
+    requestsById,
     pendingDecisions: save.pendingDecisions,
     firedEvents: save.firedEvents,
     activityUsesThisPeriod: save.activityUsesThisPeriod,
     enrollmentAskedThisPeriod: save.enrollmentAskedThisPeriod ?? {},
     tryoutAskedThisPeriod: save.tryoutAskedThisPeriod ?? {},
+    parentPayAskedThisPeriod: save.parentPayAskedThisPeriod ?? {},
     competedThisPeriod: save.competedThisPeriod ?? {},
     clubSeasons: save.clubSeasons ?? {},
     remainingMonths: save.remainingMonths ?? 0,
