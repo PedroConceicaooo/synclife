@@ -311,6 +311,9 @@ function entryLine(entry, state, locale, block, index) {
       return text(`activity.${entry.activityId}.${entry.succeeded === false ? 'failed' : 'done'}`);
     case 'training':
       return trainingLine(locale, entry.activityId, entry);
+    // Braces taken off (braces.js).
+    case 'bracesOff':
+      return text(`activity.${entry.activityId}.finished`);
     case 'enrolled':
     case 'enrollmentRefused':
     case 'enrollmentLeft':

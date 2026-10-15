@@ -134,6 +134,12 @@ export function renderAvatar(appearance, sex, phase, opts = {}) {
     : `<path d="M52,${my} Q60,${my + 9} 68,${my} Z" fill="#7E2633" stroke="#5A1A24" stroke-width="1.2" stroke-linejoin="round"/>
        <path d="M53.5,${my + 0.3} L66.5,${my + 0.3} Q60,${my + 3} 53.5,${my + 0.3}Z" fill="#fff"/>
        ${lip ? `<path d="M52,${my} Q60,${my + 9} 68,${my}" fill="none" stroke="#C04A63" stroke-width="1.8"/>` : ''}`;
+  // Braces: a wire with brackets over the teeth.
+  const bracesSvg =
+    !baby && appearance.braces
+      ? `<path d="M54,${my + 1.3} L66,${my + 1.3}" stroke="#8C96A0" stroke-width="1"/>` +
+        [55.5, 58.5, 61.5, 64.5].map((x) => `<rect x="${x - 0.9}" y="${my + 0.5}" width="1.8" height="1.6" fill="#B8C2CC" stroke="#6E7882" stroke-width=".4"/>`).join('')
+      : '';
   const cheekOp = lip ? 0.22 : 0.45;
   const cheeks = (p.cheeks || lip) ? `<ellipse cx="45" cy="${p.eyeY + 9}" rx="4.6" ry="3" fill="#F07C7C" opacity="${cheekOp}"/><ellipse cx="75" cy="${p.eyeY + 9}" rx="4.6" ry="3" fill="#F07C7C" opacity="${cheekOp}"/>` : '';
   const beardSvg = beard ? paintHair(`<path d="M35,56 C36,79 46,91 60,91 C74,91 84,79 85,56 C82,68 74,75 60,75 C46,75 38,68 35,56Z" fill="H"/><path d="M49,${my - 3} Q60,${my - 8} 71,${my - 3} Q60,${my} 49,${my - 3}Z" fill="H"/>`) : '';
@@ -148,7 +154,7 @@ export function renderAvatar(appearance, sex, phase, opts = {}) {
 <radialGradient id="g${id}" cx="50%" cy="35%" r="70%"><stop offset="0" stop-color="${bg1}"/><stop offset="1" stop-color="${bg2}"/></radialGradient>
 </defs>
 <circle cx="60" cy="60" r="58" fill="url(#g${id})"/>
-<g clip-path="url(#c${id})">${back}${body}${neck}${head}${cheeks}${eyes}${brows}${glassesSvg}${nose}${beardSvg}${mouth}${front}${shine}</g>
+<g clip-path="url(#c${id})">${back}${body}${neck}${head}${cheeks}${eyes}${brows}${glassesSvg}${nose}${beardSvg}${mouth}${bracesSvg}${front}${shine}</g>
 </svg>`;
 }
 

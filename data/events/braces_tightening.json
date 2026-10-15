@@ -1,0 +1,18 @@
+{
+  "id": "braces_tightening",
+  "subject": "player",
+  "conditions": {
+    "minAge": 10,
+    "hasBraces": true
+  },
+  "yearlyChance": 0.6,
+  "cooldownMonths": 6,
+  "effects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": -2
+    }
+  ]
+}

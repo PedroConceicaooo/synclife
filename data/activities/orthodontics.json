@@ -1,0 +1,37 @@
+{
+  "id": "orthodontics",
+  "category": "body_care",
+  "conditions": {
+    "minAge": 10,
+    "maxAge": 17,
+    "hasBraces": false
+  },
+  "cost": "large",
+  "effects": [
+    {
+      "op": "braces",
+      "months": 24,
+      "activity": "orthodontics"
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": -1
+    }
+  ],
+  "finishEffects": [
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "looks",
+      "delta": 5
+    },
+    {
+      "op": "stat",
+      "target": "player",
+      "stat": "happiness",
+      "delta": 3
+    }
+  ]
+}

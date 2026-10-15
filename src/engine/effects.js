@@ -5,6 +5,7 @@ import { resolveAmount, transferMoney, addMoney } from '../systems/money.js';
 import { addChild } from '../systems/birth.js';
 import { adoptPet } from '../systems/pets.js';
 import { setEmotion, addTendency } from '../systems/personality.js';
+import { normalizeAppearance } from '../systems/appearanceCompat.js';
 
 // targetRole (a role or a list of roles) names the role a person holds in
 // THEIR OWN relationship with the player (e.g. "mother"), not a role within
@@ -221,6 +222,14 @@ function applyEffect(effect, context) {
       return applyTendencyEffect(effect, context);
     case 'stress':
       return applyStressEffect(effect, context);
+    // Braces on for some months (braces.js takes them off): { months,
+    // activity } — the activity whose finishEffects apply at the end.
+    case 'braces':
+      return updatePerson(context, context.playerId, (person) => ({
+        ...person,
+        braces: { until: context.currentMonthIndex + effect.months, activityId: effect.activity },
+        appearance: { ...normalizeAppearance(person), braces: true },
+      }));
     // Better training for a while (a nutritionist's plan): training.js
     // multiplies the gain by factor until the month it ends.
     case 'trainingBoost':

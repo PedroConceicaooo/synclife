@@ -37,6 +37,7 @@ import { payAllowances } from './athleteAllowance.js';
 import { playGames, mergeSeasonEntries } from './games.js';
 import { playClubSeasons } from './clubSeasons.js';
 import { askParentsToPay } from './parentPayment.js';
+import { takeOffBraces } from './braces.js';
 
 const START_YEAR = 2000;
 export const ADULT_AGE = 18;
@@ -339,6 +340,17 @@ export function advanceStep(state, requestedMonths) {
   const season = teamSeasonMonths(state, people[playerId], calendar.seasonUntil, nextMonthIndex);
   people = { ...people, [playerId]: season.person };
   entries.push(...season.entries);
+
+  // Braces whose time is up come off.
+  const braces = takeOffBraces(people, playerId, nextMonthIndex, {
+    activitiesById: state.activitiesById,
+    relationshipsById: relationships,
+    country: state.country,
+    rng: state.rng,
+  });
+  people = braces.peopleById;
+  relationships = braces.relationshipsById;
+  entries.push(...braces.entries);
 
   // The pro leagues' seasons; the diary tells those of the player's clubs.
   const clubSeasons = playClubSeasons(state.clubSeasons ?? {}, {

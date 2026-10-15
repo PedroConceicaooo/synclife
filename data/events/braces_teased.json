@@ -1,0 +1,61 @@
+{
+  "id": "braces_teased",
+  "subject": "player",
+  "conditions": {
+    "minAge": 10,
+    "hasBraces": true,
+    "inSchool": true
+  },
+  "yearlyChance": 0.35,
+  "cooldownMonths": 12,
+  "options": [
+    {
+      "id": "ignore",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": -1
+        },
+        {
+          "op": "tendency",
+          "trait": "patient",
+          "delta": 1
+        }
+      ]
+    },
+    {
+      "id": "laugh_along",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": 1
+        },
+        {
+          "op": "tendency",
+          "trait": "sociable",
+          "delta": 1
+        }
+      ]
+    },
+    {
+      "id": "get_mad",
+      "effects": [
+        {
+          "op": "stat",
+          "target": "player",
+          "stat": "happiness",
+          "delta": -2
+        },
+        {
+          "op": "tendency",
+          "trait": "explosive",
+          "delta": 1
+        }
+      ]
+    }
+  ]
+}

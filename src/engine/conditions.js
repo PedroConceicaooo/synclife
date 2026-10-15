@@ -24,6 +24,9 @@ function evaluateCondition(key, expected, target, context) {
       return Math.min(...Object.values(target.affinity)) <= expected;
     case 'minAge':
       return ageAt(target.birth, context.currentMonthIndex) >= expected;
+    // Wearing braces now (braces.js) — true or false.
+    case 'hasBraces':
+      return Boolean(target.braces) === expected;
     // "M" or "F": services for one sex (the barber, the hairdresser).
     case 'sex':
       return target.sex === expected;
